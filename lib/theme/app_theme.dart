@@ -140,6 +140,7 @@ final class AppTheme {
         contentPadding: AppSpacing.input,
         hintStyle: TextStyle(color: colors.mute),
         labelStyle: TextStyle(color: colors.charcoal),
+        errorStyle: TextStyle(color: colors.accentRed),
         border: inputBorder,
         enabledBorder: inputBorder,
         focusedBorder: OutlineInputBorder(
@@ -149,6 +150,10 @@ final class AppTheme {
         errorBorder: OutlineInputBorder(
           borderRadius: AppRadius.input,
           borderSide: BorderSide(color: colors.accentRed),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: AppRadius.input,
+          borderSide: BorderSide(color: colors.accentRed, width: 1.2),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
