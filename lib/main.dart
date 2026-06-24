@@ -12,11 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Me Mobile',
+      title: 'ME Digital',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.light,
-      home: const MyHomePage(title: 'Me Mobile'),
+      home: const MyHomePage(title: 'ME Digital'),
     );
   }
 }
