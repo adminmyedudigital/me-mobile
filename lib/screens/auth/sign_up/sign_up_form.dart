@@ -59,7 +59,7 @@ class _SignUpFormState extends State<SignUpForm> {
       return;
     }
 
-    Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
   }
 
   @override

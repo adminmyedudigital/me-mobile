@@ -36,7 +36,7 @@ class _SignInFormState extends State<SignInForm> {
       return;
     }
 
-    Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard);
+    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
   }
 
   @override

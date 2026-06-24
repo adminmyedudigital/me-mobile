@@ -6,13 +6,13 @@ final class AppRoutes {
 
   static const String signIn = '/signin';
   static const String signUp = '/signup';
-  static const String dashboard = '/dashboard';
+  static const String home = '/home';
 
   static Map<String, WidgetBuilder> get routes {
     return {
       signIn: (_) => const SignInScreen(),
       signUp: (_) => const SignUpScreen(),
-      dashboard: (_) => const DashboardScreen(),
+      home: (_) => const HomeScreen(),
     };
   }
 }
