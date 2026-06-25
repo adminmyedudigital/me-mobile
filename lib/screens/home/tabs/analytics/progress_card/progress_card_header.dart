@@ -1,0 +1,55 @@
+import 'package:flutter/material.dart';
+import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_dots.dart';
+import 'package:me_mobile/theme/theme.dart';
+
+class ProgressCardHeader extends StatelessWidget {
+  const ProgressCardHeader({
+    super.key,
+    required this.title,
+    required this.currentTitle,
+    required this.slideCount,
+    required this.currentSlide,
+  });
+
+  final String title;
+  final String currentTitle;
+  final int slideCount;
+  final int currentSlide;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(Icons.insights, color: context.colors.accentGreen, size: 22),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: context.textTheme.titleLarge?.copyWith(
+                  color: context.colors.accentGreen,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                currentTitle,
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: context.colors.ink,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        ProgressDots(
+          count: slideCount,
+          currentIndex: currentSlide,
+          color: context.colors.accentGreen,
+        ),
+      ],
+    );
+  }
+}

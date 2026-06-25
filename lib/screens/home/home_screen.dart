@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:me_mobile/screens/home/tabs/analytics/analytics_tab.dart';
 import 'package:me_mobile/screens/screens.dart';
 import 'package:me_mobile/routes/app_routes.dart';
 
@@ -26,10 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ExamTab(),
     ),
     HomeNavigationDestination(
-      title: 'Chart',
+      title: 'Analytics',
       icon: Icons.insert_chart_outlined,
       activeIcon: Icons.insert_chart,
-      child: ChartTab(),
+      child: AnalyticsTab(),
     ),
     HomeNavigationDestination(
       title: 'Settings',
