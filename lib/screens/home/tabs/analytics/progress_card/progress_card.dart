@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_card_header.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_chart.dart';
+import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_metric.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/progress_card/study_progress_summary.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/progress_card/Progress_metric.dart';
 import 'package:me_mobile/theme/theme.dart';
 
 class ProgressCard extends StatefulWidget {
