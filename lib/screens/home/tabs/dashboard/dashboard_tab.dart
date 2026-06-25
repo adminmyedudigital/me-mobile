@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
-// import 'package:me_mobile/screens/home/tabs/dashboard/progress_card/progress_card.dart';
+import 'package:me_mobile/enums/enums.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_navigation/date_navigation_container.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_navigation/date_navigation_icon_button.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_actions/date_action_button.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_actions/date_action_container.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/planner_surface_container.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/view_switcher/view_switcher_button.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/view_switcher/view_switcher_container.dart';
 import 'package:me_mobile/theme/theme.dart';
+
+part 'calendar/calendar_models.dart';
+part 'calendar/calendar_detail_dialog.dart';
+part 'calendar/calendar_views.dart';
+part 'calendar/event_pill.dart';
+part 'calendar/planner_surface.dart';
 
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
@@ -10,339 +23,185 @@ class DashboardTab extends StatefulWidget {
 }
 
 class _DashboardTabState extends State<DashboardTab> {
-  static const _quizOptions = [
-    'By factoring, completing square, or formula',
-    'Only by multiplying the coefficients',
-    'Only by adding both roots first',
+  late DateTime _today;
+  late DateTime _selectedDate;
+  CalendarView _calendarView = CalendarView.day;
+
+  static const _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
-  static const _correctAnswerIndex = 0;
 
-  bool _targetCompleted = false;
-  bool _notesReviewed = false;
-  int? _selectedAnswerIndex;
+  static const _weekdayNames = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
+  ];
 
-  double get _topicProgress {
-    final quizScore = _selectedAnswerIndex == null
-        ? 0.0
-        : _selectedAnswerIndex == _correctAnswerIndex
-        ? 0.40
-        : 0.12;
-
-    return ((_targetCompleted ? 0.35 : 0.0) +
-            (_notesReviewed ? 0.25 : 0.0) +
-            quizScore)
-        .clamp(0.0, 1.0);
-  }
-
-  int get _topicProgressPercent => (_topicProgress * 100).round();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xs,
-        AppSpacing.xs,
-        AppSpacing.xs,
-        AppSpacing.band,
-      ),
-      children: [
-        // const ProgressCard(),
-        const SizedBox(height: AppSpacing.lg),
-        _TodayTargetCard(
-          targetCompleted: _targetCompleted,
-          notesReviewed: _notesReviewed,
-          selectedAnswerIndex: _selectedAnswerIndex,
-          topicProgressPercent: _topicProgressPercent,
-          onTargetChanged: (value) {
-            setState(() => _targetCompleted = value ?? false);
-          },
-          onNotesChanged: (value) {
-            setState(() => _notesReviewed = value ?? false);
-          },
-          onAnswerSelected: (index) {
-            setState(() => _selectedAnswerIndex = index);
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _TodayTargetCard extends StatelessWidget {
-  const _TodayTargetCard({
-    required this.targetCompleted,
-    required this.notesReviewed,
-    required this.selectedAnswerIndex,
-    required this.topicProgressPercent,
-    required this.onTargetChanged,
-    required this.onNotesChanged,
-    required this.onAnswerSelected,
-  });
-
-  final bool targetCompleted;
-  final bool notesReviewed;
-  final int? selectedAnswerIndex;
-  final int topicProgressPercent;
-  final ValueChanged<bool?> onTargetChanged;
-  final ValueChanged<bool?> onNotesChanged;
-  final ValueChanged<int> onAnswerSelected;
+  static final _events = [
+    _CalendarEvent(
+      title: 'Mathematics practice',
+      date: DateTime(2026, 6, 25),
+      startHour: 9,
+      durationHours: 1.5,
+      colorKind: _EventColor.green,
+    ),
+    _CalendarEvent(
+      title: 'Science revision',
+      date: DateTime(2026, 6, 25),
+      startHour: 13,
+      durationHours: 1,
+      colorKind: _EventColor.blue,
+    ),
+    _CalendarEvent(
+      title: 'Mock exam',
+      date: DateTime(2026, 6, 27),
+      startHour: 10,
+      durationHours: 2,
+      colorKind: _EventColor.orange,
+    ),
+    _CalendarEvent(
+      title: 'Notes review',
+      date: DateTime(2026, 6, 30),
+      startHour: 16,
+      durationHours: 1,
+      colorKind: _EventColor.red,
+    ),
+  ];
 
   @override
-  Widget build(BuildContext context) {
-    final answered = selectedAnswerIndex != null;
-    final correct =
-        selectedAnswerIndex == _DashboardTabState._correctAnswerIndex;
+  void initState() {
+    super.initState();
+    _today = _dateOnly(DateTime.now());
+    _selectedDate = _today;
+  }
 
-    return _DashboardPanel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.today, color: context.colors.accentOrange),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  'Today study target',
-                  style: context.textTheme.titleLarge,
-                ),
-              ),
-              Text(
-                '$topicProgressPercent%',
-                style: context.textTheme.headlineSmall?.copyWith(
-                  color: context.colors.accentGreen,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          _TargetInfoRow(
-            icon: Icons.menu_book_outlined,
-            label: 'Subject',
-            value: 'Mathematics',
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _TargetInfoRow(
-            icon: Icons.lightbulb_outline,
-            label: 'Topic',
-            value: 'Quadratic equations',
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          _StudyChecklistTile(
-            value: targetCompleted,
-            title: 'Completed today study',
-            subtitle: 'Mark after finishing the topic lesson.',
-            onChanged: onTargetChanged,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _StudyChecklistTile(
-            value: notesReviewed,
-            title: 'Reviewed study notes',
-            subtitle: 'Confirm after reading notes once again.',
-            onChanged: onNotesChanged,
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          Text('Quick quiz', style: context.textTheme.titleLarge),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'How can a student find the roots of a quadratic equation?',
-            style: context.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          for (
-            var index = 0;
-            index < _DashboardTabState._quizOptions.length;
-            index++
-          )
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: _QuizOptionButton(
-                label: _DashboardTabState._quizOptions[index],
-                selected: selectedAnswerIndex == index,
-                correct: index == _DashboardTabState._correctAnswerIndex,
-                onTap: () => onAnswerSelected(index),
-              ),
+  Future<void> _pickDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(_today.year - 2),
+      lastDate: DateTime(_today.year + 2, 12, 31),
+      builder: (context, child) {
+        return Theme(
+          data: context.theme.copyWith(
+            colorScheme: context.colorScheme.copyWith(
+              primary: context.colors.accentGreen,
+              onPrimary: context.colors.primaryOn,
+              surface: context.colors.surfaceCard,
+              onSurface: context.colors.ink,
             ),
-          if (answered) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              correct
-                  ? 'Correct. Topic understanding is improving.'
-                  : 'Review the notes once more, then try the method step by step.',
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: correct
-                    ? context.colors.accentGreen
-                    : context.colors.accentYellow,
-              ),
-            ),
-          ],
-        ],
-      ),
+          ),
+          child: child!,
+        );
+      },
     );
+
+    if (pickedDate == null) return;
+    _selectDate(pickedDate);
   }
-}
 
-class _DashboardPanel extends StatelessWidget {
-  const _DashboardPanel({required this.child});
+  void _selectDate(DateTime date) {
+    setState(() => _selectedDate = _dateOnly(date));
+  }
 
-  final Widget child;
+  void _changeView(CalendarView view) {
+    setState(() => _calendarView = view);
+  }
+
+  void _moveDate(int direction) {
+    setState(() {
+      _selectedDate = switch (_calendarView) {
+        CalendarView.month => DateTime(
+          _selectedDate.year,
+          _selectedDate.month + direction,
+          1,
+        ),
+        CalendarView.week => _selectedDate.add(Duration(days: direction * 7)),
+        CalendarView.day => _selectedDate.add(Duration(days: direction)),
+      };
+      _selectedDate = _dateOnly(_selectedDate);
+    });
+  }
+
+  void _goToToday() {
+    _today = _dateOnly(DateTime.now());
+    _selectDate(_today);
+  }
+
+  String get _title {
+    final month = _monthNames[_selectedDate.month - 1];
+    final weekStart = _startOfWeek(_selectedDate);
+    final weekEnd = weekStart.add(const Duration(days: 6));
+
+    return switch (_calendarView) {
+      CalendarView.month => '$month ${_selectedDate.year}',
+      CalendarView.week =>
+        '${_shortDate(weekStart)} - ${_shortDate(weekEnd)}, ${weekEnd.year}',
+      CalendarView.day =>
+        '${_weekdayName(_selectedDate)}, ${_selectedDate.day} $month',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.surfaceCard,
-        borderRadius: AppRadius.card,
-        border: Border.all(color: context.colors.hairline),
-        boxShadow: [
-          BoxShadow(
-            color: context.colors.accentRedGlow.withAlpha(24),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Padding(padding: AppSpacing.card, child: child),
+    return _PlannerSurface(
+      title: _title,
+      selectedDate: _selectedDate,
+      today: _today,
+      calendarView: _calendarView,
+      events: _events,
+      onPrevious: () => _moveDate(-1),
+      onNext: () => _moveDate(1),
+      onToday: _goToToday,
+      onPickDate: _pickDate,
+      onViewChanged: _changeView,
+      onDateSelected: _selectDate,
     );
   }
-}
 
-class _TargetInfoRow extends StatelessWidget {
-  const _TargetInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: context.colors.accentBlue, size: 22),
-        const SizedBox(width: AppSpacing.md),
-        Text('$label: ', style: context.textTheme.bodySmall),
-        Expanded(
-          child: Text(
-            value,
-            style: context.textTheme.bodyMedium,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
+  static DateTime _dateOnly(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
-}
 
-class _StudyChecklistTile extends StatelessWidget {
-  const _StudyChecklistTile({
-    required this.value,
-    required this.title,
-    required this.subtitle,
-    required this.onChanged,
-  });
-
-  final bool value;
-  final String title;
-  final String subtitle;
-  final ValueChanged<bool?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: AppRadius.card,
-      onTap: () => onChanged(!value),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: context.colors.surfaceElevated.withAlpha(140),
-          borderRadius: AppRadius.card,
-          border: Border.all(color: context.colors.hairline),
-        ),
-        child: Row(
-          children: [
-            Checkbox(
-              value: value,
-              onChanged: onChanged,
-              activeColor: context.colors.accentGreen,
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: context.textTheme.bodyMedium),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(subtitle, style: context.textTheme.bodySmall),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  static DateTime _startOfWeek(DateTime date) {
+    final dateOnly = _dateOnly(date);
+    return dateOnly.subtract(Duration(days: dateOnly.weekday - 1));
   }
-}
 
-class _QuizOptionButton extends StatelessWidget {
-  const _QuizOptionButton({
-    required this.label,
-    required this.selected,
-    required this.correct,
-    required this.onTap,
-  });
+  static bool _isSameDate(DateTime first, DateTime second) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
 
-  final String label;
-  final bool selected;
-  final bool correct;
-  final VoidCallback onTap;
+  static String _weekdayName(DateTime date) {
+    return [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ][date.weekday - 1];
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final borderColor = selected
-        ? correct
-              ? context.colors.accentGreen
-              : context.colors.accentYellow
-        : context.colors.hairline;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: AppRadius.card,
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: selected
-                ? context.colors.surfaceElevated
-                : context.colors.surfaceDeep,
-            borderRadius: AppRadius.card,
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                selected
-                    ? correct
-                          ? Icons.check_circle
-                          : Icons.error_outline
-                    : Icons.radio_button_unchecked,
-                color: selected
-                    ? correct
-                          ? context.colors.accentGreen
-                          : context.colors.accentYellow
-                    : context.colors.charcoal,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(child: Text(label, style: context.textTheme.bodyMedium)),
-            ],
-          ),
-        ),
-      ),
-    );
+  static String _shortDate(DateTime date) {
+    return '${date.day} ${_monthNames[date.month - 1].substring(0, 3)}';
   }
 }

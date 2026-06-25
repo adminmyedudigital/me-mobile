@@ -16,6 +16,5 @@ class AnalyticsTab extends StatelessWidget {
       ),
       children: [const ProgressCard()],
     );
-    ;
   }
 }
