@@ -12,7 +12,7 @@ final class AppRoutes {
     return {
       signIn: (_) => const SignInScreen(),
       signUp: (_) => const SignUpScreen(),
-      home: (_) => const HomeScreen(),
+      home: (_) => const HomeScreenContainer(),
     };
   }
 }

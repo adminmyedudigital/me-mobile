@@ -25,9 +25,7 @@ void main() {
   });
 
   testWidgets('renders dashboard bottom tabs', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(theme: AppTheme.light, home: const HomeScreen()),
-    );
+    await tester.pumpWidget(const MyApp());
 
     expect(find.text('ME Digital'), findsOneWidget);
 

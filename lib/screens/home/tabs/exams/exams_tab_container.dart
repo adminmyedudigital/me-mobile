@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:me_mobile/theme/theme.dart';
 
-class ExamTab extends StatelessWidget {
-  const ExamTab({super.key});
+class ExamsTabContainer extends StatelessWidget {
+  const ExamsTabContainer({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,5 @@
 export 'package:me_mobile/screens/auth/auth_logo.dart';
 export 'package:me_mobile/screens/home/home_screen.dart';
-export 'package:me_mobile/screens/home/tabs/exam_tab.dart';
 export 'package:me_mobile/screens/home/tabs/dashboard/dashboard_tab.dart';
 export 'package:me_mobile/screens/home/tabs/settings_tab.dart';
 export 'package:me_mobile/screens/home/navigation/home_bottom_navigation.dart';
@@ -13,3 +12,4 @@ export 'package:me_mobile/screens/auth/sign_up/sign_up_screen.dart';
 export 'package:me_mobile/screens/auth/tabs/auth_tab_button.dart';
 export 'package:me_mobile/screens/auth/tabs/auth_tabs_screen.dart';
 export 'package:me_mobile/screens/auth/tabs/auth_tab_selector.dart';
+export 'package:me_mobile/screens/home/home_screen.dart';
