@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:me_mobile/enums/enums.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/date_actions/date_action_container.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/date_navigation/date_navigation_container.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/view_switcher/view_switcher_container.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_actions/date_action_container.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_navigation/date_navigation_container.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/view_switcher/view_switcher_container.dart';
 import 'package:me_mobile/theme/theme.dart';
 
 class PlannerSurfaceContainer extends StatelessWidget {

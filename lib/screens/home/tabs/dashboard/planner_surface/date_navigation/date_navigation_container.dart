@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:me_mobile/theme/theme.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/date_navigation/date_navigation_icon_button.dart';
+import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_navigation/date_navigation_icon_button.dart';
 
 class DateNavigationContainer extends StatelessWidget {
   const DateNavigationContainer({
