@@ -1,5 +1,2 @@
-import 'package:me_mobile/screens/screens.dart';
-
-class SignInScreen extends AuthTabsScreen {
-  const SignInScreen({super.key}) : super(initialIndex: 0);
-}
+export 'package:me_mobile/screens/auth/sign_in/sign_in_form.dart';
+export 'package:me_mobile/screens/auth/sign_in/sign_in_screen_container.dart';

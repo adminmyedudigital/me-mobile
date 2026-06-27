@@ -49,7 +49,7 @@ class _AuthTabsScreenState extends State<AuthTabsScreen>
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                const AuthLogo(),
+                AuthLogo(currentIndex: currentIndex),
                 const SizedBox(height: 30),
                 AuthTabSelector(
                   currentIndex: currentIndex,

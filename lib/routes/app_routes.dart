@@ -10,8 +10,8 @@ final class AppRoutes {
 
   static Map<String, WidgetBuilder> get routes {
     return {
-      signIn: (_) => const SignInScreen(),
-      signUp: (_) => const SignUpScreen(),
+      signIn: (_) => const SignInScreenContainer(),
+      signUp: (_) => const SignUpScreenContainer(),
       home: (_) => const HomeScreenContainer(),
     };
   }
