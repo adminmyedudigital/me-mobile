@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+
+import 'package:get/get.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/analytics_tab.dart';
+
 import 'package:me_mobile/screens/screens.dart';
-import 'package:me_mobile/routes/app_routes.dart';
+import 'package:me_mobile/widgets/widgets.dart';
+import 'package:me_mobile/controllers/controllers.dart';
 
-class HomeScreenContainer extends StatefulWidget {
+class HomeScreenContainer extends StatelessWidget {
   const HomeScreenContainer({super.key});
-
-  @override
-  State<HomeScreenContainer> createState() => _HomeScreenContainerState();
-}
-
-class _HomeScreenContainerState extends State<HomeScreenContainer> {
-  int _currentIndex = 0;
 
   static const _tabs = [
     HomeNavigationDestination(
@@ -42,32 +39,38 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      appBar: AppBar(
-        title: Text(_tabs[_currentIndex].title),
-        actions: [
-          IconButton(
-            tooltip: 'Sign out',
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed(AppRoutes.signIn);
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: IndexedStack(
-          index: _currentIndex,
-          children: [for (final tab in _tabs) tab.child],
+    final homeController = Get.find<HomeController>();
+    final appController = Get.find<AppController>();
+
+    return Obx(() {
+      final currentIndex = homeController.currentIndex.value;
+
+      return Scaffold(
+        extendBody: true,
+        appBar: AppBar(
+          title: Text(_tabs[currentIndex].title),
+          actions: [
+            const ThemeToggleButton(),
+            IconButton(
+              tooltip: 'Sign out',
+              onPressed: appController.signOut,
+              icon: const Icon(Icons.logout),
+            ),
+          ],
         ),
-      ),
-      bottomNavigationBar: HomeBottomNavigation(
-        currentIndex: _currentIndex,
-        destinations: _tabs,
-        onChanged: (index) => setState(() => _currentIndex = index),
-      ),
-    );
+        body: SafeArea(
+          bottom: false,
+          child: IndexedStack(
+            index: currentIndex,
+            children: [for (final tab in _tabs) tab.child],
+          ),
+        ),
+        bottomNavigationBar: HomeBottomNavigation(
+          currentIndex: currentIndex,
+          destinations: _tabs,
+          onChanged: homeController.changeTab,
+        ),
+      );
+    });
   }
 }

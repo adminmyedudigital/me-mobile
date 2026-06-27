@@ -8,10 +8,10 @@ import 'app_typography.dart';
 final class AppTheme {
   const AppTheme._();
 
-  static final AppColors lightColors = AppColors.brand();
+  static final AppColors lightColors = AppColors.lightBrand();
   static final AppColors darkColors = AppColors.brand();
 
-  static ThemeData get light => _build(lightColors, Brightness.dark);
+  static ThemeData get light => _build(lightColors, Brightness.light);
   static ThemeData get dark => _build(darkColors, Brightness.dark);
 
   static ThemeData _build(AppColors colors, Brightness brightness) {

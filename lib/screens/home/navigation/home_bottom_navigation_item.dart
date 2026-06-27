@@ -1,8 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:me_mobile/screens/home/navigation/home_navigation_destination.dart';
+
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/screens/home/navigation/home_navigation_destination.dart';
 
 class HomeBottomNavigationItem extends StatelessWidget {
   const HomeBottomNavigationItem({
@@ -18,6 +19,12 @@ class HomeBottomNavigationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final selectedIconColor = isLightTheme
+        ? colors.primary
+        : colors.accentOrange;
+    final unselectedIconColor = isLightTheme ? colors.mute : colors.charcoal;
     final borderRadius = BorderRadius.circular(AppRadius.full);
 
     return Tooltip(
@@ -41,33 +48,29 @@ class HomeBottomNavigationItem extends StatelessWidget {
                 height: AppSpacing.xxxl,
                 decoration: BoxDecoration(
                   color: selected
-                      ? context.colors.surfaceElevated.withAlpha(36)
-                      : context.colors.surfaceCard.withAlpha(10),
+                      ? colors.surfaceElevated.withAlpha(36)
+                      : colors.surfaceCard.withAlpha(10),
                   borderRadius: borderRadius,
-                  border: selected
-                      ? null
-                      : Border.all(color: context.colors.hairline),
+                  border: selected ? null : Border.all(color: colors.hairline),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
                       selected
-                          ? context.colors.ink.withAlpha(12)
-                          : context.colors.ink.withAlpha(5),
+                          ? colors.ink.withAlpha(12)
+                          : colors.ink.withAlpha(5),
                       selected
-                          ? context.colors.surfaceElevated.withAlpha(38)
-                          : context.colors.surfaceCard.withAlpha(14),
+                          ? colors.surfaceElevated.withAlpha(38)
+                          : colors.surfaceCard.withAlpha(14),
                       selected
-                          ? context.colors.accentOrangeGlow.withAlpha(86)
-                          : context.colors.surfaceDeep.withAlpha(20),
+                          ? colors.accentOrangeGlow.withAlpha(86)
+                          : colors.surfaceDeep.withAlpha(20),
                     ],
                   ),
                   boxShadow: selected
                       ? [
                           BoxShadow(
-                            color: context.colors.accentOrangeGlow.withAlpha(
-                              96,
-                            ),
+                            color: colors.accentOrangeGlow.withAlpha(96),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -79,8 +82,8 @@ class HomeBottomNavigationItem extends StatelessWidget {
                   child: InkWell(
                     borderRadius: borderRadius,
                     onTap: onTap,
-                    splashColor: context.colors.accentOrangeGlow,
-                    highlightColor: context.colors.ink.withAlpha(8),
+                    splashColor: colors.accentOrangeGlow,
+                    highlightColor: colors.ink.withAlpha(8),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -112,8 +115,8 @@ class HomeBottomNavigationItem extends StatelessWidget {
                                 ? destination.activeIcon
                                 : destination.icon,
                             color: selected
-                                ? context.colors.accentOrange
-                                : context.colors.charcoal,
+                                ? selectedIconColor
+                                : unselectedIconColor,
                             size: selected ? 25 : 23,
                           ),
                         ),

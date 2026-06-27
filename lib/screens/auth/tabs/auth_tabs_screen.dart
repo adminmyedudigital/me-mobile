@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
+import 'package:me_mobile/widgets/widgets.dart';
 
 class AuthTabsScreen extends StatefulWidget {
   const AuthTabsScreen({super.key, this.initialIndex = 0});
@@ -65,6 +67,11 @@ class _AuthTabsScreenState extends State<AuthTabsScreen>
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
+                  const Align(
+                    alignment: Alignment.centerRight,
+                    child: ThemeToggleButton(),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   AuthLogo(currentIndex: currentIndex),
                   const SizedBox(height: 30),
                   AuthTabSelector(

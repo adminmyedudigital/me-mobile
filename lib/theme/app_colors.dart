@@ -64,6 +64,37 @@ final class AppColors extends ThemeExtension<AppColors> {
     surfaceLight: Color(0xFFF1F7FE),
   );
 
+  factory AppColors.lightBrand() => const AppColors(
+    primary: Color(0xFF111318),
+    primaryOn: Color(0xFFFCFDFF),
+    ink: Color(0xFF111318),
+    body: Color.fromRGBO(17, 19, 24, 0.84),
+    charcoal: Color.fromRGBO(17, 19, 24, 0.64),
+    mute: Color(0xFF6B7280),
+    ash: Color(0xFF8A9099),
+    stone: Color(0xFFD5DAE1),
+    onLight: Color(0xFF000000),
+    onLightMute: Color.fromRGBO(0, 0, 51, 0.7),
+    canvas: Color(0xFFF6F8FB),
+    surfaceCard: Color(0xFFFFFFFF),
+    surfaceElevated: Color(0xFFF0F4F8),
+    surfaceDeep: Color(0xFFE8EDF3),
+    hairline: Color.fromRGBO(0, 0, 0, 0.06),
+    hairlineStrong: Color.fromRGBO(0, 0, 0, 0.12),
+    dividerSoft: Color.fromRGBO(0, 0, 0, 0.05),
+    accentOrange: Color(0xFFFF801F),
+    accentOrangeGlow: Color.fromRGBO(255, 89, 0, 0.18),
+    accentYellow: Color(0xFFFFC53D),
+    accentBlue: Color(0xFF1D7FEA),
+    accentBlueGlow: Color.fromRGBO(29, 127, 234, 0.2),
+    accentGreen: Color(0xFF0FBF78),
+    accentGreenGlow: Color.fromRGBO(15, 191, 120, 0.16),
+    accentRed: Color(0xFFE61E43),
+    accentRedGlow: Color.fromRGBO(230, 30, 67, 0.18),
+    link: Color(0xFF1D7FEA),
+    surfaceLight: Color(0xFFFFFFFF),
+  );
+
   final Color primary;
   final Color primaryOn;
   final Color ink;

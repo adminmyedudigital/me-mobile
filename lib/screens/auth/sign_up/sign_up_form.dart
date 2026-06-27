@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:get/get.dart';
+
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/widgets/widgets.dart';
-import 'package:me_mobile/routes/app_routes.dart';
+import 'package:me_mobile/controllers/controllers.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -59,7 +61,7 @@ class _SignUpFormState extends State<SignUpForm> {
       return;
     }
 
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    Get.find<AppController>().signIn();
   }
 
   @override

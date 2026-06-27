@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/widgets/widgets.dart';
-import 'package:me_mobile/routes/app_routes.dart';
+import 'package:me_mobile/controllers/controllers.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm({super.key});
@@ -36,7 +38,7 @@ class _SignInFormState extends State<SignInForm> {
       return;
     }
 
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    Get.find<AppController>().signIn();
   }
 
   @override
