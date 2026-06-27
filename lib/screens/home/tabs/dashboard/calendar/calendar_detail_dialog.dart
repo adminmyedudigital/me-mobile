@@ -3,7 +3,7 @@ part of '../dashboard_tab.dart';
 Future<void> _showCalendarDetailsDialog({
   required BuildContext context,
   required DateTime date,
-  required List<_CalendarEvent> events,
+  required List<DashboardEvent> events,
   int? hour,
 }) {
   final visibleEvents = hour == null
@@ -42,7 +42,7 @@ Future<void> _showCalendarDetailsDialog({
             Expanded(
               child: Text(
                 hour == null ? 'Day details' : 'Time block details',
-                style: context.textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
           ],
@@ -55,7 +55,7 @@ Future<void> _showCalendarDetailsDialog({
             children: [
               Text(
                 _detailsDateLabel(date, hour),
-                style: context.textTheme.bodyMedium?.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: context.colors.accentBlue,
                   fontWeight: FontWeight.w700,
                 ),
@@ -94,7 +94,7 @@ Future<void> _showCalendarDetailsDialog({
 class _CalendarDetailEventTile extends StatelessWidget {
   const _CalendarDetailEventTile({required this.event});
 
-  final _CalendarEvent event;
+  final DashboardEvent event;
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +123,15 @@ class _CalendarDetailEventTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(event.title, style: context.textTheme.bodyMedium),
+                Text(
+                  event.title,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(event.timeLabel, style: context.textTheme.bodySmall),
+                Text(
+                  event.timeLabel,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
@@ -154,18 +160,18 @@ class _EmptyCalendarDetails extends StatelessWidget {
         hour == null
             ? 'No events scheduled for this date.'
             : 'No events scheduled in this time block.',
-        style: context.textTheme.bodyMedium,
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }
 }
 
 String _detailsDateLabel(DateTime date, int? hour) {
-  final day = _DashboardTabState._weekdayName(date);
-  final month = _DashboardTabState._monthNames[date.month - 1];
+  final day = DashboardDateUtils.weekdayName(date);
+  final month = DashboardDateUtils.monthNames[date.month - 1];
   final dateLabel = '$day, ${date.day} $month ${date.year}';
 
   if (hour == null) return dateLabel;
 
-  return '$dateLabel • ${_hourLabel(hour)}';
+  return '$dateLabel • ${DashboardDateUtils.hourLabel(hour)}';
 }

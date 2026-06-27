@@ -6,5 +6,6 @@ class AppBinding extends Bindings {
   void dependencies() {
     Get.put(AppController(), permanent: true);
     Get.lazyPut(HomeController.new, fenix: true);
+    Get.lazyPut(DashboardController.new, fenix: true);
   }
 }

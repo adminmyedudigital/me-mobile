@@ -11,13 +11,13 @@ class _MonthCalendarView extends StatelessWidget {
 
   final DateTime selectedDate;
   final DateTime today;
-  final List<_CalendarEvent> events;
+  final List<DashboardEvent> events;
   final ValueChanged<DateTime> onDateSelected;
 
   @override
   Widget build(BuildContext context) {
     final monthStart = DateTime(selectedDate.year, selectedDate.month);
-    final gridStart = _DashboardTabState._startOfWeek(monthStart);
+    final gridStart = DashboardDateUtils.startOfWeek(monthStart);
 
     return Column(
       children: [
@@ -40,8 +40,8 @@ class _MonthCalendarView extends StatelessWidget {
             return _MonthDateCell(
               date: date,
               isCurrentMonth: date.month == selectedDate.month,
-              isSelected: _DashboardTabState._isSameDate(date, selectedDate),
-              isToday: _DashboardTabState._isSameDate(date, today),
+              isSelected: DashboardDateUtils.isSameDate(date, selectedDate),
+              isToday: DashboardDateUtils.isSameDate(date, today),
               events: dayEvents,
               onTap: () {
                 onDateSelected(date);
@@ -70,12 +70,12 @@ class _WeekCalendarView extends StatelessWidget {
 
   final DateTime selectedDate;
   final DateTime today;
-  final List<_CalendarEvent> events;
+  final List<DashboardEvent> events;
   final ValueChanged<DateTime> onDateSelected;
 
   @override
   Widget build(BuildContext context) {
-    final weekStart = _DashboardTabState._startOfWeek(selectedDate);
+    final weekStart = DashboardDateUtils.startOfWeek(selectedDate);
     final days = List.generate(
       7,
       (index) => weekStart.add(Duration(days: index)),
@@ -89,11 +89,8 @@ class _WeekCalendarView extends StatelessWidget {
               Expanded(
                 child: _WeekDayHeaderCell(
                   date: date,
-                  isSelected: _DashboardTabState._isSameDate(
-                    date,
-                    selectedDate,
-                  ),
-                  isToday: _DashboardTabState._isSameDate(date, today),
+                  isSelected: DashboardDateUtils.isSameDate(date, selectedDate),
+                  isToday: DashboardDateUtils.isSameDate(date, today),
                   onTap: () {
                     onDateSelected(date);
                     _showCalendarDetailsDialog(
@@ -127,7 +124,7 @@ class _DayCalendarView extends StatelessWidget {
   });
 
   final DateTime selectedDate;
-  final List<_CalendarEvent> events;
+  final List<DashboardEvent> events;
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +134,8 @@ class _DayCalendarView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${_DashboardTabState._weekdayName(selectedDate)}, ${selectedDate.day}',
-          style: context.textTheme.bodyMedium?.copyWith(
+          '${DashboardDateUtils.weekdayName(selectedDate)}, ${selectedDate.day}',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: context.colors.accentGreen,
             fontWeight: FontWeight.w700,
           ),
@@ -161,12 +158,12 @@ class _WeekdayHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        for (final weekday in _DashboardTabState._weekdayNames)
+        for (final weekday in DashboardDateUtils.weekdayNames)
           Expanded(
             child: Text(
               weekday,
               textAlign: TextAlign.center,
-              style: context.textTheme.labelSmall?.copyWith(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: context.colors.ash,
                 fontWeight: FontWeight.w700,
               ),
@@ -191,7 +188,7 @@ class _MonthDateCell extends StatelessWidget {
   final bool isCurrentMonth;
   final bool isSelected;
   final bool isToday;
-  final List<_CalendarEvent> events;
+  final List<DashboardEvent> events;
   final VoidCallback onTap;
 
   @override
@@ -228,7 +225,7 @@ class _MonthDateCell extends StatelessWidget {
             children: [
               Text(
                 '${date.day}',
-                style: context.textTheme.labelSmall?.copyWith(
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: textColor,
                   fontWeight: FontWeight.w700,
                 ),
@@ -285,12 +282,12 @@ class _WeekDayHeaderCell extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _DashboardTabState._weekdayNames[date.weekday - 1],
-                style: context.textTheme.labelSmall,
+                DashboardDateUtils.weekdayNames[date.weekday - 1],
+                style: Theme.of(context).textTheme.labelSmall,
               ),
               Text(
                 '${date.day}',
-                style: context.textTheme.bodyMedium?.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: isSelected
                       ? context.colors.primaryOn
                       : context.colors.ink,
@@ -315,7 +312,7 @@ class _WeekTimeRow extends StatelessWidget {
 
   final int hour;
   final List<DateTime> days;
-  final List<_CalendarEvent> events;
+  final List<DashboardEvent> events;
   final ValueChanged<DateTime> onDateSelected;
 
   @override
@@ -326,7 +323,10 @@ class _WeekTimeRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 38,
-            child: Text(_hourLabel(hour), style: context.textTheme.labelSmall),
+            child: Text(
+              DashboardDateUtils.hourLabel(hour),
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
           ),
           for (final day in days)
             Builder(
@@ -370,7 +370,7 @@ class _DayTimeSlot extends StatelessWidget {
   const _DayTimeSlot({required this.hour, required this.event});
 
   final int hour;
-  final _CalendarEvent? event;
+  final DashboardEvent? event;
 
   @override
   Widget build(BuildContext context) {
@@ -384,7 +384,10 @@ class _DayTimeSlot extends StatelessWidget {
         children: [
           SizedBox(
             width: 54,
-            child: Text(_hourLabel(hour), style: context.textTheme.labelSmall),
+            child: Text(
+              DashboardDateUtils.hourLabel(hour),
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
           ),
           Expanded(
             child: Container(

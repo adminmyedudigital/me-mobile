@@ -3,7 +3,7 @@ part of '../dashboard_tab.dart';
 class _EventPill extends StatelessWidget {
   const _EventPill({required this.event, this.compact = false});
 
-  final _CalendarEvent event;
+  final DashboardEvent event;
   final bool compact;
 
   @override
@@ -25,7 +25,7 @@ class _EventPill extends StatelessWidget {
         compact ? event.title : '${event.timeLabel}  ${event.title}',
         maxLines: compact ? 1 : 2,
         overflow: TextOverflow.ellipsis,
-        style: context.textTheme.labelSmall?.copyWith(
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: context.colors.ink,
           fontWeight: FontWeight.w700,
           height: 1.2,

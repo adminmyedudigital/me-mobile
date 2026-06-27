@@ -19,7 +19,7 @@ class _PlannerSurface extends StatelessWidget {
   final DateTime selectedDate;
   final DateTime today;
   final CalendarView calendarView;
-  final List<_CalendarEvent> events;
+  final List<DashboardEvent> events;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
   final VoidCallback onToday;
