@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:me_mobile/enums/enums.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_navigation/date_navigation_container.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_navigation/date_navigation_icon_button.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_actions/date_action_button.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/date_actions/date_action_container.dart';
 import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/planner_surface_container.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/view_switcher/view_switcher_button.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/view_switcher/view_switcher_container.dart';
 import 'package:me_mobile/theme/theme.dart';
 
 part 'calendar/calendar_models.dart';

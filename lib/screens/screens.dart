@@ -12,4 +12,3 @@ export 'package:me_mobile/screens/auth/sign_up/sign_up_screen.dart';
 export 'package:me_mobile/screens/auth/tabs/auth_tab_button.dart';
 export 'package:me_mobile/screens/auth/tabs/auth_tabs_screen.dart';
 export 'package:me_mobile/screens/auth/tabs/auth_tab_selector.dart';
-export 'package:me_mobile/screens/home/home_screen.dart';
