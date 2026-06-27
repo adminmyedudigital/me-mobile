@@ -1,99 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:me_mobile/controllers/controllers.dart';
 import 'package:me_mobile/theme/theme.dart';
 
 class ExamsTabContainer extends StatelessWidget {
   const ExamsTabContainer({super.key});
 
-  static final _exams = [
-    _ExamItem(
-      subjectName: 'English',
-      examDate: DateTime(2026, 7, 4),
-      type: _ExamType.school,
-      totalMarks: 100,
-      achievedMarks: 86,
-    ),
-    _ExamItem(
-      subjectName: 'Mathematics',
-      examDate: DateTime(2026, 7, 2),
-      type: _ExamType.tuition,
-      totalMarks: 80,
-      achievedMarks: 72,
-    ),
-    _ExamItem(
-      subjectName: 'Science',
-      examDate: DateTime(2026, 6, 29),
-      type: _ExamType.school,
-      totalMarks: 100,
-      achievedMarks: 91,
-    ),
-    _ExamItem(
-      subjectName: 'Social Studies',
-      examDate: DateTime(2026, 6, 24),
-      type: _ExamType.tuition,
-      totalMarks: 50,
-      achievedMarks: 41,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final exams = List<_ExamItem>.of(_exams)
-      ..sort((first, second) => second.examDate.compareTo(first.examDate));
+    final controller = Get.find<ExamsController>();
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xs,
-        AppSpacing.xs,
-        AppSpacing.xs,
-        AppSpacing.band,
-      ),
-      children: [
-        for (final exam in exams) ...[
-          _ExamCard(exam: exam),
-          const SizedBox(height: AppSpacing.md),
+    return Obx(
+      () => ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xs,
+          AppSpacing.xs,
+          AppSpacing.xs,
+          AppSpacing.band,
+        ),
+        children: [
+          for (final exam in controller.sortedExams) ...[
+            _ExamCard(
+              exam: exam,
+              dateLabel: controller.formatDate(exam.examDate),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
-enum _ExamType {
-  school('School'),
-  tuition('Tuition');
-
-  const _ExamType(this.label);
-
-  final String label;
-}
-
-class _ExamItem {
-  const _ExamItem({
-    required this.subjectName,
-    required this.examDate,
-    required this.type,
-    required this.totalMarks,
-    required this.achievedMarks,
-  });
-
-  final String subjectName;
-  final DateTime examDate;
-  final _ExamType type;
-  final int totalMarks;
-  final int achievedMarks;
-
-  int get scorePercent => ((achievedMarks / totalMarks) * 100).round();
-}
-
 class _ExamCard extends StatelessWidget {
-  const _ExamCard({required this.exam});
+  const _ExamCard({required this.exam, required this.dateLabel});
 
-  final _ExamItem exam;
+  final ExamItem exam;
+  final String dateLabel;
 
   @override
   Widget build(BuildContext context) {
     final accentColor = switch (exam.type) {
-      _ExamType.school => context.colors.accentBlue,
-      _ExamType.tuition => context.colors.accentGreen,
+      ExamType.school => context.colors.accentBlue,
+      ExamType.tuition => context.colors.accentGreen,
     };
 
     return Card(
@@ -112,15 +61,16 @@ class _ExamCard extends StatelessWidget {
                       Text(
                         '${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam',
                         maxLines: 1,
-                        style: context.textTheme.titleMedium?.copyWith(
-                          color: context.colors.ink,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: context.colors.ink,
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        _formatDate(exam.examDate),
-                        style: context.textTheme.bodySmall,
+                        dateLabel,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
@@ -152,25 +102,6 @@ class _ExamCard extends StatelessWidget {
       ),
     );
   }
-
-  String _formatDate(DateTime date) {
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    return '${monthNames[date.month - 1]} ${date.day}, ${date.year}';
-  }
 }
 
 class _ExamTypeChip extends StatelessWidget {
@@ -194,7 +125,7 @@ class _ExamTypeChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: context.textTheme.labelSmall?.copyWith(
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: color,
             fontWeight: FontWeight.w700,
           ),
@@ -224,7 +155,7 @@ class _ExamMetric extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: context.textTheme.labelSmall),
+            Text(label, style: Theme.of(context).textTheme.labelSmall),
             const SizedBox(height: AppSpacing.xxs),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -232,7 +163,7 @@ class _ExamMetric extends StatelessWidget {
                 Flexible(
                   child: Text(
                     value,
-                    style: context.textTheme.titleSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: context.colors.ink,
                       fontWeight: FontWeight.w700,
                     ),
@@ -242,7 +173,10 @@ class _ExamMetric extends StatelessWidget {
                   const SizedBox(width: AppSpacing.xxs),
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
-                    child: Text(helper!, style: context.textTheme.labelSmall),
+                    child: Text(
+                      helper!,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
                   ),
                 ],
               ],

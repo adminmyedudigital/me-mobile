@@ -194,7 +194,7 @@ class _MonthDateCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isSelected
-        ? context.colors.accentGreen
+        ? context.colors.accentOrange
         : isToday
         ? context.colors.accentBlueGlow
         : context.colors.surfaceDeep;
@@ -260,7 +260,7 @@ class _WeekDayHeaderCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isSelected
-        ? context.colors.accentGreen
+        ? context.colors.accentOrange
         : isToday
         ? context.colors.accentBlueGlow
         : context.colors.surfaceDeep;
@@ -283,7 +283,12 @@ class _WeekDayHeaderCell extends StatelessWidget {
             children: [
               Text(
                 DashboardDateUtils.weekdayNames[date.weekday - 1],
-                style: Theme.of(context).textTheme.labelSmall,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: isSelected
+                      ? context.colors.primaryOn
+                      : context.colors.ink,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               Text(
                 '${date.day}',
@@ -353,7 +358,7 @@ class _WeekTimeRow extends StatelessWidget {
                         border: Border.all(color: context.colors.hairline),
                       ),
                       child: event == null
-                          ? const SizedBox.shrink()
+                          ? const SizedBox(height: 35)
                           : _EventPill(event: event),
                     ),
                   ),
