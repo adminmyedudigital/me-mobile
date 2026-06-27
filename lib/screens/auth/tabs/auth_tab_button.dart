@@ -36,7 +36,7 @@ class AuthTabButton extends StatelessWidget {
               duration: const Duration(milliseconds: 140),
               width: selected ? 78 : 0,
               height: 2,
-              color: context.colors.accentOrange,
+              color: context.colors.ink,
             ),
           ],
         ),

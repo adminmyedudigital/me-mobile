@@ -37,7 +37,7 @@ class _AuthLogoState extends State<AuthLogo>
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isSignIn = widget.currentIndex == 0;
-    final title = isSignIn ? 'Sign in' : 'Create account';
+    final title = isSignIn ? 'Hello !!!' : 'Create account';
     final subtitle = isSignIn
         ? 'Welcome back to your account'
         : 'Start your journey with us';
@@ -115,8 +115,8 @@ class _AuthLogoState extends State<AuthLogo>
                       child: CustomPaint(
                         size: const Size.square(88),
                         painter: _LogoOrbitPainter(
-                          link: colors.link,
-                          accent: colors.accentOrangeGlow,
+                          link: colors.ink,
+                          accent: colors.canvas,
                           hairline: colors.hairlineStrong,
                         ),
                       ),
@@ -169,16 +169,15 @@ class _AuthLogoState extends State<AuthLogo>
                     children: [
                       Text(
                         title,
-                        style: AppTypography.headingSm(
-                          colors,
-                        ).copyWith(height: 1.05, letterSpacing: 0),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(color: context.colors.ink),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.xxs),
                       Text(
                         subtitle,
-                        style: AppTypography.captionEmph(
-                          colors,
-                        ).copyWith(color: colors.charcoal),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: context.colors.ink,
+                        ),
                       ),
                     ],
                   ),
@@ -191,8 +190,8 @@ class _AuthLogoState extends State<AuthLogo>
                     borderRadius: BorderRadius.circular(999),
                     gradient: LinearGradient(
                       colors: [
-                        colors.link.withValues(alpha: 0.72),
-                        colors.accentOrangeGlow.withValues(alpha: 0.42),
+                        colors.accentRed.withValues(alpha: 0.72),
+                        colors.accentOrange.withValues(alpha: 0.42),
                         Colors.transparent,
                       ],
                     ),
