@@ -71,7 +71,45 @@ class _DayTimetableState extends State<DayTimetable> {
                       },
                     ),
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 180),
+                      duration: const Duration(milliseconds: 260),
+                      reverseDuration: const Duration(milliseconds: 180),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return Stack(
+                          alignment: Alignment.topCenter,
+                          children: [...previousChildren, ?currentChild],
+                        );
+                      },
+                      transitionBuilder: (child, animation) {
+                        final curvedAnimation = CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOutCubic,
+                          reverseCurve: Curves.easeInCubic,
+                        );
+
+                        return FadeTransition(
+                          opacity: curvedAnimation,
+                          child: SizeTransition(
+                            sizeFactor: curvedAnimation,
+                            fixedCrossAxisSizeFactor: 1,
+                            alignment: Alignment.topCenter,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, -0.04),
+                                end: Offset.zero,
+                              ).animate(curvedAnimation),
+                              child: ScaleTransition(
+                                scale: Tween<double>(
+                                  begin: 0.98,
+                                  end: 1,
+                                ).animate(curvedAnimation),
+                                child: child,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                       child: _expandedEventIndex == entry.$1
                           ? Padding(
                               key: ValueKey('panel-${entry.$1}'),
