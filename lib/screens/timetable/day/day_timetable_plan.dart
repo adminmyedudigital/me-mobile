@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
 import 'package:me_mobile/controllers/dashboard_controller.dart';
+import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/theme/theme.dart';
 
 class DayTimetablePlan extends StatefulWidget {
@@ -15,7 +18,9 @@ class DayTimetablePlan extends StatefulWidget {
 class _DayTimetablePlanState extends State<DayTimetablePlan> {
   bool _isCompleted = false;
 
-  void _openFlashcards() {}
+  void _openFlashcards() {
+    Get.toNamed(AppRoutes.flashCard);
+  }
 
   void _openQuiz() {}
 
