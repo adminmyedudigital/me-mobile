@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/enums/enums.dart';
-import 'package:me_mobile/screens/home/tabs/dashboard/planner_surface/view_switcher/view_switcher_button.dart';
+import 'package:me_mobile/screens/screens.dart';
 
 class ViewSwitcherContainer extends StatelessWidget {
   const ViewSwitcherContainer({

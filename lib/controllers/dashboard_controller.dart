@@ -43,6 +43,56 @@ class DashboardDateUtils {
 
   static const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  static const weekdayTime = [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    1,
+    2,
+    3,
+    4,
+    5,
+  ];
+
+  static int nextWeekdayTime(int hour) {
+    final index = weekdayTime.indexOf(hour);
+    if (index == -1 || index == weekdayTime.length - 1) {
+      return hour + 2;
+    }
+
+    return weekdayTime[index + 1];
+  }
+
+  static bool isHourInSlot(double eventHour, int slotStart, int slotEnd) {
+    final normalizedEventHour = eventHour == 24 ? 24.0 : eventHour % 24;
+    final normalizedStart = slotStart == 24 ? 24 : slotStart % 24;
+    final normalizedEnd = slotEnd == 24 ? 24 : slotEnd % 24;
+
+    if (normalizedEnd > normalizedStart) {
+      return normalizedEventHour >= normalizedStart &&
+          normalizedEventHour < normalizedEnd;
+    }
+
+    return normalizedEventHour >= normalizedStart ||
+        normalizedEventHour < normalizedEnd;
+  }
+
   static DateTime dateOnly(DateTime date) {
     return DateTime(date.year, date.month, date.day);
   }
@@ -92,14 +142,14 @@ class DashboardController extends GetxController {
   final List<DashboardEvent> events = [
     DashboardEvent(
       title: 'Mathematics practice',
-      date: DateTime(2026, 6, 25),
-      startHour: 9,
+      date: DateTime(2026, 6, 28),
+      startHour: 13,
       durationHours: 1.5,
       colorKind: DashboardEventColor.green,
     ),
     DashboardEvent(
       title: 'Science revision',
-      date: DateTime(2026, 6, 25),
+      date: DateTime(2026, 6, 28),
       startHour: 13,
       durationHours: 1,
       colorKind: DashboardEventColor.blue,

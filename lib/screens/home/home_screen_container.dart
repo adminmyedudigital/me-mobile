@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:me_mobile/screens/home/tabs/analytics/analytics_tab.dart';
 
 import 'package:me_mobile/screens/screens.dart';
 import 'package:me_mobile/widgets/widgets.dart';
@@ -15,7 +14,7 @@ class HomeScreenContainer extends StatelessWidget {
       title: 'Dashboard',
       icon: Icons.home_outlined,
       activeIcon: Icons.home,
-      child: DashboardTab(),
+      child: DashboardTabContainer(),
     ),
     HomeNavigationDestination(
       title: 'Exam',
@@ -27,13 +26,13 @@ class HomeScreenContainer extends StatelessWidget {
       title: 'Analytics',
       icon: Icons.insert_chart_outlined,
       activeIcon: Icons.insert_chart,
-      child: AnalyticsTab(),
+      child: AnalyticsTabContainer(),
     ),
     HomeNavigationDestination(
       title: 'Settings',
       icon: Icons.settings_outlined,
       activeIcon: Icons.settings,
-      child: SettingsTab(),
+      child: SettingsTabContainer(),
     ),
   ];
 

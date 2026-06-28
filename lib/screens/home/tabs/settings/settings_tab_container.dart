@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
-class SettingsTab extends StatelessWidget {
-  const SettingsTab({super.key});
+class SettingsTabContainer extends StatelessWidget {
+  const SettingsTabContainer({super.key});
 
   @override
   Widget build(BuildContext context) {
