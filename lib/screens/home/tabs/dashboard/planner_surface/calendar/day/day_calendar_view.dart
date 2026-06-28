@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
+import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
 import 'package:me_mobile/controllers/dashboard_controller.dart';
@@ -36,6 +39,19 @@ class DayCalendarView extends StatelessWidget {
     }).toList();
   }
 
+  void openDayTimetable({
+    required DateTime selectedDate,
+    required int hour,
+    required List<DashboardEvent> selectedEvents,
+  }) {
+    Get.find<DashboardController>().selectTimetableSlot(
+      date: selectedDate,
+      hour: hour,
+      events: selectedEvents,
+    );
+    Get.toNamed(AppRoutes.dayTimetable);
+  }
+
   @override
   Widget build(BuildContext context) {
     final dayEvents = eventsForDay(events, selectedDate);
@@ -46,7 +62,7 @@ class DayCalendarView extends StatelessWidget {
         Text(
           '${DashboardDateUtils.weekdayName(selectedDate)}, ${selectedDate.day}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: context.colors.accentOrange,
+            color: context.colors.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -64,7 +80,15 @@ class DayCalendarView extends StatelessWidget {
                     builder: (context) {
                       final slotEvents = eventsForHour(dayEvents, hour);
 
-                      return DayTimeSlot(hour: hour, events: slotEvents);
+                      return DayTimeSlot(
+                        hour: hour,
+                        events: slotEvents,
+                        onTap: () => openDayTimetable(
+                          selectedDate: selectedDate,
+                          hour: hour,
+                          selectedEvents: slotEvents,
+                        ),
+                      );
                     },
                   ),
               ],

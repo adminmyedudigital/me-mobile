@@ -8,37 +8,15 @@ class DayEventCountBadge extends StatelessWidget {
 
   final DashboardEvent event;
 
-  Color _eventColor(AppColors colors) {
-    return switch (event.colorKind) {
-      DashboardEventColor.green => colors.accentGreen,
-      DashboardEventColor.blue => colors.accentBlue,
-      DashboardEventColor.orange => colors.accentOrange,
-      DashboardEventColor.red => colors.accentRed,
-    };
-  }
-
-  Color _eventGlowColor(AppColors colors) {
-    return switch (event.colorKind) {
-      DashboardEventColor.green => colors.accentGreenGlow,
-      DashboardEventColor.blue => colors.accentBlueGlow,
-      DashboardEventColor.orange => colors.accentOrangeGlow,
-      DashboardEventColor.red => colors.accentRedGlow,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final eventColor = _eventColor(colors);
-    final eventGlowColor = _eventGlowColor(colors);
+    final eventColor = colors.primary;
     final backgroundColor = isLightTheme
-        ? eventColor.withValues(alpha: 0.1)
-        : eventColor.withValues(alpha: 0.16);
+        ? colors.primary.withValues(alpha: 0.04)
+        : colors.primary.withValues(alpha: 0.1);
     final borderColor = eventColor.withValues(
-      alpha: isLightTheme ? 0.34 : 0.42,
-    );
-    final shadowColor = eventGlowColor.withValues(
       alpha: isLightTheme ? 0.12 : 0.22,
     );
     final titleColor = isLightTheme ? colors.primary : colors.ink;
@@ -56,7 +34,7 @@ class DayEventCountBadge extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: shadowColor,
+            color: colors.primary.withValues(alpha: isLightTheme ? 0.06 : 0.1),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),

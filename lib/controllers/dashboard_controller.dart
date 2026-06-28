@@ -1,22 +1,18 @@
 import 'package:get/get.dart';
 import 'package:me_mobile/enums/enums.dart';
 
-enum DashboardEventColor { green, blue, orange, red }
-
 class DashboardEvent {
   const DashboardEvent({
     required this.title,
     required this.date,
     required this.startHour,
     required this.durationHours,
-    required this.colorKind,
   });
 
   final String title;
   final DateTime date;
   final double startHour;
   final double durationHours;
-  final DashboardEventColor colorKind;
 
   String get timeLabel =>
       '${DashboardDateUtils.timeLabel(startHour)}'
@@ -153,6 +149,9 @@ class DashboardController extends GetxController {
     DateTime.now(),
   ).obs;
   final Rx<CalendarView> calendarView = CalendarView.day.obs;
+  final Rxn<DateTime> selectedTimetableDate = Rxn<DateTime>();
+  final RxnInt selectedTimetableHour = RxnInt();
+  final RxList<DashboardEvent> selectedTimetableEvents = <DashboardEvent>[].obs;
 
   final List<DashboardEvent> events = [
     DashboardEvent(
@@ -160,28 +159,24 @@ class DashboardController extends GetxController {
       date: DateTime(2026, 6, 28),
       startHour: 13,
       durationHours: 1.5,
-      colorKind: DashboardEventColor.green,
     ),
     DashboardEvent(
       title: 'Science revision',
       date: DateTime(2026, 6, 28),
       startHour: 13,
       durationHours: 1,
-      colorKind: DashboardEventColor.blue,
     ),
     DashboardEvent(
       title: 'Mock exam',
       date: DateTime(2026, 6, 27),
       startHour: 10,
       durationHours: 2,
-      colorKind: DashboardEventColor.orange,
     ),
     DashboardEvent(
       title: 'Notes review',
       date: DateTime(2026, 6, 30),
       startHour: 16,
       durationHours: 1,
-      colorKind: DashboardEventColor.red,
     ),
   ];
 
@@ -223,5 +218,21 @@ class DashboardController extends GetxController {
   void goToToday() {
     today.value = DashboardDateUtils.dateOnly(DateTime.now());
     selectDate(today.value);
+  }
+
+  void selectTimetableSlot({
+    required DateTime date,
+    required int hour,
+    required List<DashboardEvent> events,
+  }) {
+    selectedTimetableDate.value = DashboardDateUtils.dateOnly(date);
+    selectedTimetableHour.value = hour;
+    selectedTimetableEvents.assignAll(events);
+  }
+
+  void clearTimetableSlot() {
+    selectedTimetableDate.value = null;
+    selectedTimetableHour.value = null;
+    selectedTimetableEvents.clear();
   }
 }

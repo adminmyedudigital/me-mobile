@@ -16,18 +16,21 @@ class MonthEventCountBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final contrastColor = colors.primary;
+    final badgeColor = colors.primary;
     final backgroundColor = isLightTheme
-        ? colors.accentOrange.withValues(alpha: 0.1)
-        : colors.accentOrange.withValues(alpha: 0.16);
-    final borderColor = isSelected
-        ? contrastColor
-        : colors.accentOrange.withValues(alpha: isLightTheme ? 0.34 : 0.45);
-    final shadowColor = colors.accentOrangeGlow.withValues(
-      alpha: isLightTheme ? 0.12 : 0.28,
+        ? badgeColor.withValues(alpha: 0.04)
+        : badgeColor.withValues(alpha: 0.1);
+    final borderColor = badgeColor.withValues(
+      alpha: isSelected
+          ? isLightTheme
+                ? 0.28
+                : 0.36
+          : isLightTheme
+          ? 0.12
+          : 0.22,
     );
+    final shadowColor = badgeColor.withValues(alpha: isLightTheme ? 0.06 : 0.1);
     final textColor = isLightTheme ? colors.primary : colors.ink;
-    final dotColor = isSelected ? contrastColor : colors.accentOrange;
 
     return SizedBox(
       height: 35,
@@ -58,7 +61,7 @@ class MonthEventCountBadge extends StatelessWidget {
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: dotColor,
+                  color: badgeColor,
                   shape: BoxShape.circle,
                 ),
               ),
