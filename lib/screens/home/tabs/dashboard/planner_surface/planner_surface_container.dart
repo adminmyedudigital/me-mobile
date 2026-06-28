@@ -68,12 +68,11 @@ class PlannerSurfaceContainer extends StatelessWidget {
                   events: events,
                   onDateSelected: onDateSelected,
                 ),
-                CalendarView.day => Container(),
-                // _DayCalendarView(
-                //   key: const ValueKey(CalendarView.day),
-                //   selectedDate: selectedDate,
-                //   events: events,
-                // ),
+                CalendarView.day => DayCalendarView(
+                  key: const ValueKey(CalendarView.day),
+                  selectedDate: selectedDate,
+                  events: events,
+                ),
               },
             ),
           ),

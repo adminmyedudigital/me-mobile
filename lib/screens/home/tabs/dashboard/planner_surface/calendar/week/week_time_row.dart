@@ -35,12 +35,33 @@ class WeekTimeRow extends StatelessWidget {
   ) {
     final nextHour = DashboardDateUtils.nextWeekdayTime(hour);
 
-    return eventsForDay(events, date)
-        .where(
-          (event) =>
-              DashboardDateUtils.isHourInSlot(event.startHour, hour, nextHour),
-        )
-        .toList();
+    return eventsForDay(
+      events,
+      date,
+    ).where((event) => eventOverlapsSlot(event, hour, nextHour)).toList();
+  }
+
+  bool eventOverlapsSlot(DashboardEvent event, int slotStart, int slotEnd) {
+    final normalizedSlotStart = slotStart == 24
+        ? 24.0
+        : (slotStart % 24).toDouble();
+    var normalizedSlotEnd = slotEnd == 24 ? 24.0 : (slotEnd % 24).toDouble();
+
+    if (normalizedSlotEnd <= normalizedSlotStart) {
+      normalizedSlotEnd += 24;
+    }
+
+    var eventStart = event.startHour == 24 ? 24.0 : event.startHour % 24;
+
+    if (eventStart < normalizedSlotStart &&
+        normalizedSlotStart >= 24 &&
+        eventStart < normalizedSlotEnd % 24) {
+      eventStart += 24;
+    }
+
+    final eventEnd = eventStart + event.durationHours;
+
+    return eventStart < normalizedSlotEnd && eventEnd > normalizedSlotStart;
   }
 
   @override
@@ -48,26 +69,26 @@ class WeekTimeRow extends StatelessWidget {
     final colors = context.colors;
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
-    return SizedBox(
-      height: 62,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Text(
-              DashboardDateUtils.hourLabel(hour),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: isLightTheme ? colors.mute : colors.ash,
-                fontWeight: FontWeight.w700,
-              ),
+    return Row(
+      children: [
+        SizedBox(
+          width: 40,
+          child: Text(
+            DashboardDateUtils.hourLabel(hour),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: isLightTheme ? colors.mute : colors.ash,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          for (final day in days)
-            Builder(
-              builder: (context) {
-                final slotEvents = eventsForSlot(events, day, hour);
+        ),
+        for (final day in days)
+          Builder(
+            builder: (context) {
+              final slotEvents = eventsForSlot(events, day, hour);
 
-                return Expanded(
+              return Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(bottom: AppSpacing.xs),
                   child: InkWell(
                     onTap: () {
                       onDateSelected(day);
@@ -117,11 +138,11 @@ class WeekTimeRow extends StatelessWidget {
                           : WeekEventCountBadge(count: slotEvents.length),
                     ),
                   ),
-                );
-              },
-            ),
-        ],
-      ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

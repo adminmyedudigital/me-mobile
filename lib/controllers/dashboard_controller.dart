@@ -19,8 +19,8 @@ class DashboardEvent {
   final DashboardEventColor colorKind;
 
   String get timeLabel =>
-      '${DashboardDateUtils.hourLabel(startHour.floor())}'
-      ' - ${DashboardDateUtils.hourLabel((startHour + durationHours).floor())}';
+      '${DashboardDateUtils.timeLabel(startHour)}'
+      ' - ${DashboardDateUtils.timeLabel(startHour + durationHours)}';
 }
 
 class DashboardDateUtils {
@@ -129,6 +129,21 @@ class DashboardDateUtils {
     final period = normalizedHour >= 12 ? 'PM' : 'AM';
     final displayHour = normalizedHour % 12 == 0 ? 12 : normalizedHour % 12;
     return '$displayHour $period';
+  }
+
+  static String timeLabel(double hour) {
+    final totalMinutes = (hour * 60).round();
+    final normalizedMinutes = totalMinutes % (24 * 60);
+    final normalizedHour = normalizedMinutes ~/ 60;
+    final minute = normalizedMinutes % 60;
+    final period = normalizedHour >= 12 ? 'PM' : 'AM';
+    final displayHour = normalizedHour % 12 == 0 ? 12 : normalizedHour % 12;
+
+    if (minute == 0) {
+      return '$displayHour $period';
+    }
+
+    return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
   }
 }
 
