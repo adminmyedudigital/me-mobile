@@ -54,14 +54,13 @@ class PlannerSurfaceContainer extends StatelessWidget {
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 180),
               child: switch (calendarView) {
-                CalendarView.month => Container(),
-                // _MonthCalendarView(
-                //   key: const ValueKey(CalendarView.month),
-                //   selectedDate: selectedDate,
-                //   today: today,
-                //   events: events,
-                //   onDateSelected: onDateSelected,
-                // ),
+                CalendarView.month => MonthCalendarView(
+                  key: const ValueKey(CalendarView.month),
+                  selectedDate: selectedDate,
+                  today: today,
+                  events: events,
+                  onDateSelected: onDateSelected,
+                ),
                 CalendarView.week => WeekCalendarView(
                   key: const ValueKey(CalendarView.week),
                   selectedDate: selectedDate,
