@@ -81,6 +81,7 @@ class DayCalendarView extends StatelessWidget {
                       final slotEvents = eventsForHour(dayEvents, hour);
 
                       return DayTimeSlot(
+                        date: selectedDate,
                         hour: hour,
                         events: slotEvents,
                         onTap: () => openDayTimetable(

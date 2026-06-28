@@ -7,12 +7,14 @@ class DashboardEvent {
     required this.date,
     required this.startHour,
     required this.durationHours,
+    required this.progress,
   });
 
   final String title;
   final DateTime date;
   final double startHour;
   final double durationHours;
+  final int progress;
 
   String get timeLabel =>
       '${DashboardDateUtils.timeLabel(startHour)}'
@@ -159,24 +161,28 @@ class DashboardController extends GetxController {
       date: DateTime(2026, 6, 28),
       startHour: 13,
       durationHours: 1.5,
+      progress: 90,
     ),
     DashboardEvent(
       title: 'Science revision',
       date: DateTime(2026, 6, 28),
       startHour: 13,
       durationHours: 1,
+      progress: 90,
     ),
     DashboardEvent(
       title: 'Mock exam',
       date: DateTime(2026, 6, 27),
       startHour: 10,
       durationHours: 2,
+      progress: 0,
     ),
     DashboardEvent(
       title: 'Notes review',
       date: DateTime(2026, 6, 30),
       startHour: 16,
       durationHours: 1,
+      progress: 0,
     ),
   ];
 

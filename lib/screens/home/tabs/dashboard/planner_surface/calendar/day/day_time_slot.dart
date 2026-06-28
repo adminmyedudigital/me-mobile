@@ -7,20 +7,50 @@ import 'package:me_mobile/controllers/dashboard_controller.dart';
 class DayTimeSlot extends StatelessWidget {
   const DayTimeSlot({
     super.key,
+    required this.date,
     required this.hour,
     required this.events,
     required this.onTap,
   });
 
+  final DateTime date;
   final int hour;
   final List<DashboardEvent> events;
   final VoidCallback onTap;
+
+  Color? progressBorderColor({
+    required AppColors colors,
+    required List<DashboardEvent> events,
+    required DateTime date,
+  }) {
+    if (events.isEmpty) return null;
+
+    final today = DashboardDateUtils.dateOnly(DateTime.now());
+    final slotDate = DashboardDateUtils.dateOnly(date);
+    if (slotDate.isAfter(today)) return null;
+
+    final progress =
+        events.fold<int>(
+          0,
+          (total, event) => total + event.progress.clamp(0, 100),
+        ) /
+        events.length;
+
+    if (progress <= 33) return colors.accentRed;
+    if (progress <= 75) return colors.accentBlue;
+    return colors.accentGreen;
+  }
 
   @override
   Widget build(BuildContext context) {
     final hasEvents = events.isNotEmpty;
     final colors = context.colors;
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final statusBorderColor = progressBorderColor(
+      colors: colors,
+      events: events,
+      date: date,
+    );
 
     return Container(
       constraints: BoxConstraints(minHeight: hasEvents ? 74 : 54),
@@ -53,13 +83,15 @@ class DayTimeSlot extends StatelessWidget {
                         : colors.surfaceDeep,
                     borderRadius: AppRadius.button,
                     border: Border.all(
-                      color: hasEvents
-                          ? colors.primary.withValues(
-                              alpha: isLightTheme ? 0.16 : 0.22,
-                            )
-                          : isLightTheme
-                          ? colors.hairline
-                          : colors.hairlineStrong,
+                      color:
+                          statusBorderColor ??
+                          (hasEvents
+                              ? colors.primary.withValues(
+                                  alpha: isLightTheme ? 0.16 : 0.22,
+                                )
+                              : isLightTheme
+                              ? colors.hairline
+                              : colors.hairlineStrong),
                     ),
                     boxShadow: [
                       if (isLightTheme)

@@ -64,6 +64,29 @@ class WeekTimeRow extends StatelessWidget {
     return eventStart < normalizedSlotEnd && eventEnd > normalizedSlotStart;
   }
 
+  Color? progressBorderColor({
+    required AppColors colors,
+    required List<DashboardEvent> events,
+    required DateTime date,
+  }) {
+    if (events.isEmpty) return null;
+
+    final today = DashboardDateUtils.dateOnly(DateTime.now());
+    final slotDate = DashboardDateUtils.dateOnly(date);
+    if (slotDate.isAfter(today)) return null;
+
+    final progress =
+        events.fold<int>(
+          0,
+          (total, event) => total + event.progress.clamp(0, 100),
+        ) /
+        events.length;
+
+    if (progress <= 33) return colors.accentRed;
+    if (progress <= 75) return colors.accentBlue;
+    return colors.accentGreen;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -85,6 +108,11 @@ class WeekTimeRow extends StatelessWidget {
           Builder(
             builder: (context) {
               final slotEvents = eventsForSlot(events, day, hour);
+              final statusBorderColor = progressBorderColor(
+                colors: colors,
+                events: slotEvents,
+                date: day,
+              );
 
               return Expanded(
                 child: Container(
@@ -108,13 +136,15 @@ class WeekTimeRow extends StatelessWidget {
                             : colors.surfaceElevated.withValues(alpha: 0.58),
                         borderRadius: AppRadius.button,
                         border: Border.all(
-                          color: slotEvents.isEmpty
-                              ? isLightTheme
-                                    ? colors.hairline
-                                    : colors.hairlineStrong
-                              : colors.accentOrange.withValues(
-                                  alpha: isLightTheme ? 0.22 : 0.36,
-                                ),
+                          color:
+                              statusBorderColor ??
+                              (slotEvents.isEmpty
+                                  ? isLightTheme
+                                        ? colors.hairline
+                                        : colors.hairlineStrong
+                                  : colors.accentOrange.withValues(
+                                      alpha: isLightTheme ? 0.22 : 0.36,
+                                    )),
                         ),
                         boxShadow: [
                           if (isLightTheme)
