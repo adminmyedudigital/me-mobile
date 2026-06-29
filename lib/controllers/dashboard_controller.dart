@@ -41,40 +41,15 @@ class DashboardDateUtils {
 
   static const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  static const weekdayTime = [
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    24,
-    1,
-    2,
-    3,
-    4,
-    5,
-  ];
+  static final calendarHourSlots = List.generate(24, (index) => (index) % 24);
 
-  static int nextWeekdayTime(int hour) {
-    final index = weekdayTime.indexOf(hour);
-    if (index == -1 || index == weekdayTime.length - 1) {
-      return hour + 2;
+  static int nextCalendarHourSlot(int hour) {
+    final index = calendarHourSlots.indexOf(hour);
+    if (index == -1) {
+      return (hour + 1) % 24;
     }
 
-    return weekdayTime[index + 1];
+    return calendarHourSlots[(index + 1) % calendarHourSlots.length];
   }
 
   static bool isHourInSlot(double eventHour, int slotStart, int slotEnd) {

@@ -33,7 +33,7 @@ class WeekTimeRow extends StatelessWidget {
     DateTime date,
     int hour,
   ) {
-    final nextHour = DashboardDateUtils.nextWeekdayTime(hour);
+    final nextHour = DashboardDateUtils.nextCalendarHourSlot(hour);
 
     return eventsForDay(
       events,

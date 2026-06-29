@@ -72,6 +72,67 @@ class _QuizContainerState extends State<QuizContainer> {
     );
   }
 
+  void _handleNextPressed() {
+    if (!_quizController.isLastQuestion) {
+      _quizController.goToQuestion(1);
+      return;
+    }
+
+    _showSubmitConfirmationDialog();
+  }
+
+  void _showSubmitConfirmationDialog() {
+    final colors = context.colors;
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isLightTheme
+              ? colors.surfaceCard
+              : colors.surfaceElevated,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppRadius.card,
+            side: BorderSide(
+              color: colors.accentOrange.withValues(
+                alpha: isLightTheme ? 0.16 : 0.24,
+              ),
+            ),
+          ),
+          title: Text(
+            'Submit quiz?',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: colors.ink,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          content: Text(
+            'You are on the last question. Submit now to view your quiz result.',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.body),
+          ),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: colors.charcoal),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _quizController.submitQuiz();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -83,6 +144,8 @@ class _QuizContainerState extends State<QuizContainer> {
       final isCorrect = _quizController.isCurrentAnswerCorrect;
       final canGoPrevious = _quizController.canGoPrevious;
       final canGoNext = _quizController.canGoNext;
+      final isLastQuestion = _quizController.isLastQuestion;
+      final showResult = _quizController.showResult.value;
 
       return Scaffold(
         appBar: AppBar(
@@ -96,35 +159,40 @@ class _QuizContainerState extends State<QuizContainer> {
         body: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              QuizCard(
-                question: question,
-                currentQuestionIndex: currentQuestionIndex,
-                questionCount: questionCount,
-                showHintDialog: _showHintDialog,
-                selectedOptionIndex: selectedOptionIndex,
-                answerStateForOption: _quizController.answerStateForOption,
-                onOptionSelected: _quizController.selectOption,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 180),
-                child: showCorrectAnswer
-                    ? QuizAnswerPanel(
-                        key: ValueKey('answer-$currentQuestionIndex'),
-                        answer: question.correctAnswer,
-                        isCorrect: isCorrect,
-                      )
-                    : const SizedBox.shrink(key: ValueKey('empty-answer')),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              QuizNavigationButton(
-                canGoPrevious: canGoPrevious,
-                canGoNext: canGoNext,
-                onPreviousPressed: () => _quizController.goToQuestion(-1),
-                onNextPressed: () => _quizController.goToQuestion(1),
-              ),
-            ],
+            children: showResult
+                ? const [QuizResultContainer()]
+                : [
+                    QuizCard(
+                      question: question,
+                      currentQuestionIndex: currentQuestionIndex,
+                      questionCount: questionCount,
+                      showHintDialog: _showHintDialog,
+                      selectedOptionIndex: selectedOptionIndex,
+                      answerStateForOption:
+                          _quizController.answerStateForOption,
+                      onOptionSelected: _quizController.selectOption,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: showCorrectAnswer
+                          ? QuizAnswerPanel(
+                              key: ValueKey('answer-$currentQuestionIndex'),
+                              answer: question.correctAnswer,
+                              isCorrect: isCorrect,
+                            )
+                          : const SizedBox.shrink(
+                              key: ValueKey('empty-answer'),
+                            ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    QuizNavigationButton(
+                      canGoPrevious: canGoPrevious,
+                      canGoNext: canGoNext || isLastQuestion,
+                      onPreviousPressed: () => _quizController.goToQuestion(-1),
+                      onNextPressed: _handleNextPressed,
+                    ),
+                  ],
           ),
         ),
       );

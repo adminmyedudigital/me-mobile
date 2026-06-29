@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
 import 'package:me_mobile/controllers/dashboard_controller.dart';
 
-class WeekCalendarView extends StatelessWidget {
+class WeekCalendarView extends StatefulWidget {
   const WeekCalendarView({
     super.key,
     required this.selectedDate,
@@ -19,8 +21,62 @@ class WeekCalendarView extends StatelessWidget {
   final ValueChanged<DateTime> onDateSelected;
 
   @override
+  State<WeekCalendarView> createState() => _WeekCalendarViewState();
+}
+
+class _WeekCalendarViewState extends State<WeekCalendarView> {
+  final GlobalKey _currentHourKey = GlobalKey();
+  late int _currentHour;
+  Timer? _currentHourTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentHour = DateTime.now().hour;
+    _currentHourTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      final currentHour = DateTime.now().hour;
+      if (currentHour == _currentHour) return;
+      if (!mounted) return;
+
+      setState(() {
+        _currentHour = currentHour;
+      });
+      _centerCurrentHour();
+    });
+    _centerCurrentHour();
+  }
+
+  @override
+  void dispose() {
+    _currentHourTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant WeekCalendarView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _centerCurrentHour();
+  }
+
+  void _centerCurrentHour() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final currentHourContext = _currentHourKey.currentContext;
+      if (currentHourContext == null) return;
+
+      Scrollable.ensureVisible(
+        currentHourContext,
+        alignment: 0.5,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final weekStart = DashboardDateUtils.startOfWeek(selectedDate);
+    final weekStart = DashboardDateUtils.startOfWeek(widget.selectedDate);
     final days = List.generate(
       7,
       (index) => weekStart.add(Duration(days: index)),
@@ -39,11 +95,11 @@ class WeekCalendarView extends StatelessWidget {
                     date: date,
                     isSelected: DashboardDateUtils.isSameDate(
                       date,
-                      selectedDate,
+                      widget.selectedDate,
                     ),
-                    isToday: DashboardDateUtils.isSameDate(date, today),
+                    isToday: DashboardDateUtils.isSameDate(date, widget.today),
                     onTap: () {
-                      onDateSelected(date);
+                      widget.onDateSelected(date);
                       // _showCalendarDetailsDialog(
                       //   context: context,
                       //   date: date,
@@ -63,12 +119,13 @@ class WeekCalendarView extends StatelessWidget {
             ),
             child: Column(
               children: [
-                for (final hour in DashboardDateUtils.weekdayTime)
+                for (final hour in DashboardDateUtils.calendarHourSlots)
                   WeekTimeRow(
+                    key: hour == _currentHour ? _currentHourKey : null,
                     hour: hour,
                     days: days,
-                    events: events,
-                    onDateSelected: onDateSelected,
+                    events: widget.events,
+                    onDateSelected: widget.onDateSelected,
                   ),
               ],
             ),

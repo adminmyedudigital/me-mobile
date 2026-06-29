@@ -10,6 +10,7 @@ class QuizController extends GetxController {
   final RxMap<int, int> selectedOptionByQuestion = <int, int>{}.obs;
   final RxSet<int> revealedQuestionIndexes = <int>{}.obs;
   final RxInt currentQuestionIndex = 0.obs;
+  final RxBool showResult = false.obs;
 
   String get title => event.value?.title ?? 'Quiz';
 
@@ -29,6 +30,29 @@ class QuizController extends GetxController {
 
   bool get canGoNext => currentQuestionIndex.value < questions.length - 1;
 
+  bool get isLastQuestion => currentQuestionIndex.value == questions.length - 1;
+
+  int get correctAnswerCount {
+    var count = 0;
+
+    for (var index = 0; index < questions.length; index += 1) {
+      if (selectedOptionByQuestion[index] ==
+          questions[index].correctOptionIndex) {
+        count += 1;
+      }
+    }
+
+    return count;
+  }
+
+  int get wrongAnswerCount => questions.length - correctAnswerCount;
+
+  double get progressPercent {
+    if (questions.isEmpty) return 0;
+
+    return (correctAnswerCount / questions.length) * 100;
+  }
+
   void loadFromArgument(Object? argument) {
     final dashboardEvent = argument is DashboardEvent ? argument : null;
 
@@ -37,6 +61,7 @@ class QuizController extends GetxController {
     selectedOptionByQuestion.clear();
     revealedQuestionIndexes.clear();
     currentQuestionIndex.value = 0;
+    showResult.value = false;
   }
 
   void selectOption(int index) {
@@ -52,6 +77,10 @@ class QuizController extends GetxController {
 
     currentQuestionIndex.value = nextIndex;
     return true;
+  }
+
+  void submitQuiz() {
+    showResult.value = true;
   }
 
   QuizAnswerState answerStateForOption(int optionIndex) {
