@@ -121,7 +121,6 @@ class FlashCardFace extends StatelessWidget {
               IconButton(
                 tooltip: label,
                 onPressed: body.isEmpty ? null : () => _showBodyDialog(context),
-                iconSize: 18,
                 icon: Icon(icon),
               ),
             ],

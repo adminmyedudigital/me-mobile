@@ -10,5 +10,6 @@ class AppBinding extends Bindings {
     Get.lazyPut(DashboardController.new, fenix: true);
     Get.lazyPut(ExamsController.new, fenix: true);
     Get.lazyPut(FlashCardController.new, fenix: true);
+    Get.lazyPut(QuizController.new, fenix: true);
   }
 }

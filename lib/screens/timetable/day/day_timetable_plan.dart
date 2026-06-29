@@ -22,7 +22,9 @@ class _DayTimetablePlanState extends State<DayTimetablePlan> {
     Get.toNamed(AppRoutes.flashCard, arguments: widget.event);
   }
 
-  void _openQuiz() {}
+  void _openQuiz() {
+    Get.toNamed(AppRoutes.quiz, arguments: widget.event);
+  }
 
   @override
   Widget build(BuildContext context) {

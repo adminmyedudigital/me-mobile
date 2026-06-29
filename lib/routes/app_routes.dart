@@ -9,6 +9,7 @@ final class AppRoutes {
   static const String home = '/home';
   static const String dayTimetable = '/day-timetable';
   static const String flashCard = '/flash-card';
+  static const String quiz = '/quiz';
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -17,6 +18,7 @@ final class AppRoutes {
       home: (_) => const HomeScreenContainer(),
       dayTimetable: (_) => const DayTimetable(),
       flashCard: (_) => const FlashCardContainer(),
+      quiz: (_) => const QuizContainer(),
     };
   }
 }
