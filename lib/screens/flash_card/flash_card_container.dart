@@ -64,12 +64,22 @@ class _FlashCardContainerState extends State<FlashCardContainer>
   void _goToCard(int direction) {
     if (_controller.isAnimating) return;
 
+    if (direction > 0 && _flashCardController.isLastCard) {
+      _flashCardController.submitResult();
+      return;
+    }
+
     if (_flashCardController.goToCard(direction)) {
       _controller.value = 0;
     }
   }
 
   void _setFeedback(FlashCardFeedback feedback) {
+    if (_flashCardController.isLastCard) {
+      _flashCardController.setFeedbackAndSubmit(feedback);
+      return;
+    }
+
     final didMoveToNextCard = _flashCardController.setFeedback(feedback);
     if (didMoveToNextCard) {
       _controller.value = 0;
@@ -79,6 +89,30 @@ class _FlashCardContainerState extends State<FlashCardContainer>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      final showResult = _flashCardController.showResult.value;
+
+      if (showResult) {
+        return PopScope(
+          canPop: true,
+          child: Scaffold(
+            appBar: AppBar(
+              leading: BackButton(onPressed: _handleBack),
+              title: Text(
+                _flashCardController.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            body: const SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(AppSpacing.lg),
+                child: SingleChildScrollView(child: FlashCardResult()),
+              ),
+            ),
+          ),
+        );
+      }
+
       final card = _flashCardController.currentCard;
       final currentIndex = _flashCardController.currentIndex.value;
       final cardCount = _flashCardController.cards.length;
@@ -146,7 +180,9 @@ class _FlashCardContainerState extends State<FlashCardContainer>
                     currentIndex: currentIndex,
                     cardCount: cardCount,
                     canGoPrevious: _flashCardController.canGoPrevious,
-                    canGoNext: _flashCardController.canGoNext,
+                    canGoNext:
+                        _flashCardController.canGoNext ||
+                        _flashCardController.isLastCard,
                     selectedFeedback: _flashCardController.selectedFeedback,
                     onPrevious: () => _goToCard(-1),
                     onNext: () => _goToCard(1),

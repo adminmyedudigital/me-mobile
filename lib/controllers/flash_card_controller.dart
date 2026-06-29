@@ -11,6 +11,7 @@ class FlashCardController extends GetxController {
       <int, FlashCardFeedback>{}.obs;
   final RxInt currentIndex = 0.obs;
   final RxBool showAnswer = false.obs;
+  final RxBool showResult = false.obs;
 
   String get title => event.value?.title ?? 'Flashcards';
 
@@ -20,7 +21,25 @@ class FlashCardController extends GetxController {
 
   bool get canGoNext => currentIndex.value < cards.length - 1;
 
+  bool get isLastCard => currentIndex.value == cards.length - 1;
+
   FlashCardFeedback? get selectedFeedback => feedbackByCard[currentIndex.value];
+
+  int get correctCount => feedbackByCard.values
+      .where((feedback) => feedback == FlashCardFeedback.known)
+      .length;
+
+  int get wrongCount => feedbackByCard.values
+      .where((feedback) => feedback == FlashCardFeedback.review)
+      .length;
+
+  int get skipCount => cards.length - feedbackByCard.length;
+
+  double get progressPercent {
+    if (cards.isEmpty) return 0;
+
+    return (correctCount / cards.length) * 100;
+  }
 
   void loadFromArgument(Object? argument) {
     final dashboardEvent = argument is DashboardEvent ? argument : null;
@@ -30,6 +49,7 @@ class FlashCardController extends GetxController {
     feedbackByCard.clear();
     currentIndex.value = 0;
     showAnswer.value = false;
+    showResult.value = false;
   }
 
   void toggleAnswer() {
@@ -53,6 +73,15 @@ class FlashCardController extends GetxController {
     currentIndex.value += 1;
     showAnswer.value = false;
     return true;
+  }
+
+  void setFeedbackAndSubmit(FlashCardFeedback feedback) {
+    feedbackByCard[currentIndex.value] = feedback;
+    submitResult();
+  }
+
+  void submitResult() {
+    showResult.value = true;
   }
 
   List<FlashCardData> _buildCards(DashboardEvent? event) {
