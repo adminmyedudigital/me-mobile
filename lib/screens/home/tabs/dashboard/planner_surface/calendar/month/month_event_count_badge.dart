@@ -68,11 +68,9 @@ class MonthEventCountBadge extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs),
               Text(
                 '$count',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: textColor, height: 1),
               ),
             ],
           ),

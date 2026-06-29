@@ -98,7 +98,6 @@ class ProgressMetric extends StatelessWidget {
                     data.value,
                     style: context.textTheme.bodyMedium?.copyWith(
                       color: context.colors.ink,
-                      fontWeight: FontWeight.w700,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

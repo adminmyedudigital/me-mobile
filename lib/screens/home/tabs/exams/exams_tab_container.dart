@@ -62,10 +62,7 @@ class _ExamCard extends StatelessWidget {
                         '${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam ${exam.subjectName} exam',
                         maxLines: 1,
                         style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: context.colors.ink,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            ?.copyWith(color: context.colors.ink),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
@@ -125,10 +122,7 @@ class _ExamTypeChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: color,
-            fontWeight: FontWeight.w700,
-          ),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
         ),
       ),
     );
@@ -163,10 +157,9 @@ class _ExamMetric extends StatelessWidget {
                 Flexible(
                   child: Text(
                     value,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: context.colors.ink,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(color: context.colors.ink),
                   ),
                 ),
                 if (helper != null) ...[

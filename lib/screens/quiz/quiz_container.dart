@@ -49,10 +49,9 @@ class _QuizContainerState extends State<QuizContainer> {
           ),
           title: Text(
             'Hint',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: colors.ink),
           ),
           content: Text(
             question.hint,
@@ -103,10 +102,9 @@ class _QuizContainerState extends State<QuizContainer> {
           ),
           title: Text(
             'Submit quiz?',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: colors.ink),
           ),
           content: Text(
             'You are on the last question. Submit now to view your quiz result.',

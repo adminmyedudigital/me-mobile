@@ -96,7 +96,6 @@ class MonthDateCell extends StatelessWidget {
                     '${date.day}',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: isSelected ? selectedTextColor : textColor,
-                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   if (isToday) ...[

@@ -115,10 +115,9 @@ class _CompletionTile extends StatelessWidget {
           Expanded(
             child: Text(
               isCompleted ? 'Study completed' : 'Mark study completed',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: colors.ink,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colors.ink),
             ),
           ),
         ],
@@ -144,10 +143,9 @@ class _SummaryBlock extends StatelessWidget {
         children: [
           Text(
             'Summary',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.ink),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -202,10 +200,9 @@ class _PlanActionTile extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: colors.ink,
-                fontWeight: FontWeight.w800,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: colors.ink),
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(

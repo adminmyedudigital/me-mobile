@@ -78,7 +78,6 @@ class DayTimeTableBadge extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: titleColor,
-                        fontWeight: FontWeight.w800,
                         height: 1.1,
                       ),
                     ),
@@ -89,7 +88,6 @@ class DayTimeTableBadge extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: timeColor,
-                        fontWeight: FontWeight.w700,
                         height: 1,
                       ),
                     ),

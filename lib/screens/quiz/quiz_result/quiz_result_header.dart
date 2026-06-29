@@ -14,10 +14,9 @@ class QuizResultHeader extends StatelessWidget {
       children: [
         Text(
           'Quiz result',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colors.charcoal,
-            fontWeight: FontWeight.w800,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: colors.charcoal),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(

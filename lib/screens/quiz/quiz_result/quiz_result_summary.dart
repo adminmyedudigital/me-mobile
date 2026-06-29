@@ -36,10 +36,9 @@ class QuizResultSummary extends StatelessWidget {
         children: [
           Text(
             '$correctAnswerCount correct out of $questionCount questions',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.ink),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(

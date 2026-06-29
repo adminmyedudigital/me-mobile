@@ -27,7 +27,6 @@ class AuthTabButton extends StatelessWidget {
               label,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colors.body,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
                 letterSpacing: 0,
               ),
             ),

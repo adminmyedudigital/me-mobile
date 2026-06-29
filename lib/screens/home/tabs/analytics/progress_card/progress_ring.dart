@@ -52,7 +52,6 @@ class ProgressRing extends StatelessWidget {
                   '$percent%',
                   style: context.textTheme.bodyLarge?.copyWith(
                     color: context.colors.ink,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(

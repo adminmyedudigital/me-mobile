@@ -30,17 +30,15 @@ class _FlashCardScoreRing extends StatelessWidget {
             children: [
               Text(
                 '${progressPercent.round()}%',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: colors.primary,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(color: colors.primary),
               ),
               Text(
                 'known',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colors.charcoal,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: colors.charcoal),
               ),
             ],
           ),

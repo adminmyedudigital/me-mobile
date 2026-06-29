@@ -58,7 +58,6 @@ class WeekEventCountBadge extends StatelessWidget {
                 '$count',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: isLightTheme ? colors.primary : colors.ink,
-                  fontWeight: FontWeight.w800,
                   height: 1,
                 ),
               ),

@@ -27,7 +27,6 @@ class WeekNameHeader extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: isLightTheme ? colors.primary : colors.ink,
-                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),

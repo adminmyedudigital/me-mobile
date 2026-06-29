@@ -31,7 +31,6 @@ class ViewSwitcherButton extends StatelessWidget {
           label,
           style: context.textTheme.labelSmall?.copyWith(
             color: selected ? context.colors.canvas : context.colors.ink,
-            fontWeight: FontWeight.bold,
           ),
         ),
       ),

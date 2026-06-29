@@ -22,10 +22,9 @@ class QuizCardHeader extends StatelessWidget {
         Expanded(
           child: Text(
             'Question ${currentQuestionIndex + 1} / $questionCount',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colors.charcoal,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(color: colors.charcoal),
           ),
         ),
         IconButton(

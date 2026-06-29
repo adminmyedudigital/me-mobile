@@ -64,7 +64,6 @@ class DayTimeSlot extends StatelessWidget {
               DashboardDateUtils.hourLabel(hour),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: isLightTheme ? colors.mute : colors.ash,
-                fontWeight: FontWeight.w700,
               ),
             ),
           ),

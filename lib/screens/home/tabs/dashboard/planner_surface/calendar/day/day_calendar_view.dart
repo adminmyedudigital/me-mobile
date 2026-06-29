@@ -117,10 +117,9 @@ class _DayCalendarViewState extends State<DayCalendarView> {
       children: [
         Text(
           '${DashboardDateUtils.weekdayName(widget.selectedDate)}, ${widget.selectedDate.day}',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: context.colors.primary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: context.colors.primary),
         ),
         const SizedBox(height: AppSpacing.lg),
         Expanded(

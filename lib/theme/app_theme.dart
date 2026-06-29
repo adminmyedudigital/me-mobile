@@ -60,10 +60,7 @@ final class AppTheme {
         elevation: 0,
         centerTitle: false,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: textTheme.titleLarge?.copyWith(
-          color: colors.ink,
-          fontWeight: FontWeight.w700,
-        ),
+        titleTextStyle: textTheme.titleLarge?.copyWith(color: colors.ink),
       ),
       cardTheme: CardThemeData(
         color: colors.surfaceCard,

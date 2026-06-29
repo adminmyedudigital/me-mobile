@@ -62,10 +62,9 @@ class QuizOptionButton extends StatelessWidget {
               width: 28,
               child: Text(
                 String.fromCharCode(65 + index),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colors.ink,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: colors.ink),
               ),
             ),
             Expanded(
@@ -74,10 +73,9 @@ class QuizOptionButton extends StatelessWidget {
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
                 softWrap: true,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.ink,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: colors.ink),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),

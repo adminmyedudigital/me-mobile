@@ -30,18 +30,16 @@ class QuizAnswerPanel extends StatelessWidget {
         children: [
           Text(
             isCorrect ? 'Correct' : 'Correct answer',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: accentColor,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: accentColor),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             answer,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.body,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.body),
           ),
         ],
       ),

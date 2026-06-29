@@ -46,10 +46,9 @@ class EmptyTimetable extends StatelessWidget {
           Text(
             'No events scheduled',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: colors.ink),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(

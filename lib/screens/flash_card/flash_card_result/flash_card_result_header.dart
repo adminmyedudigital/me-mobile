@@ -12,10 +12,9 @@ class _FlashCardResultHeader extends StatelessWidget {
       children: [
         Text(
           'Flashcard result',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colors.charcoal,
-            fontWeight: FontWeight.w800,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: colors.charcoal),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(

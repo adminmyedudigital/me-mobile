@@ -97,7 +97,6 @@ class _MEFormButtonLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle = context.textTheme.bodyMedium?.copyWith(
       color: color,
-      fontWeight: FontWeight.bold,
       letterSpacing: 0,
     );
 

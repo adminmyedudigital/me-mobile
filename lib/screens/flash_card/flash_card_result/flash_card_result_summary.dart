@@ -33,10 +33,9 @@ class _FlashCardResultSummary extends StatelessWidget {
         children: [
           Text(
             '$correctCount correct out of $cardCount cards',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.ink),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(

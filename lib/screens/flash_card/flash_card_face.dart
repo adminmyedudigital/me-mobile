@@ -48,10 +48,9 @@ class FlashCardFace extends StatelessWidget {
           ),
           title: Text(
             alertText,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colors.ink,
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: colors.ink),
           ),
           content: SingleChildScrollView(
             child: Text(
@@ -112,10 +111,9 @@ class FlashCardFace extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${currentIndex + 1} / $cardCount',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colors.charcoal,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: colors.charcoal),
                 ),
               ),
               IconButton(

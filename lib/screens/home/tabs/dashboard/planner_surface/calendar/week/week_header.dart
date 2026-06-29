@@ -83,17 +83,15 @@ class WeekDayHeader extends StatelessWidget {
             children: [
               Text(
                 DashboardDateUtils.weekdayNames[date.weekday - 1],
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: textColor),
               ),
               Text(
                 '${date.day}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: textColor),
               ),
             ],
           ),
