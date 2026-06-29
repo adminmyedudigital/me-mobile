@@ -79,7 +79,7 @@ class DayTimeSlot extends StatelessWidget {
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
                     color: isLightTheme
-                        ? colors.surfaceCard
+                        ? colors.surfaceDeep
                         : colors.surfaceDeep,
                     borderRadius: AppRadius.button,
                     border: Border.all(

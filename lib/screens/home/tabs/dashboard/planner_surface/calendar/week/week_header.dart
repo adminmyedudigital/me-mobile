@@ -25,8 +25,8 @@ class WeekDayHeader extends StatelessWidget {
         ? colors.accentOrange
         : isToday
         ? isLightTheme
-              ? colors.accentBlueGlow.withValues(alpha: 0.55)
-              : colors.link.withValues(alpha: 0.22)
+              ? colors.surfaceElevated.withValues(alpha: 0.55)
+              : colors.surfaceElevated.withValues(alpha: 0.22)
         : isLightTheme
         ? colors.surfaceElevated
         : colors.surfaceElevated;
@@ -64,7 +64,7 @@ class WeekDayHeader extends StatelessWidget {
                 )
               else if (isToday)
                 BoxShadow(
-                  color: colors.accentBlueGlow.withValues(
+                  color: colors.link.withValues(
                     alpha: isLightTheme ? 0.14 : 0.2,
                   ),
                   blurRadius: 12,

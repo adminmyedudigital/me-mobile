@@ -11,12 +11,19 @@ class WeekTimeRow extends StatelessWidget {
     required this.days,
     required this.events,
     required this.onDateSelected,
+    required this.onSlotSelected,
   });
 
   final int hour;
   final List<DateTime> days;
   final List<DashboardEvent> events;
   final ValueChanged<DateTime> onDateSelected;
+  final void Function({
+    required DateTime selectedDate,
+    required int hour,
+    required List<DashboardEvent> selectedEvents,
+  })
+  onSlotSelected;
 
   List<DashboardEvent> eventsForDay(
     List<DashboardEvent> events,
@@ -120,12 +127,11 @@ class WeekTimeRow extends StatelessWidget {
                   child: InkWell(
                     onTap: () {
                       onDateSelected(day);
-                      // _showCalendarDetailsDialog(
-                      //   context: context,
-                      //   date: day,
-                      //   events: _eventsForDay(events, day),
-                      //   hour: hour,
-                      // );
+                      onSlotSelected(
+                        selectedDate: day,
+                        hour: hour,
+                        selectedEvents: slotEvents,
+                      );
                     },
                     child: Container(
                       margin: const EdgeInsets.all(AppSpacing.xxs),

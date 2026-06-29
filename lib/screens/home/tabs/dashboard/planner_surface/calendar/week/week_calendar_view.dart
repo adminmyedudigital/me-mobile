@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
+import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/controllers/dashboard_controller.dart';
 
 class WeekCalendarView extends StatefulWidget {
@@ -74,6 +77,19 @@ class _WeekCalendarViewState extends State<WeekCalendarView> {
     });
   }
 
+  void openDayTimetable({
+    required DateTime selectedDate,
+    required int hour,
+    required List<DashboardEvent> selectedEvents,
+  }) {
+    Get.find<DashboardController>().selectTimetableSlot(
+      date: selectedDate,
+      hour: hour,
+      events: selectedEvents,
+    );
+    Get.toNamed(AppRoutes.dayTimetable);
+  }
+
   @override
   Widget build(BuildContext context) {
     final weekStart = DashboardDateUtils.startOfWeek(widget.selectedDate);
@@ -126,6 +142,7 @@ class _WeekCalendarViewState extends State<WeekCalendarView> {
                     days: days,
                     events: widget.events,
                     onDateSelected: widget.onDateSelected,
+                    onSlotSelected: openDayTimetable,
                   ),
               ],
             ),
