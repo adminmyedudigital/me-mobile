@@ -19,7 +19,7 @@ class _DayTimetablePlanState extends State<DayTimetablePlan> {
   bool _isCompleted = false;
 
   void _openFlashcards() {
-    Get.toNamed(AppRoutes.flashCard);
+    Get.toNamed(AppRoutes.flashCard, arguments: widget.event);
   }
 
   void _openQuiz() {}

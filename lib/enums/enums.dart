@@ -1,1 +1,2 @@
 export 'package:me_mobile/enums/home_tab_enums.dart';
+export 'package:me_mobile/enums/flash_card_enums.dart';
