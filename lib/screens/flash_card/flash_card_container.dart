@@ -118,20 +118,22 @@ class _FlashCardContainerState extends State<FlashCardContainer>
                         child: isAnswerSide
                             ? FlashCardFace(
                                 label: 'Answer',
-                                icon: Icons.lightbulb_outline_rounded,
+                                icon: Icons.info_outline,
                                 title: card.answer,
                                 body: card.explanation,
                                 actionText: 'Question',
+                                alertText: 'Explanation',
                                 currentIndex: currentIndex,
                                 cardCount: cardCount,
                                 onPressed: _flipCard,
                               )
                             : FlashCardFace(
                                 label: 'Question',
-                                icon: Icons.help_outline_rounded,
+                                icon: Icons.lightbulb_outline_rounded,
                                 title: card.question,
                                 body: card.hint,
                                 actionText: 'See answer',
+                                alertText: 'Hint',
                                 currentIndex: currentIndex,
                                 cardCount: cardCount,
                                 onPressed: _flipCard,

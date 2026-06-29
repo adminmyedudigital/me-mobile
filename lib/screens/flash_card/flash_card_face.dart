@@ -8,6 +8,7 @@ class FlashCardFace extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.title,
+    required this.alertText,
     required this.body,
     required this.actionText,
     required this.currentIndex,
@@ -18,11 +19,59 @@ class FlashCardFace extends StatelessWidget {
   final String label;
   final IconData icon;
   final String title;
+  final String alertText;
   final String body;
   final String actionText;
   final int currentIndex;
   final int cardCount;
   final VoidCallback onPressed;
+
+  void _showBodyDialog(BuildContext context) {
+    final colors = context.colors;
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isLightTheme
+              ? colors.surfaceCard
+              : colors.surfaceElevated,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppRadius.card,
+            side: BorderSide(
+              color: colors.accentOrange.withValues(
+                alpha: isLightTheme ? 0.16 : 0.24,
+              ),
+            ),
+          ),
+          title: Text(
+            alertText,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: colors.ink,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Text(
+              body,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: colors.body),
+            ),
+          ),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: colors.accentOrange),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +107,24 @@ class FlashCardFace extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${currentIndex + 1} / $cardCount',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: colors.charcoal,
-              fontWeight: FontWeight.w800,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${currentIndex + 1} / $cardCount',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colors.charcoal,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: label,
+                onPressed: body.isEmpty ? null : () => _showBodyDialog(context),
+                iconSize: 18,
+                icon: Icon(icon),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
           Expanded(
@@ -76,31 +137,11 @@ class FlashCardFace extends StatelessWidget {
                     ),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(
-                                  color: foregroundColor,
-                                  fontWeight: FontWeight.w800,
-                                  height: 1.15,
-                                ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          Text(
-                            body,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: foregroundColor.withValues(
-                                    alpha: isLightTheme ? 0.72 : 0.82,
-                                  ),
-                                  height: 1.4,
-                                ),
-                          ),
-                        ],
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: foregroundColor,
+                        ),
                       ),
                     ),
                   ),
