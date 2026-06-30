@@ -73,6 +73,7 @@ class ExamsController extends GetxController {
 
   void addExamResult({
     required String subjectName,
+    required ExamType type,
     required int totalMarks,
     required int achievedMarks,
   }) {
@@ -80,7 +81,7 @@ class ExamsController extends GetxController {
       ExamItem(
         subjectName: subjectName,
         examDate: DateTime.now(),
-        type: ExamType.school,
+        type: type,
         totalMarks: totalMarks,
         achievedMarks: achievedMarks,
       ),

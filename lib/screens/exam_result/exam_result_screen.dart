@@ -18,6 +18,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late String? _subjectName;
+  ExamType? _examType = ExamType.school;
   String _totalMarks = '';
   String _achievedMarks = '';
 
@@ -79,6 +80,22 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                       onSaved: (value) => _subjectName = value,
                     ),
                     const SizedBox(height: AppSpacing.md),
+                    MEDropdownField<ExamType>(
+                      initialValue: _examType,
+                      labelText: 'Exam type',
+                      showClearButton: true,
+                      prefixIcon: const Icon(Icons.school_outlined),
+                      items: [
+                        for (final type in ExamType.values)
+                          MEDropdownOption(value: type, label: type.label),
+                      ],
+                      validator: _requiredDropdownValidator,
+                      onChanged: (value) {
+                        setState(() => _examType = value);
+                      },
+                      onSaved: (value) => _examType = value,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
                     METextField(
                       initialValue: _totalMarks,
                       labelText: 'Exam total marks',
@@ -125,10 +142,12 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
     _formKey.currentState?.save();
 
     final selectedSubject = _subjectName;
-    if (selectedSubject == null) return;
+    final selectedExamType = _examType;
+    if (selectedSubject == null || selectedExamType == null) return;
 
     _controller.addExamResult(
       subjectName: selectedSubject,
+      type: selectedExamType,
       totalMarks: int.parse(_totalMarks),
       achievedMarks: int.parse(_achievedMarks),
     );
