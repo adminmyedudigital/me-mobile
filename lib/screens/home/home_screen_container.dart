@@ -53,7 +53,7 @@ class HomeScreenContainer extends StatelessWidget {
       case AddTimetableAlertAction.schedule:
         Get.toNamed(AppRoutes.scheduleTimetable);
       case AddTimetableAlertAction.addMarks:
-        controller.changeTab(_examTabIndex);
+        Get.toNamed(AppRoutes.examResult);
       case null:
         return;
     }
@@ -67,6 +67,8 @@ class HomeScreenContainer extends StatelessWidget {
     return Obx(() {
       final currentIndex = homeController.currentIndex.value;
       final isDashboardTab = currentIndex == _dashboardTabIndex;
+      final isExamTab = currentIndex == _examTabIndex;
+      final hasFloatingActionButton = isDashboardTab || isExamTab;
       final colors = context.colors;
 
       return Scaffold(
@@ -86,7 +88,7 @@ class HomeScreenContainer extends StatelessWidget {
           bottom: false,
           child: Padding(
             padding: EdgeInsets.only(
-              bottom: isDashboardTab ? AppSpacing.xxxl : 0,
+              bottom: hasFloatingActionButton ? AppSpacing.xxxl : 0,
             ),
             child: IndexedStack(
               index: currentIndex,
@@ -133,6 +135,42 @@ class HomeScreenContainer extends StatelessWidget {
                   ),
                   onPressed: () =>
                       _confirmScheduleTimetable(context, homeController),
+                  child: const Icon(Icons.add_rounded, size: 30),
+                ),
+              )
+            : isExamTab
+            ? Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.primary.withValues(alpha: 0.28),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12),
+                    ),
+                    BoxShadow(
+                      color: colors.canvas.withValues(alpha: 0.32),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton(
+                  tooltip: 'Add exam result',
+                  elevation: 0,
+                  focusElevation: 0,
+                  hoverElevation: 0,
+                  highlightElevation: 0,
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.primaryOn,
+                  shape: CircleBorder(
+                    side: BorderSide(
+                      color: colors.primaryOn.withValues(alpha: 0.12),
+                    ),
+                  ),
+                  onPressed: () => Get.toNamed(AppRoutes.examResult),
                   child: const Icon(Icons.add_rounded, size: 30),
                 ),
               )

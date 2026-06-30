@@ -9,6 +9,7 @@ final class AppRoutes {
   static const String signIn = '/signin';
   static const String signUp = '/signup';
   static const String flashCard = '/flash-card';
+  static const String examResult = '/exam-result';
   static const String dayTimetable = '/day-timetable';
   static const String scheduleTimetable = '/schedule-timetable';
 
@@ -17,9 +18,10 @@ final class AppRoutes {
       quiz: (_) => const QuizContainer(),
       home: (_) => const HomeScreenContainer(),
       dayTimetable: (_) => const DayTimetable(),
-      signIn: (_) => const SignInScreenContainer(),
-      signUp: (_) => const SignUpScreenContainer(),
+      examResult: (_) => const ExamResultScreen(),
       flashCard: (_) => const FlashCardContainer(),
+      signUp: (_) => const SignUpScreenContainer(),
+      signIn: (_) => const SignInScreenContainer(),
       scheduleTimetable: (_) => const ScheduleTimetable(),
     };
   }

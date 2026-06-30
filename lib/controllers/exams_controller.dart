@@ -28,6 +28,13 @@ class ExamItem {
 }
 
 class ExamsController extends GetxController {
+  final List<String> subjects = const [
+    'English',
+    'Mathematics',
+    'Science',
+    'Social Studies',
+  ];
+
   final RxList<ExamItem> exams = <ExamItem>[
     ExamItem(
       subjectName: 'English',
@@ -62,6 +69,22 @@ class ExamsController extends GetxController {
   List<ExamItem> get sortedExams {
     return List<ExamItem>.of(exams)
       ..sort((first, second) => second.examDate.compareTo(first.examDate));
+  }
+
+  void addExamResult({
+    required String subjectName,
+    required int totalMarks,
+    required int achievedMarks,
+  }) {
+    exams.add(
+      ExamItem(
+        subjectName: subjectName,
+        examDate: DateTime.now(),
+        type: ExamType.school,
+        totalMarks: totalMarks,
+        achievedMarks: achievedMarks,
+      ),
+    );
   }
 
   String formatDate(DateTime date) {

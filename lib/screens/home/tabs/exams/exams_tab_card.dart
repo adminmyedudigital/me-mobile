@@ -79,7 +79,10 @@ class ExamsTabCard extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: ExamsTabMetric(label: 'Percentage', value: '82%'),
+                  child: ExamsTabMetric(
+                    label: 'Percentage',
+                    value: '${exam.scorePercent}%',
+                  ),
                 ),
               ],
             ),
