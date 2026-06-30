@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:get/get.dart';
+
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
+import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/controllers/dashboard_controller.dart';
 
 class MonthCalendarView extends StatelessWidget {
@@ -26,6 +29,22 @@ class MonthCalendarView extends StatelessWidget {
         .where((event) => DashboardDateUtils.isSameDate(event.date, date))
         .toList()
       ..sort((first, second) => first.startHour.compareTo(second.startHour));
+  }
+
+  void openDayTimetable({
+    required DateTime selectedDate,
+    required List<DashboardEvent> selectedEvents,
+  }) {
+    final initialHour = selectedEvents.isEmpty
+        ? DateTime.now().hour
+        : selectedEvents.first.startHour.floor();
+
+    Get.find<DashboardController>().selectTimetableSlot(
+      date: selectedDate,
+      hour: initialHour,
+      events: selectedEvents,
+    );
+    Get.toNamed(AppRoutes.dayTimetable);
   }
 
   @override
@@ -60,11 +79,7 @@ class MonthCalendarView extends StatelessWidget {
               events: dayEvents,
               onTap: () {
                 onDateSelected(date);
-                // _showCalendarDetailsDialog(
-                //   context: context,
-                //   date: date,
-                //   events: dayEvents,
-                // );
+                openDayTimetable(selectedDate: date, selectedEvents: dayEvents);
               },
             );
           },
