@@ -15,11 +15,18 @@ Future<void> showScheduleTimetableFormContainer(
     useSafeArea: true,
     backgroundColor: Colors.transparent,
     builder: (sheetContext) {
-      return ScheduleTimetableForm(
-        parentContext: context,
-        controller: controller,
-        item: item,
-        initialDate: initialDate,
+      return AnimatedPadding(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: ScheduleTimetableForm(
+          parentContext: context,
+          controller: controller,
+          item: item,
+          initialDate: initialDate,
+        ),
       );
     },
   );
