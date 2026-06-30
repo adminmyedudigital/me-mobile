@@ -8,11 +8,13 @@ import 'package:me_mobile/screens/screens.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/controllers/controllers.dart';
+import 'package:me_mobile/screens/home/add_timetable_alert.dart';
 
 class HomeScreenContainer extends StatelessWidget {
   const HomeScreenContainer({super.key});
 
   static const _dashboardTabIndex = 0;
+  static const _examTabIndex = 1;
 
   static const _tabs = [
     HomeNavigationDestination(
@@ -41,44 +43,26 @@ class HomeScreenContainer extends StatelessWidget {
     ),
   ];
 
-  Future<void> _createUpcomingTimetable(
+  Future<void> _confirmScheduleTimetable(
     BuildContext context,
-    DashboardController controller,
+    HomeController controller,
   ) async {
-    final now = DashboardDateUtils.dateOnly(DateTime.now());
-    final initialDate = controller.selectedDate.value.isAfter(now)
-        ? controller.selectedDate.value
-        : now.add(const Duration(days: 7));
+    final action = await showAddTimetableAlert(context);
 
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: now.add(const Duration(days: 1)),
-      lastDate: now.add(const Duration(days: 84)),
-      helpText: 'Create timetable',
-      confirmText: 'Create',
-      cancelText: 'Cancel',
-    );
-
-    if (pickedDate == null) return;
-
-    controller
-      ..selectDate(pickedDate)
-      ..changeView(CalendarView.week)
-      ..selectTimetableSlot(
-        date: pickedDate,
-        hour: 9,
-        events: controller.eventsForDate(pickedDate),
-      );
-
-    Get.toNamed(AppRoutes.dayTimetable);
+    switch (action) {
+      case AddTimetableAlertAction.schedule:
+        Get.toNamed(AppRoutes.scheduleTimetable);
+      case AddTimetableAlertAction.addMarks:
+        controller.changeTab(_examTabIndex);
+      case null:
+        return;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final homeController = Get.find<HomeController>();
     final appController = Get.find<AppController>();
-    final dashboardController = Get.find<DashboardController>();
 
     return Obx(() {
       final currentIndex = homeController.currentIndex.value;
@@ -147,9 +131,8 @@ class HomeScreenContainer extends StatelessWidget {
                       color: colors.primaryOn.withValues(alpha: 0.12),
                     ),
                   ),
-                  onPressed: () {
-                    _createUpcomingTimetable(context, dashboardController);
-                  },
+                  onPressed: () =>
+                      _confirmScheduleTimetable(context, homeController),
                   child: const Icon(Icons.add_rounded, size: 30),
                 ),
               )
