@@ -1,42 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/screens/screens.dart';
+import 'package:me_mobile/controllers/controllers.dart';
+import 'package:me_mobile/widgets/widgets.dart';
 
 class ScheduleTimetable extends StatelessWidget {
   const ScheduleTimetable({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final controller = Get.find<ScheduleTimetableController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Schedule time table')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Form(
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 360),
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: AppRadius.card,
-                  border: Border.all(
-                    color: colors.hairlineStrong.withValues(alpha: 0.72),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.canvas.withValues(alpha: 0.36),
-                      blurRadius: 24,
-                      offset: const Offset(0, 14),
-                    ),
-                  ],
-                ),
-              ),
+        child: Obx(
+          () => ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xs,
+              AppSpacing.xs,
+              AppSpacing.xs,
+              AppSpacing.band,
             ),
-          ],
+            children: [
+              ScheduleWeekHeader(),
+              const SizedBox(height: AppSpacing.sm),
+              ScheduleSummaryStrip(),
+              const SizedBox(height: AppSpacing.lg),
+              for (final date in controller.weekDays) ...[
+                ScheduleDaySection(
+                  date: date,
+                  items: controller.itemsForDate(date),
+                  controller: controller,
+                  onAdd: () => showScheduleTimetableFormContainer(
+                    context,
+                    controller,
+                    initialDate: date,
+                  ),
+                  onEdit: (item) => showScheduleTimetableFormContainer(
+                    context,
+                    controller,
+                    item: item,
+                  ),
+                  onDelete: controller.deleteItem,
+                  canAdd: controller.canScheduleDate(date),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+              MEButton(
+                fullWidth: true,
+                onPressed: () {},
+                icon: Icons.save,
+                label: 'Save plan',
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.surfaceCard,
+              ),
+            ],
+          ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Add study plan',
+        onPressed: () =>
+            showScheduleTimetableFormContainer(context, controller),
+        child: const Icon(Icons.add_rounded, size: 30),
       ),
     );
   }

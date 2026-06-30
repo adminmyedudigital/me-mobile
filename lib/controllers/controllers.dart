@@ -6,3 +6,4 @@ export 'package:me_mobile/controllers/exams_controller.dart';
 export 'package:me_mobile/controllers/flash_card_controller.dart';
 export 'package:me_mobile/controllers/home_controller.dart';
 export 'package:me_mobile/controllers/quiz_controller.dart';
+export 'package:me_mobile/controllers/schedule_timetable_controller.dart';

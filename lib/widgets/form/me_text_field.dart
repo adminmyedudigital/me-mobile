@@ -96,6 +96,7 @@ class _METextFieldState extends State<METextField> {
         obscureText: widget.obscureText,
         maxLines: widget.obscureText ? 1 : widget.maxLines,
         minLines: widget.minLines,
+        style: Theme.of(context).textTheme.bodyMedium,
         decoration: InputDecoration(
           labelText: widget.labelText,
           hintText: widget.hintText,
