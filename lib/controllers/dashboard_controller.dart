@@ -201,6 +201,16 @@ class DashboardController extends GetxController {
     selectDate(today.value);
   }
 
+  List<DashboardEvent> eventsForDate(DateTime date) {
+    final selectedDay = DashboardDateUtils.dateOnly(date);
+
+    return events
+        .where(
+          (event) => DashboardDateUtils.isSameDate(event.date, selectedDay),
+        )
+        .toList();
+  }
+
   void selectTimetableSlot({
     required DateTime date,
     required int hour,

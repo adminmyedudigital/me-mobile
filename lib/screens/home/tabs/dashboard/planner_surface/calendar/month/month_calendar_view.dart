@@ -57,32 +57,36 @@ class MonthCalendarView extends StatelessWidget {
       children: [
         WeekNameHeader(isLightTheme: isLightTheme),
         const SizedBox(height: AppSpacing.md),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 42,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisExtent: 78,
-            mainAxisSpacing: AppSpacing.xs,
-            crossAxisSpacing: AppSpacing.xs,
-          ),
-          itemBuilder: (context, index) {
-            final date = gridStart.add(Duration(days: index));
-            final dayEvents = eventsForDay(events, date);
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            itemCount: 42,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisExtent: 78,
+              mainAxisSpacing: AppSpacing.xs,
+              crossAxisSpacing: AppSpacing.xs,
+            ),
+            itemBuilder: (context, index) {
+              final date = gridStart.add(Duration(days: index));
+              final dayEvents = eventsForDay(events, date);
 
-            return MonthDateCell(
-              date: date,
-              isCurrentMonth: date.month == selectedDate.month,
-              isSelected: DashboardDateUtils.isSameDate(date, selectedDate),
-              isToday: DashboardDateUtils.isSameDate(date, today),
-              events: dayEvents,
-              onTap: () {
-                onDateSelected(date);
-                openDayTimetable(selectedDate: date, selectedEvents: dayEvents);
-              },
-            );
-          },
+              return MonthDateCell(
+                date: date,
+                isCurrentMonth: date.month == selectedDate.month,
+                isSelected: DashboardDateUtils.isSameDate(date, selectedDate),
+                isToday: DashboardDateUtils.isSameDate(date, today),
+                events: dayEvents,
+                onTap: () {
+                  onDateSelected(date);
+                  openDayTimetable(
+                    selectedDate: date,
+                    selectedEvents: dayEvents,
+                  );
+                },
+              );
+            },
+          ),
         ),
       ],
     );
