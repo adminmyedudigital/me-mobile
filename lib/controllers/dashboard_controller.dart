@@ -133,21 +133,21 @@ class DashboardController extends GetxController {
   final List<DashboardEvent> events = [
     DashboardEvent(
       title: 'Mathematics practice',
-      date: DateTime(2026, 6, 28),
+      date: DateTime(2026, 6, 30),
       startHour: 13,
       durationHours: 1.5,
       progress: 90,
     ),
     DashboardEvent(
       title: 'Science revision',
-      date: DateTime(2026, 6, 28),
+      date: DateTime(2026, 6, 30),
       startHour: 13,
       durationHours: 1,
       progress: 90,
     ),
     DashboardEvent(
       title: 'Mock exam',
-      date: DateTime(2026, 6, 27),
+      date: DateTime(2026, 6, 30),
       startHour: 10,
       durationHours: 2,
       progress: 0,

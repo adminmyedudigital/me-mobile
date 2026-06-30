@@ -1,7 +1,8 @@
-part of 'flash_card_result_container.dart';
+import 'package:flutter/material.dart';
+import 'package:me_mobile/theme/theme.dart';
 
-class _FlashCardScoreRing extends StatelessWidget {
-  const _FlashCardScoreRing({required this.progressPercent});
+class FlashCardScoreRing extends StatelessWidget {
+  const FlashCardScoreRing({super.key, required this.progressPercent});
 
   final double progressPercent;
 

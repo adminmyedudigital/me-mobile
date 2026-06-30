@@ -1,7 +1,11 @@
-part of 'flash_card_result_container.dart';
+import 'package:flutter/material.dart';
 
-class _FlashCardResultCard extends StatelessWidget {
-  const _FlashCardResultCard({
+import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/screens/screens.dart';
+
+class FlashCardResultCard extends StatelessWidget {
+  const FlashCardResultCard({
+    super.key,
     required this.correctCount,
     required this.wrongCount,
     required this.skipCount,
@@ -46,17 +50,17 @@ class _FlashCardResultCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _FlashCardResultHeader(),
+          const FlashCardResultHeader(),
           const SizedBox(height: AppSpacing.xl),
-          Center(child: _FlashCardScoreRing(progressPercent: progressPercent)),
+          Center(child: FlashCardScoreRing(progressPercent: progressPercent)),
           const SizedBox(height: AppSpacing.xl),
-          _FlashCardResultMetrics(
+          FlashCardResultMetrics(
             correctCount: correctCount,
             wrongCount: wrongCount,
             skipCount: skipCount,
           ),
           const SizedBox(height: AppSpacing.lg),
-          _FlashCardResultSummary(
+          FlashCardResultSummary(
             correctCount: correctCount,
             cardCount: cardCount,
             progressPercent: progressPercent,

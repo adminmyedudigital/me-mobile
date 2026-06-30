@@ -1,7 +1,10 @@
-part of 'flash_card_result_container.dart';
+import 'package:flutter/material.dart';
 
-class _FlashCardResultMetricCard extends StatelessWidget {
-  const _FlashCardResultMetricCard({
+import 'package:me_mobile/theme/theme.dart';
+
+class FlashCardResultMetricCard extends StatelessWidget {
+  const FlashCardResultMetricCard({
+    super.key,
     required this.icon,
     required this.label,
     required this.value,

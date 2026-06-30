@@ -1,7 +1,10 @@
-part of 'flash_card_result_container.dart';
+import 'package:flutter/material.dart';
 
-class _FlashCardResultSummary extends StatelessWidget {
-  const _FlashCardResultSummary({
+import 'package:me_mobile/theme/theme.dart';
+
+class FlashCardResultSummary extends StatelessWidget {
+  const FlashCardResultSummary({
+    super.key,
     required this.correctCount,
     required this.cardCount,
     required this.progressPercent,

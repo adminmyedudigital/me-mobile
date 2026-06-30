@@ -1,7 +1,11 @@
-part of 'flash_card_result_container.dart';
+import 'package:flutter/material.dart';
 
-class _FlashCardResultMetrics extends StatelessWidget {
-  const _FlashCardResultMetrics({
+import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/screens/screens.dart';
+
+class FlashCardResultMetrics extends StatelessWidget {
+  const FlashCardResultMetrics({
+    super.key,
     required this.correctCount,
     required this.wrongCount,
     required this.skipCount,
@@ -18,7 +22,7 @@ class _FlashCardResultMetrics extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _FlashCardResultMetricCard(
+          child: FlashCardResultMetricCard(
             icon: Icons.check_circle_rounded,
             label: 'Correct',
             value: correctCount.toString(),
@@ -27,7 +31,7 @@ class _FlashCardResultMetrics extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
-          child: _FlashCardResultMetricCard(
+          child: FlashCardResultMetricCard(
             icon: Icons.cancel_rounded,
             label: 'Wrong',
             value: wrongCount.toString(),
@@ -36,7 +40,7 @@ class _FlashCardResultMetrics extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
-          child: _FlashCardResultMetricCard(
+          child: FlashCardResultMetricCard(
             icon: Icons.skip_next_rounded,
             label: 'Skip',
             value: skipCount.toString(),

@@ -1,7 +1,9 @@
-part of 'flash_card_result_container.dart';
+import 'package:flutter/material.dart';
 
-class _FlashCardResultHeader extends StatelessWidget {
-  const _FlashCardResultHeader();
+import 'package:me_mobile/theme/theme.dart';
+
+class FlashCardResultHeader extends StatelessWidget {
+  const FlashCardResultHeader({super.key});
 
   @override
   Widget build(BuildContext context) {

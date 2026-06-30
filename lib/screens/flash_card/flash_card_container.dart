@@ -152,7 +152,7 @@ class _FlashCardContainerState extends State<FlashCardContainer>
                         child: isAnswerSide
                             ? FlashCardFace(
                                 label: 'Answer',
-                                icon: Icons.info_outline,
+                                icon: Icons.menu_book,
                                 title: card.answer,
                                 body: card.explanation,
                                 actionText: 'Question',
