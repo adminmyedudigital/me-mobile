@@ -16,14 +16,15 @@ class SettingsTabContainer extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.xs),
       children: [
         Card(
+          color: context.colors.surfaceElevated,
           child: Column(
             children: [
-              SwitchListTile(
-                value: true,
-                onChanged: (_) {},
-                secondary: const Icon(Icons.notifications_outlined),
-                title: const Text('Notifications'),
-                subtitle: const Text('Exam alerts and progress updates'),
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: const Text('Profile'),
+                subtitle: const Text('Manage your account details'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {},
               ),
               Divider(color: context.colors.hairline),
               Obx(
@@ -35,7 +36,9 @@ class SettingsTabContainer extends StatelessWidget {
                         ? Icons.dark_mode_outlined
                         : Icons.light_mode_outlined,
                   ),
-                  title: const Text('Dark mode'),
+                  title: Text(
+                    appController.isDarkMode ? 'Light mode' : 'Dark mode',
+                  ),
                   subtitle: Text(
                     appController.isDarkMode
                         ? 'Using dark theme'
@@ -45,9 +48,17 @@ class SettingsTabContainer extends StatelessWidget {
               ),
               Divider(color: context.colors.hairline),
               ListTile(
-                leading: const Icon(Icons.person_outline),
-                title: const Text('Profile'),
-                subtitle: const Text('Manage your account details'),
+                leading: const Icon(Icons.style_rounded),
+                title: const Text('Flash cards'),
+                subtitle: const Text('Check you knowledge with flash cards'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {},
+              ),
+              Divider(color: context.colors.hairline),
+              ListTile(
+                leading: const Icon(Icons.quiz_rounded),
+                title: const Text('Quiz'),
+                subtitle: const Text('Check you knowledge with quiz'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {},
               ),
@@ -55,6 +66,7 @@ class SettingsTabContainer extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: const Text('Sign out'),
+                subtitle: const Text('Sign out of your account'),
                 onTap: () {
                   Get.find<AppController>().signOut();
                 },

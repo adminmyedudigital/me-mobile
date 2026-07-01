@@ -67,7 +67,7 @@ class _DayTimetablePlanState extends State<DayTimetablePlan> {
               Expanded(
                 child: _PlanActionTile(
                   icon: Icons.style_rounded,
-                  title: 'Flashcards',
+                  title: 'Flash cards',
                   subtitle: 'Review key cards',
                   onTap: _openFlashcards,
                 ),

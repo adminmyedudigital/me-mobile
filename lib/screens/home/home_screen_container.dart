@@ -89,6 +89,8 @@ class HomeScreenContainer extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.only(
               bottom: hasFloatingActionButton ? AppSpacing.xxxl : 0,
+              left: AppSpacing.xs,
+              right: AppSpacing.xs,
             ),
             child: IndexedStack(
               index: currentIndex,
