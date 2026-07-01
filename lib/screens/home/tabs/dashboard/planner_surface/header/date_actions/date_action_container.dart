@@ -22,7 +22,7 @@ class DateActionContainer extends StatelessWidget {
           label: 'Today',
           onTap: onToday,
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: AppSpacing.xs),
         DateActionButton(
           icon: Icons.edit_calendar_outlined,
           label: 'Date',

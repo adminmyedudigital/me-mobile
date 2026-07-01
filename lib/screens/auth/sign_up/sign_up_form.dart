@@ -61,7 +61,16 @@ class _SignUpFormState extends State<SignUpForm> {
       return;
     }
 
-    Get.find<AppController>().signIn();
+    final appController = Get.find<AppController>();
+    appController.updateProfile(
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      email: _emailController.text,
+      phoneNumber: _phoneController.text,
+      username: _usernameController.text,
+      password: _passwordController.text,
+    );
+    appController.signIn();
   }
 
   @override
@@ -207,6 +216,7 @@ class _SignUpFormState extends State<SignUpForm> {
             backgroundColor: context.colors.accentOrange,
             foregroundColor: context.colors.ink,
           ),
+          const SizedBox(height: AppSpacing.md),
         ],
       ),
     );

@@ -38,7 +38,10 @@ class _SignInFormState extends State<SignInForm> {
       return;
     }
 
-    Get.find<AppController>().signIn();
+    Get.find<AppController>().signIn(
+      username: _usernameController.text,
+      password: _passwordController.text,
+    );
   }
 
   @override
