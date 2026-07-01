@@ -12,7 +12,7 @@ class ScheduleCardActionButton extends StatelessWidget {
   });
 
   final String tooltip;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData icon;
   final Color color;
 
@@ -33,7 +33,11 @@ class ScheduleCardActionButton extends StatelessWidget {
               borderRadius: AppRadius.button,
               border: Border.all(color: context.colors.hairline),
             ),
-            child: Icon(icon, size: 18, color: color),
+            child: Icon(
+              icon,
+              size: 18,
+              color: onPressed == null ? context.colors.mute : color,
+            ),
           ),
         ),
       ),

@@ -20,8 +20,19 @@ class ProgressCardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.insights, color: context.colors.accentGreen, size: 22),
-        const SizedBox(width: AppSpacing.md),
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: context.colors.primary.withValues(alpha: 0.12),
+            borderRadius: AppRadius.button,
+            border: Border.all(
+              color: context.colors.primary.withValues(alpha: 0.36),
+            ),
+          ),
+          child: Icon(Icons.insights, color: context.colors.primary, size: 18),
+        ),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,7 +40,7 @@ class ProgressCardHeader extends StatelessWidget {
               Text(
                 title,
                 style: context.textTheme.titleLarge?.copyWith(
-                  color: context.colors.accentGreen,
+                  color: context.colors.ink,
                 ),
               ),
               const SizedBox(height: AppSpacing.xxs),
@@ -47,7 +58,7 @@ class ProgressCardHeader extends StatelessWidget {
         ProgressDots(
           count: slideCount,
           currentIndex: currentSlide,
-          color: context.colors.accentGreen,
+          color: context.colors.primary,
         ),
       ],
     );

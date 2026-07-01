@@ -27,6 +27,7 @@ class ScheduleDaySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final plan = items.isEmpty ? null : items.first;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -39,17 +40,18 @@ class ScheduleDaySection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SchedulePlanHeader(canAdd: canAdd, date: date, onAdd: onAdd),
+            SchedulePlanHeader(
+              canAdd: canAdd,
+              date: date,
+              onAdd: onAdd,
+              onEdit: plan == null ? null : () => onEdit(plan),
+              onDelete: plan == null ? null : () => onDelete(plan.id),
+            ),
             if (items.isEmpty)
               ScheduleNotFound()
             else
               for (final item in items) ...[
-                ScheduleTimetableCard(
-                  item: item,
-                  controller: controller,
-                  onEdit: () => onEdit(item),
-                  onDelete: () => onDelete(item.id),
-                ),
+                ScheduleTimetableCard(item: item, controller: controller),
                 const SizedBox(height: AppSpacing.sm),
               ],
           ],

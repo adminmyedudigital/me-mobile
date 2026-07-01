@@ -11,14 +11,14 @@ class ProgressChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final totalProgressColor = _totalProgressColor(context);
+
     return Row(
       children: [
         ProgressRing(
           label: 'Total',
-          percent:
-              ((progressItem.studyProgress + progressItem.examProgress) / 2)
-                  .toInt(),
-          color: context.colors.accentRed,
+          percent: progressItem.totalProgress,
+          color: totalProgressColor,
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
@@ -27,18 +27,46 @@ class ProgressChart extends StatelessWidget {
               ProgressBar(
                 label: 'Study',
                 percent: progressItem.studyProgress,
-                color: context.colors.accentBlue,
+                color: _progressBarColor(context, progressItem.studyProgress),
               ),
               const SizedBox(height: AppSpacing.md),
               ProgressBar(
                 label: 'Exam',
                 percent: progressItem.examProgress,
-                color: context.colors.accentBlue,
+                color: _progressBarColor(context, progressItem.examProgress),
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Color _totalProgressColor(BuildContext context) {
+    final totalProgress = progressItem.totalProgress.clamp(0, 100);
+
+    if (totalProgress <= 33) {
+      return context.colors.accentRed;
+    }
+
+    if (totalProgress <= 75) {
+      return context.colors.accentBlue;
+    }
+
+    return context.colors.accentGreen;
+  }
+
+  Color _progressBarColor(BuildContext context, int percent) {
+    final totalProgress = percent.clamp(0, 100);
+
+    if (totalProgress <= 33) {
+      return context.colors.accentRed;
+    }
+
+    if (totalProgress <= 75) {
+      return context.colors.accentBlue;
+    }
+
+    return context.colors.accentGreen;
   }
 }

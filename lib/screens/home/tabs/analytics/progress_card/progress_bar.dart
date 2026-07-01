@@ -16,6 +16,9 @@ class ProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = percent.clamp(0, 100) / 100;
+    final trackColor = Theme.of(context).brightness == Brightness.dark
+        ? context.colors.primary
+        : context.colors.hairlineStrong;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +41,7 @@ class ProgressBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 7,
-            backgroundColor: context.colors.hairlineStrong,
+            backgroundColor: trackColor,
             color: color,
           ),
         ),

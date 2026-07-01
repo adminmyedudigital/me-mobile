@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:me_mobile/controllers/controllers.dart';
+import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_bar_chart.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_card_header.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_chart.dart';
 import 'package:me_mobile/screens/home/tabs/analytics/progress_card/progress_metric.dart';
@@ -38,45 +39,44 @@ class _ProgressCardState extends State<ProgressCard> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AnalyticsController>();
+    final colors = context.colors;
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
     return Obx(
       () => Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
+          vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: context.colors.accentGreenGlow,
-          borderRadius: AppRadius.card,
-          border: Border.all(color: context.colors.accentGreenGlow),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              context.colors.accentGreenGlow.withAlpha(18),
-              context.colors.accentGreenGlow,
-              context.colors.accentGreenGlow,
-            ],
+          color: colors.surfaceDeep,
+          borderRadius: AppRadius.button,
+          border: Border.all(
+            color: isLightTheme ? colors.hairline : colors.hairlineStrong,
           ),
           boxShadow: [
-            BoxShadow(
-              color: context.colors.accentGreenGlow.withAlpha(10),
-              blurRadius: 34,
-              offset: const Offset(0, 18),
-            ),
+            if (isLightTheme)
+              BoxShadow(
+                color: colors.primary.withValues(alpha: 0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProgressCardHeader(
-              title: "Progress",
-              currentTitle: controller.currentProgress.title,
-              slideCount: controller.progressItems.length,
-              currentSlide: controller.currentSlide.value,
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: ProgressCardHeader(
+                title: controller.currentProgress.displayTitle,
+                currentTitle: controller.currentProgress.displaySubTitle,
+                slideCount: controller.progressItems.length,
+                currentSlide: controller.currentSlide.value,
+              ),
             ),
             SizedBox(
-              height: 230,
+              height: _contentHeight,
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: controller.progressItems.length,
@@ -84,41 +84,66 @@ class _ProgressCardState extends State<ProgressCard> {
                 itemBuilder: (context, index) {
                   final progressItem = controller.progressItems[index];
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: AppSpacing.md),
-                      ProgressChart(progressItem: progressItem),
-                      const SizedBox(height: AppSpacing.md),
-                      ProgressMetricGrid(
-                        metrics: [
-                          ProgressMetricData(
-                            title: 'Weekly Study',
-                            value: '${progressItem.currentWeekStudyProgress}%',
-                            icon: Icons.edit_note,
-                            color: context.colors.accentGreen,
+                  return Scrollbar(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        const reservedContentHeight = 236.0;
+                        final chartHeight =
+                            (constraints.maxHeight - reservedContentHeight)
+                                .clamp(220.0, 260.0);
+
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.only(right: AppSpacing.xs),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ProgressChart(progressItem: progressItem),
+                              const SizedBox(height: AppSpacing.md),
+                              ProgressMetricGrid(
+                                metrics: [
+                                  ProgressMetricData(
+                                    title: 'Weekly Study',
+                                    value:
+                                        '${progressItem.weeklyStudyProgress}%',
+                                    icon: Icons.edit_note,
+                                    color: colors.primary,
+                                  ),
+                                  ProgressMetricData(
+                                    title: 'Weekly Exam',
+                                    value:
+                                        '${progressItem.weeklyExamProgress}%',
+                                    icon: Icons.assignment_turned_in_outlined,
+                                    color: colors.primary,
+                                  ),
+                                  ProgressMetricData(
+                                    title: 'Monthly Study',
+                                    value:
+                                        '${progressItem.monthlyStudyProgress}%',
+                                    icon: Icons.calendar_month_outlined,
+                                    color: colors.primary,
+                                  ),
+                                  ProgressMetricData(
+                                    title: 'Monthly Exam',
+                                    value:
+                                        '${progressItem.monthlyExamProgress}%',
+                                    icon: Icons.fact_check_outlined,
+                                    color: colors.primary,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              SizedBox(
+                                height: chartHeight,
+                                child: ProgressBarChart(
+                                  title: progressItem.displayBarChartTitle,
+                                  items: progressItem.barChartData,
+                                ),
+                              ),
+                            ],
                           ),
-                          ProgressMetricData(
-                            title: 'Weekly Exam',
-                            value: '${progressItem.currentWeekExamProgress}%',
-                            icon: Icons.assignment_turned_in_outlined,
-                            color: context.colors.accentBlue,
-                          ),
-                          ProgressMetricData(
-                            title: 'Monthly Study',
-                            value: '${progressItem.currentMonthStudyProgress}%',
-                            icon: Icons.calendar_month_outlined,
-                            color: context.colors.accentBlue,
-                          ),
-                          ProgressMetricData(
-                            title: 'Monthly Exam',
-                            value: '${progressItem.currentMonthExamProgress}%',
-                            icon: Icons.fact_check_outlined,
-                            color: context.colors.accentGreen,
-                          ),
-                        ],
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -128,4 +153,6 @@ class _ProgressCardState extends State<ProgressCard> {
       ),
     );
   }
+
+  static const double _contentHeight = 472;
 }

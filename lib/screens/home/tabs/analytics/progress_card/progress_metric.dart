@@ -61,17 +61,9 @@ class ProgressMetric extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: context.colors.surfaceDeep.withAlpha(150),
-        borderRadius: AppRadius.card,
-        border: Border.all(color: data.color.withAlpha(46)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            data.color.withAlpha(18),
-            context.colors.surfaceDeep.withAlpha(180),
-          ],
-        ),
+        color: context.colors.surfaceElevated,
+        borderRadius: AppRadius.button,
+        border: Border.all(color: context.colors.hairline),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -124,9 +116,9 @@ class _ProgressMetricIcon extends StatelessWidget {
       width: 34,
       height: 34,
       decoration: BoxDecoration(
-        color: color.withAlpha(24),
-        borderRadius: AppRadius.card,
-        border: Border.all(color: color.withAlpha(48)),
+        color: color.withValues(alpha: 0.12),
+        borderRadius: AppRadius.button,
+        border: Border.all(color: color.withValues(alpha: 0.36)),
       ),
       child: Icon(icon, color: color, size: 18),
     );

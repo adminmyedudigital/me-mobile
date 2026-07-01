@@ -4,46 +4,61 @@ import 'package:me_mobile/screens/home/tabs/analytics/progress_card/study_progre
 class AnalyticsController extends GetxController {
   final RxInt currentSlide = 0.obs;
 
-  final List<StudyProgressSummary> progressItems = const [
+  final RxList<StudyProgressSummary> progressItems = <StudyProgressSummary>[
     StudyProgressSummary(
-      studyProgress: 72,
-      examProgress: 48,
-      title: 'Over all progress',
-      currentWeekStudyProgress: 18,
-      currentWeekExamProgress: 12,
-      currentMonthStudyProgress: 64,
-      currentMonthExamProgress: 38,
+      title: 'Progress',
+      subTitle: 'Over all progress',
+      totalProgress: 60,
+      studyProgress: 40,
+      examProgress: 20,
+      weeklyStudyProgress: 90,
+      weeklyExamProgress: 10,
+      monthlyStudyProgress: 50,
+      monthlyExamProgress: 10,
+      barChartTitle: 'Subject Progress',
+      barChartData: [
+        ProgressBarChartData(label: 'maths', data: 20),
+        ProgressBarChartData(label: 'science', data: 30),
+        ProgressBarChartData(label: 'maths', data: 20),
+        ProgressBarChartData(label: 'science', data: 30),
+        ProgressBarChartData(label: 'maths', data: 20),
+        ProgressBarChartData(label: 'science', data: 30),
+        ProgressBarChartData(label: 'maths', data: 20),
+        ProgressBarChartData(label: 'science', data: 30),
+      ],
     ),
     StudyProgressSummary(
-      studyProgress: 58,
-      examProgress: 34,
       title: 'Science',
-      currentWeekStudyProgress: 16,
-      currentWeekExamProgress: 8,
-      currentMonthStudyProgress: 52,
-      currentMonthExamProgress: 28,
+      subTitle: 'Science subject progress',
+      totalProgress: 30,
+      studyProgress: 40,
+      examProgress: 20,
+      weeklyStudyProgress: 90,
+      weeklyExamProgress: 10,
+      monthlyStudyProgress: 50,
+      monthlyExamProgress: 10,
+      barChartTitle: 'Topics progress',
+      barChartData: [
+        ProgressBarChartData(label: 'Topic1', data: 20),
+        ProgressBarChartData(label: 'Topic2', data: 30),
+      ],
     ),
-    StudyProgressSummary(
-      studyProgress: 81,
-      examProgress: 62,
-      title: 'Mathematics',
-      currentWeekStudyProgress: 22,
-      currentWeekExamProgress: 14,
-      currentMonthStudyProgress: 74,
-      currentMonthExamProgress: 56,
-    ),
-  ];
+  ].obs;
 
   StudyProgressSummary get currentProgress {
     if (progressItems.isEmpty) {
       return const StudyProgressSummary(
+        title: 'Progress',
+        subTitle: 'Over all progress',
+        totalProgress: 0,
         studyProgress: 0,
         examProgress: 0,
-        title: 'Progress',
-        currentWeekStudyProgress: 0,
-        currentWeekExamProgress: 0,
-        currentMonthStudyProgress: 0,
-        currentMonthExamProgress: 0,
+        weeklyStudyProgress: 0,
+        weeklyExamProgress: 0,
+        monthlyStudyProgress: 0,
+        monthlyExamProgress: 0,
+        barChartTitle: 'Progress breakdown',
+        barChartData: [],
       );
     }
 
@@ -57,5 +72,15 @@ class AnalyticsController extends GetxController {
     }
 
     currentSlide.value = index.clamp(0, progressItems.length - 1);
+  }
+
+  void setProgressItemsFromApi(List<dynamic> response) {
+    final items = [
+      for (final item in response)
+        if (item is Map<String, dynamic>) StudyProgressSummary.fromJson(item),
+    ];
+
+    progressItems.assignAll(items);
+    changeSlide(currentSlide.value);
   }
 }

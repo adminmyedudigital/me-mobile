@@ -9,14 +9,10 @@ class ScheduleTimetableCard extends StatelessWidget {
     super.key,
     required this.item,
     required this.controller,
-    required this.onEdit,
-    required this.onDelete,
   });
 
   final ScheduleTimetableItem item;
   final ScheduleTimetableController controller;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +78,6 @@ class ScheduleTimetableCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           SchedulePlanSuggestion(item: item),
         ],
-        const SizedBox(height: AppSpacing.sm),
-        ScheduleCardActionContainer(onDelete: onDelete, onEdit: onEdit),
       ],
     );
   }

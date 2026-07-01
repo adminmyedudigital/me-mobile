@@ -25,9 +25,7 @@ class ProgressDots extends StatelessWidget {
             height: 6,
             margin: const EdgeInsets.only(left: AppSpacing.xs),
             decoration: BoxDecoration(
-              color: index == currentIndex
-                  ? color
-                  : context.colors.hairlineStrong,
+              color: index == currentIndex ? color : context.colors.primary,
               borderRadius: AppRadius.pill,
             ),
           ),

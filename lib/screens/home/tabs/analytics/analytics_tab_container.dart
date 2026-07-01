@@ -8,13 +8,13 @@ class AnalyticsTabContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.xs,
         AppSpacing.xs,
         AppSpacing.xs,
         AppSpacing.band,
       ),
-      children: [const ProgressCard()],
+      children: const [ProgressCard()],
     );
   }
 }
