@@ -159,6 +159,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: MEDatePickerField(
@@ -210,6 +211,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: METextField(

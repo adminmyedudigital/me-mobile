@@ -128,14 +128,22 @@ class METimePickerField extends StatelessWidget {
               labelText: labelText,
               prefixIcon: prefixIcon,
               suffixIcon: value != null && onCleared != null
-                  ? IconButton(
-                      tooltip: 'Clear',
-                      onPressed: () {
-                        field.didChange(null);
-                        field.validate();
-                        onCleared?.call();
-                      },
-                      icon: const Icon(Icons.close_rounded, size: 18),
+                  ? SizedBox.square(
+                      dimension: 48,
+                      child: IconButton(
+                        tooltip: 'Clear',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 48,
+                          height: 48,
+                        ),
+                        onPressed: () {
+                          field.didChange(null);
+                          field.validate();
+                          onCleared?.call();
+                        },
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                      ),
                     )
                   : null,
               errorText: field.errorText,

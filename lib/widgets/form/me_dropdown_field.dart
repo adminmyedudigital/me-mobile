@@ -37,60 +37,134 @@ class MEDropdownField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final hasInitialValue = items.any((item) => item.value == initialValue);
     final resolvedValue = hasInitialValue ? initialValue : null;
 
-    return DropdownButtonFormField<T>(
+    return FormField<T>(
       key: ValueKey(resolvedValue),
       initialValue: resolvedValue,
-      isExpanded: true,
-      style: Theme.of(context).textTheme.bodyMedium,
-      dropdownColor: colors.surfaceCard,
-      iconEnabledColor: colors.ash,
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        prefixIcon: prefixIcon,
-        suffixIcon: showClearButton && resolvedValue != null
-            ? IconButton(
-                tooltip: 'Clear',
-                onPressed: () => onChanged?.call(null),
-                icon: const Icon(Icons.close_rounded, size: 18),
-              )
-            : null,
-        labelStyle: TextStyle(color: colors.ash),
-        prefixIconColor: colors.ash,
-        suffixIconColor: colors.ash,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadius.input,
-          borderSide: BorderSide(color: colors.ash),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadius.input,
-          borderSide: BorderSide(color: colors.ash, width: 1.2),
-        ),
-        errorStyle: TextStyle(color: colors.accentRed),
-        errorBorder: OutlineInputBorder(
-          borderRadius: AppRadius.input,
-          borderSide: BorderSide(color: colors.accentRed),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: AppRadius.input,
-          borderSide: BorderSide(color: colors.accentRed, width: 1.2),
-        ),
-      ),
-      items: [
+      validator: validator,
+      autovalidateMode: autovalidateMode,
+      onSaved: onSaved,
+      builder: (field) {
+        return _MEDropdownInput<T>(
+          items: items,
+          value: field.value,
+          labelText: labelText,
+          hintText: hintText,
+          prefixIcon: prefixIcon,
+          errorText: field.errorText,
+          showClearButton: showClearButton,
+          onChanged: (value) {
+            field.didChange(value);
+            field.validate();
+            onChanged?.call(value);
+          },
+        );
+      },
+    );
+  }
+}
+
+class _MEDropdownInput<T> extends StatelessWidget {
+  const _MEDropdownInput({
+    required this.items,
+    required this.onChanged,
+    this.value,
+    this.labelText,
+    this.hintText,
+    this.prefixIcon,
+    this.errorText,
+    this.showClearButton = false,
+  });
+
+  final List<MEDropdownOption<T>> items;
+  final T? value;
+  final String? labelText;
+  final String? hintText;
+  final Widget? prefixIcon;
+  final String? errorText;
+  final bool showClearButton;
+  final ValueChanged<T?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final selectedOption = _selectedOption;
+    final hasValue = selectedOption != null;
+    final showClearIcon = showClearButton && hasValue;
+
+    return PopupMenuButton<T>(
+      tooltip: '',
+      color: colors.surfaceCard,
+      position: PopupMenuPosition.under,
+      onSelected: onChanged,
+      itemBuilder: (context) => [
         for (final item in items)
-          DropdownMenuItem<T>(
+          PopupMenuItem<T>(
             value: item.value,
             child: Text(item.label, overflow: TextOverflow.ellipsis),
           ),
       ],
-      validator: validator,
-      autovalidateMode: autovalidateMode,
-      onChanged: onChanged,
-      onSaved: onSaved,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintText: hintText,
+          prefixIcon: prefixIcon,
+          suffixIcon: SizedBox.square(
+            dimension: 48,
+            child: showClearIcon
+                ? IconButton(
+                    tooltip: 'Clear',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 48,
+                      height: 48,
+                    ),
+                    onPressed: () => onChanged(null),
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                  )
+                : Icon(Icons.keyboard_arrow_down_rounded, color: colors.ash),
+          ),
+          errorText: errorText,
+          labelStyle: TextStyle(color: colors.ash),
+          prefixIconColor: colors.ash,
+          suffixIconColor: colors.ash,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: BorderSide(color: colors.ash),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: BorderSide(color: colors.ash, width: 1.2),
+          ),
+          errorStyle: TextStyle(color: colors.accentRed),
+          errorBorder: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: BorderSide(color: colors.accentRed),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: BorderSide(color: colors.accentRed, width: 1.2),
+          ),
+        ),
+        child: Text(
+          selectedOption?.label ?? hintText ?? '',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: hasValue ? null : colors.ash),
+        ),
+      ),
     );
+  }
+
+  MEDropdownOption<T>? get _selectedOption {
+    for (final item in items) {
+      if (item.value == value) return item;
+    }
+
+    return null;
   }
 }
