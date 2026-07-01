@@ -6,13 +6,14 @@ import 'package:me_mobile/models/models.dart';
 
 class QuizController extends GetxController {
   final Rxn<DashboardEvent> event = Rxn<DashboardEvent>();
+  final Rxn<StudyPracticeSelection> selection = Rxn<StudyPracticeSelection>();
   final RxList<QuizData> questions = <QuizData>[].obs;
   final RxMap<int, int> selectedOptionByQuestion = <int, int>{}.obs;
   final RxSet<int> revealedQuestionIndexes = <int>{}.obs;
   final RxInt currentQuestionIndex = 0.obs;
   final RxBool showResult = false.obs;
 
-  String get title => event.value?.title ?? 'Quiz';
+  String get title => selection.value?.title ?? event.value?.title ?? 'Quiz';
 
   QuizData get currentQuestion => questions[currentQuestionIndex.value];
 
@@ -55,9 +56,13 @@ class QuizController extends GetxController {
 
   void loadFromArgument(Object? argument) {
     final dashboardEvent = argument is DashboardEvent ? argument : null;
+    final studySelection = argument is StudyPracticeSelection ? argument : null;
 
     event.value = dashboardEvent;
-    questions.assignAll(_buildQuestions(dashboardEvent));
+    selection.value = studySelection;
+    questions.assignAll(
+      _buildQuestions(studySelection?.topic ?? dashboardEvent?.title),
+    );
     selectedOptionByQuestion.clear();
     revealedQuestionIndexes.clear();
     currentQuestionIndex.value = 0;
@@ -104,8 +109,8 @@ class QuizController extends GetxController {
     return QuizAnswerState.idle;
   }
 
-  List<QuizData> _buildQuestions(DashboardEvent? event) {
-    final topic = event?.title ?? 'this topic';
+  List<QuizData> _buildQuestions(String? selectedTopic) {
+    final topic = selectedTopic ?? 'this topic';
 
     return [
       QuizData(

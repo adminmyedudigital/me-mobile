@@ -40,6 +40,46 @@ class UserProfile {
   }
 }
 
+class StudySettings {
+  const StudySettings({
+    required this.schoolName,
+    required this.educationBoard,
+    required this.className,
+    this.academicStartMonth,
+    this.academicStartYear,
+    this.academicEndMonth,
+    this.academicEndYear,
+  });
+
+  final String schoolName;
+  final String educationBoard;
+  final String className;
+  final int? academicStartMonth;
+  final int? academicStartYear;
+  final int? academicEndMonth;
+  final int? academicEndYear;
+
+  StudySettings copyWith({
+    String? schoolName,
+    String? educationBoard,
+    String? className,
+    int? academicStartMonth,
+    int? academicStartYear,
+    int? academicEndMonth,
+    int? academicEndYear,
+  }) {
+    return StudySettings(
+      schoolName: schoolName ?? this.schoolName,
+      educationBoard: educationBoard ?? this.educationBoard,
+      className: className ?? this.className,
+      academicStartMonth: academicStartMonth ?? this.academicStartMonth,
+      academicStartYear: academicStartYear ?? this.academicStartYear,
+      academicEndMonth: academicEndMonth ?? this.academicEndMonth,
+      academicEndYear: academicEndYear ?? this.academicEndYear,
+    );
+  }
+}
+
 class AppController extends GetxController {
   final RxBool isAuthenticated = false.obs;
   final Rx<ThemeMode> themeMode = ThemeMode.light.obs;
@@ -50,6 +90,11 @@ class AppController extends GetxController {
     phoneNumber: '',
     username: '',
     password: '',
+  ).obs;
+  final Rx<StudySettings> studySettings = const StudySettings(
+    schoolName: '',
+    educationBoard: '',
+    className: '',
   ).obs;
 
   bool get isDarkMode => themeMode.value == ThemeMode.dark;
@@ -100,6 +145,26 @@ class AppController extends GetxController {
 
   void changeUsername(String username) {
     profile.value = profile.value.copyWith(username: username.trim());
+  }
+
+  void updateStudySettings({
+    required String schoolName,
+    required String educationBoard,
+    required String className,
+    required int academicStartMonth,
+    required int academicStartYear,
+    required int academicEndMonth,
+    required int academicEndYear,
+  }) {
+    studySettings.value = studySettings.value.copyWith(
+      schoolName: schoolName.trim(),
+      educationBoard: educationBoard.trim(),
+      className: className.trim(),
+      academicStartMonth: academicStartMonth,
+      academicStartYear: academicStartYear,
+      academicEndMonth: academicEndMonth,
+      academicEndYear: academicEndYear,
+    );
   }
 
   void signOut() {

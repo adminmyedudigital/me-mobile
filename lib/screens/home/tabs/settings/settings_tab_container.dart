@@ -26,19 +26,11 @@ class SettingsTabContainer extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                leading: const Icon(Icons.style_rounded),
-                title: const Text('Flash cards'),
-                subtitle: const Text('Check you knowledge with flash cards'),
+                leading: const Icon(Icons.menu_book),
+                title: const Text('Study'),
+                subtitle: const Text('Manage your study materials'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {},
-              ),
-              Divider(color: context.colors.hairline),
-              ListTile(
-                leading: const Icon(Icons.quiz_rounded),
-                title: const Text('Quiz'),
-                subtitle: const Text('Check you knowledge with quiz'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {},
+                onTap: () => Get.toNamed(AppRoutes.study),
               ),
               Divider(color: context.colors.hairline),
               ListTile(

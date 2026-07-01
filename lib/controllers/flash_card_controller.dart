@@ -6,6 +6,7 @@ import 'package:me_mobile/models/models.dart';
 
 class FlashCardController extends GetxController {
   final Rxn<DashboardEvent> event = Rxn<DashboardEvent>();
+  final Rxn<StudyPracticeSelection> selection = Rxn<StudyPracticeSelection>();
   final RxList<FlashCardData> cards = <FlashCardData>[].obs;
   final RxMap<int, FlashCardFeedback> feedbackByCard =
       <int, FlashCardFeedback>{}.obs;
@@ -13,7 +14,8 @@ class FlashCardController extends GetxController {
   final RxBool showAnswer = false.obs;
   final RxBool showResult = false.obs;
 
-  String get title => event.value?.title ?? 'Flashcards';
+  String get title =>
+      selection.value?.title ?? event.value?.title ?? 'Flashcards';
 
   FlashCardData get currentCard => cards[currentIndex.value];
 
@@ -43,9 +45,13 @@ class FlashCardController extends GetxController {
 
   void loadFromArgument(Object? argument) {
     final dashboardEvent = argument is DashboardEvent ? argument : null;
+    final studySelection = argument is StudyPracticeSelection ? argument : null;
 
     event.value = dashboardEvent;
-    cards.assignAll(_buildCards(dashboardEvent));
+    selection.value = studySelection;
+    cards.assignAll(
+      _buildCards(studySelection?.topic ?? dashboardEvent?.title),
+    );
     feedbackByCard.clear();
     currentIndex.value = 0;
     showAnswer.value = false;
@@ -84,8 +90,8 @@ class FlashCardController extends GetxController {
     showResult.value = true;
   }
 
-  List<FlashCardData> _buildCards(DashboardEvent? event) {
-    final topic = event?.title ?? 'this topic';
+  List<FlashCardData> _buildCards(String? selectedTopic) {
+    final topic = selectedTopic ?? 'this topic';
 
     return [
       FlashCardData(

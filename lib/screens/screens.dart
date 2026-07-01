@@ -1,6 +1,7 @@
 export 'package:me_mobile/screens/quiz/quiz.dart';
 export 'package:me_mobile/screens/auth/auth.dart';
 export 'package:me_mobile/screens/home/home_screen.dart';
+export 'package:me_mobile/screens/study/study.dart';
 export 'package:me_mobile/screens/profile/profile.dart';
 export 'package:me_mobile/screens/change_username/change_username.dart';
 export 'package:me_mobile/screens/change_password/change_password.dart';

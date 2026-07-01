@@ -6,6 +6,8 @@ final class AppRoutes {
 
   static const String quiz = '/quiz';
   static const String home = '/home';
+  static const String study = '/study';
+  static const String academicSetup = '/academic-setup';
   static const String profile = '/profile';
   static const String changeUsername = '/change-username';
   static const String changePassword = '/change-password';
@@ -20,6 +22,8 @@ final class AppRoutes {
     return {
       quiz: (_) => const QuizContainer(),
       home: (_) => const HomeScreenContainer(),
+      study: (_) => const StudyScreen(),
+      academicSetup: (_) => const AcademicSetupScreen(),
       profile: (_) => const ProfileScreen(),
       changeUsername: (_) => const ChangeUsernameScreen(),
       changePassword: (_) => const ChangePasswordScreen(),

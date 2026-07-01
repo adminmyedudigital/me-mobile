@@ -41,7 +41,6 @@ class MEDropdownField<T> extends StatelessWidget {
     final resolvedValue = hasInitialValue ? initialValue : null;
 
     return FormField<T>(
-      key: ValueKey(resolvedValue),
       initialValue: resolvedValue,
       validator: validator,
       autovalidateMode: autovalidateMode,
