@@ -83,7 +83,7 @@ class SettingsTabContainer extends StatelessWidget {
                 title: const Text('Sign out'),
                 subtitle: const Text('Sign out of your account'),
                 onTap: () {
-                  Get.find<AppController>().signOut();
+                  Get.find<AuthController>().logout();
                 },
               ),
             ],

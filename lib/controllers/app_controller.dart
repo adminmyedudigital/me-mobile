@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/routes/app_routes.dart';
 
 class UserProfile {
@@ -81,16 +82,18 @@ class StudySettings {
 }
 
 class AppController extends GetxController {
-  final RxBool isAuthenticated = false.obs;
-  final Rx<ThemeMode> themeMode = ThemeMode.light.obs;
-  final Rx<UserProfile> profile = const UserProfile(
+  static const UserProfile _emptyProfile = UserProfile(
     firstName: '',
     lastName: '',
     email: '',
     phoneNumber: '',
     username: '',
     password: '',
-  ).obs;
+  );
+
+  final RxBool isAuthenticated = false.obs;
+  final Rx<ThemeMode> themeMode = ThemeMode.light.obs;
+  final Rx<UserProfile> profile = _emptyProfile.obs;
   final Rx<StudySettings> studySettings = const StudySettings(
     schoolName: '',
     educationBoard: '',
@@ -108,15 +111,23 @@ class AppController extends GetxController {
     setThemeMode(useDarkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
-  void signIn({String? username, String? password}) {
-    if ((username ?? '').trim().isNotEmpty ||
-        (password ?? '').trim().isNotEmpty) {
-      profile.value = profile.value.copyWith(
-        username: _cleanOrNull(username),
-        password: _cleanOrNull(password),
-      );
-    }
+  void setAuthSession(AuthSessionModel session, {bool redirect = true}) {
+    profile.value = profile.value.copyWith(
+      firstName: session.user.firstName,
+      lastName: session.user.lastName,
+      email: session.user.email,
+      phoneNumber: session.user.phoneNumber,
+      username: session.user.username,
+      password: '',
+    );
+    isAuthenticated.value = true;
 
+    if (redirect) {
+      Get.offAllNamed(AppRoutes.home);
+    }
+  }
+
+  void markAuthenticated() {
     isAuthenticated.value = true;
     Get.offAllNamed(AppRoutes.home);
   }
@@ -167,9 +178,13 @@ class AppController extends GetxController {
     );
   }
 
-  void signOut() {
+  void clearAuthState({bool redirect = true}) {
     isAuthenticated.value = false;
-    Get.offAllNamed(AppRoutes.signIn);
+    profile.value = _emptyProfile;
+
+    if (redirect) {
+      Get.offAllNamed(AppRoutes.signIn);
+    }
   }
 
   String? _cleanOrNull(String? value) {

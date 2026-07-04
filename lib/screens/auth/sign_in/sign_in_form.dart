@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
@@ -31,16 +32,18 @@ class _SignInFormState extends State<SignInForm> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     setState(() => _submitted = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    Get.find<AppController>().signIn(
-      username: _usernameController.text,
-      password: _passwordController.text,
+    await Get.find<AuthController>().signIn(
+      SignInPayloadModel(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      ),
     );
   }
 
@@ -88,14 +91,19 @@ class _SignInFormState extends State<SignInForm> {
             ]),
           ),
           const SizedBox(height: _buttonGap),
-          MEButton(
-            label: 'Sign In',
-            onPressed: _submit,
-            fullWidth: true,
-            icon: Icons.login,
-            backgroundColor: context.colors.accentOrange,
-            foregroundColor: context.colors.ink,
-          ),
+          Obx(() {
+            final authController = Get.find<AuthController>();
+
+            return MEButton(
+              label: 'Sign In',
+              onPressed: _submit,
+              isLoading: authController.isSigningIn.value,
+              fullWidth: true,
+              icon: Icons.login,
+              backgroundColor: context.colors.accentOrange,
+              foregroundColor: context.colors.ink,
+            );
+          }),
         ],
       ),
     );

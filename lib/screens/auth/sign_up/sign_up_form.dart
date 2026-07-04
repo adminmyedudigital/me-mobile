@@ -70,7 +70,7 @@ class _SignUpFormState extends State<SignUpForm> {
       username: _usernameController.text,
       password: _passwordController.text,
     );
-    appController.signIn();
+    appController.markAuthenticated();
   }
 
   @override

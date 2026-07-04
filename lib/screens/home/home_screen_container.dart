@@ -62,7 +62,7 @@ class HomeScreenContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeController = Get.find<HomeController>();
-    final appController = Get.find<AppController>();
+    final authController = Get.find<AuthController>();
 
     return Obx(() {
       final currentIndex = homeController.currentIndex.value;
@@ -79,7 +79,7 @@ class HomeScreenContainer extends StatelessWidget {
             const ThemeToggleButton(),
             IconButton(
               tooltip: 'Sign out',
-              onPressed: appController.signOut,
+              onPressed: authController.logout,
               icon: const Icon(Icons.logout),
             ),
           ],
