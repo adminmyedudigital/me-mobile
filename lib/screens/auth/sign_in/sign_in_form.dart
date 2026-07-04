@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/models/models.dart';
+import 'package:me_mobile/services/services.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
@@ -16,7 +18,6 @@ class SignInForm extends StatefulWidget {
 
 class _SignInFormState extends State<SignInForm> {
   static const double _fieldGap = 25;
-  static const double _buttonGap = 50;
 
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
@@ -47,6 +48,21 @@ class _SignInFormState extends State<SignInForm> {
     );
   }
 
+  Future<void> _openForgottenPassword(BuildContext context) async {
+    final opened = await launchUrl(
+      Uri.parse(ApiRoutes.forgottenPasswordWeb),
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to open the forgotten password page.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final autovalidateMode = _submitted
@@ -70,8 +86,8 @@ class _SignInFormState extends State<SignInForm> {
             autovalidateMode: autovalidateMode,
             validator: MEValidators.compose([
               MEValidators.requiredField(fieldName: 'Username'),
-              MEValidators.minLength(3, fieldName: 'Username'),
-              MEValidators.maxLength(30, fieldName: 'Username'),
+              MEValidators.minLength(5, fieldName: 'Username'),
+              MEValidators.maxLength(25, fieldName: 'Username'),
             ]),
           ),
           const SizedBox(height: _fieldGap),
@@ -86,11 +102,21 @@ class _SignInFormState extends State<SignInForm> {
             autovalidateMode: autovalidateMode,
             validator: MEValidators.compose([
               MEValidators.requiredField(fieldName: 'Password'),
-              MEValidators.minLength(8, fieldName: 'Password'),
-              MEValidators.maxLength(64, fieldName: 'Password'),
+              MEValidators.minLength(5, fieldName: 'Password'),
+              MEValidators.maxLength(50, fieldName: 'Password'),
             ]),
           ),
-          const SizedBox(height: _buttonGap),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => _openForgottenPassword(context),
+              child: Text(
+                'Forgotten password',
+                style: TextStyle(color: context.colors.primary),
+              ),
+            ),
+          ),
+          const SizedBox(height: _fieldGap),
           Obx(() {
             final authController = Get.find<AuthController>();
 

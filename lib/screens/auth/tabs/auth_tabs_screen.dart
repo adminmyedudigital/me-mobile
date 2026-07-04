@@ -85,7 +85,7 @@ class _AuthTabsScreenState extends State<AuthTabsScreen>
                     switchOutCurve: Curves.easeIn,
                     child: currentIndex == 0
                         ? const SignInForm(key: ValueKey('sign-in-form'))
-                        : const SignUpForm(key: ValueKey('sign-up-form')),
+                        : const SignUpWeb(key: ValueKey('sign-up-web')),
                   ),
                 ],
               ),

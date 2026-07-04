@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:me_mobile/controllers/controllers.dart';
 import 'package:me_mobile/services/services.dart';
+import 'package:me_mobile/controllers/controllers.dart';
 
 class AppBinding extends Bindings {
   @override
