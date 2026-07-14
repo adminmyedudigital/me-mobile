@@ -34,6 +34,7 @@ class _SignInFormState extends State<SignInForm> {
   }
 
   Future<void> _submit() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _submitted = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
