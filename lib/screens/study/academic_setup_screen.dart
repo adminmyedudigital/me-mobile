@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
@@ -15,22 +16,6 @@ class AcademicSetupScreen extends StatefulWidget {
 
 class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
   static const double _fieldGap = 18;
-  static const List<MEDropdownOption<String>> _educationBoardOptions = [
-    MEDropdownOption(value: 'CBSE', label: 'CBSE'),
-    MEDropdownOption(value: 'ICSE', label: 'ICSE'),
-    MEDropdownOption(value: 'State Board', label: 'State Board'),
-    MEDropdownOption(value: 'IB', label: 'IB'),
-    MEDropdownOption(value: 'Cambridge', label: 'Cambridge'),
-  ];
-  static const List<MEDropdownOption<String>> _classOptions = [
-    MEDropdownOption(value: 'Class 6', label: 'Class 6'),
-    MEDropdownOption(value: 'Class 7', label: 'Class 7'),
-    MEDropdownOption(value: 'Class 8', label: 'Class 8'),
-    MEDropdownOption(value: 'Class 9', label: 'Class 9'),
-    MEDropdownOption(value: 'Class 10', label: 'Class 10'),
-    MEDropdownOption(value: 'Class 11', label: 'Class 11'),
-    MEDropdownOption(value: 'Class 12', label: 'Class 12'),
-  ];
   static const List<MEDropdownOption<int>> _monthOptions = [
     MEDropdownOption(value: 1, label: 'January'),
     MEDropdownOption(value: 2, label: 'February'),
@@ -61,6 +46,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
+  late final List<EducationBoardModel> _educationBoards;
   String? _educationBoard;
   String? _className;
   int? _academicStartMonth;
@@ -72,6 +58,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
   @override
   void initState() {
     super.initState();
+    _educationBoards = _authEducationBoards();
     final settings = Get.find<AppController>().studySettings.value;
     _educationBoard = _dropdownValueOrNull(
       _educationBoardOptions,
@@ -82,6 +69,103 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     _academicStartYear = settings.academicStartYear;
     _academicEndMonth = settings.academicEndMonth;
     _academicEndYear = settings.academicEndYear;
+  }
+
+  FormFieldValidator<int> _requiredMonth(String fieldName) {
+    return (value) {
+      if (value == null) {
+        return '$fieldName is required';
+      }
+      return null;
+    };
+  }
+
+  FormFieldValidator<String> _requiredSelection(String fieldName) {
+    return (value) {
+      if (value == null || value.trim().isEmpty) {
+        return '$fieldName is required';
+      }
+      return null;
+    };
+  }
+
+  List<MEDropdownOption<String>> get _educationBoardOptions {
+    return _educationBoards
+        .map(
+          (board) => MEDropdownOption(
+            value: board.id,
+            label:
+                '${board.shortName.toUpperCase()} (${board.coreLanguage.capitalize})',
+          ),
+        )
+        .toList();
+  }
+
+  List<MEDropdownOption<int>> get _startYearOptions {
+    final currentYear = DateTime.now().year;
+
+    return [
+      MEDropdownOption(value: currentYear, label: '$currentYear'),
+      MEDropdownOption(value: currentYear + 1, label: '${currentYear + 1}'),
+    ];
+  }
+
+  List<MEDropdownOption<String>> get _classOptions {
+    final selectedBoard = _educationBoards.where(
+      (board) => board.id == _educationBoard,
+    );
+
+    if (selectedBoard.isEmpty) {
+      return const [];
+    }
+
+    return selectedBoard.first.academicClasses
+        .where((academicClass) => academicClass.id.isNotEmpty)
+        .map(
+          (academicClass) => MEDropdownOption(
+            value: academicClass.id,
+            label: '${academicClass.academicClass.capitalize}',
+          ),
+        )
+        .toList();
+  }
+
+  List<EducationBoardModel> _authEducationBoards() {
+    final boardsById = <String, EducationBoardModel>{};
+    final schoolAcademicClasses =
+        Get.find<AuthController>().schoolAcademicClasses;
+
+    for (final school in schoolAcademicClasses) {
+      for (final board in school.educationBoards) {
+        if (board.id.isEmpty) {
+          continue;
+        }
+
+        final existingBoard = boardsById[board.id];
+        boardsById[board.id] = existingBoard == null
+            ? board
+            : existingBoard.mergeAcademicClasses(board);
+      }
+    }
+
+    return boardsById.values.toList();
+  }
+
+  String? _dropdownValueOrNull(
+    List<MEDropdownOption<String>> options,
+    String value,
+  ) {
+    if (value.isEmpty) {
+      return null;
+    }
+
+    for (final option in options) {
+      if (option.value == value) {
+        return value;
+      }
+    }
+
+    return null;
   }
 
   void _submit() {
@@ -129,6 +213,8 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final canSelectAcademicEnd =
+        _academicStartMonth != null && _academicStartYear != null;
     final autovalidateMode = _submitted
         ? AutovalidateMode.always
         : AutovalidateMode.onUserInteraction;
@@ -163,11 +249,15 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                 autovalidateMode: autovalidateMode,
                 validator: _requiredSelection('Education board'),
                 onChanged: (value) {
-                  setState(() => _educationBoard = value);
+                  setState(() {
+                    _educationBoard = value;
+                    _className = null;
+                  });
                 },
               ),
               const SizedBox(height: _fieldGap),
               MEDropdownField<String>(
+                key: ValueKey(_educationBoard),
                 items: _classOptions,
                 initialValue: _className,
                 labelText: 'Class',
@@ -194,7 +284,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
               ),
               const SizedBox(height: _fieldGap),
               MEDropdownField<int>(
-                items: _yearOptions,
+                items: _startYearOptions,
                 initialValue: _academicStartYear,
                 labelText: 'Academic Start Year',
                 hintText: 'Academic Start Year',
@@ -209,11 +299,14 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
               MEDropdownField<int>(
                 items: _monthOptions,
                 initialValue: _academicEndMonth,
+                enabled: canSelectAcademicEnd,
                 labelText: 'Academic End Month',
                 hintText: 'Academic End Month',
                 prefixIcon: const Icon(Icons.event_busy_outlined),
                 autovalidateMode: autovalidateMode,
-                validator: _requiredMonth('Academic end month'),
+                validator: canSelectAcademicEnd
+                    ? _requiredMonth('Academic end month')
+                    : null,
                 onChanged: (value) {
                   setState(() => _academicEndMonth = value);
                 },
@@ -222,11 +315,14 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
               MEDropdownField<int>(
                 items: _yearOptions,
                 initialValue: _academicEndYear,
+                enabled: canSelectAcademicEnd,
                 labelText: 'Academic End Year',
                 hintText: 'Academic End Year',
                 prefixIcon: const Icon(Icons.calendar_today_outlined),
                 autovalidateMode: autovalidateMode,
-                validator: _requiredMonth('Academic end year'),
+                validator: canSelectAcademicEnd
+                    ? _requiredMonth('Academic end year')
+                    : null,
                 onChanged: (value) {
                   setState(() => _academicEndYear = value);
                 },
@@ -245,40 +341,5 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
         ),
       ),
     );
-  }
-
-  FormFieldValidator<int> _requiredMonth(String fieldName) {
-    return (value) {
-      if (value == null) {
-        return '$fieldName is required';
-      }
-      return null;
-    };
-  }
-
-  FormFieldValidator<String> _requiredSelection(String fieldName) {
-    return (value) {
-      if (value == null || value.trim().isEmpty) {
-        return '$fieldName is required';
-      }
-      return null;
-    };
-  }
-
-  String? _dropdownValueOrNull(
-    List<MEDropdownOption<String>> options,
-    String value,
-  ) {
-    if (value.isEmpty) {
-      return null;
-    }
-
-    for (final option in options) {
-      if (option.value == value) {
-        return value;
-      }
-    }
-
-    return null;
   }
 }

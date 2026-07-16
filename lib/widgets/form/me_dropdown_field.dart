@@ -17,6 +17,7 @@ class MEDropdownField<T> extends StatelessWidget {
     this.labelText,
     this.hintText,
     this.prefixIcon,
+    this.enabled = true,
     this.showClearButton = false,
     this.validator,
     this.autovalidateMode,
@@ -29,6 +30,7 @@ class MEDropdownField<T> extends StatelessWidget {
   final String? labelText;
   final String? hintText;
   final Widget? prefixIcon;
+  final bool enabled;
   final bool showClearButton;
   final FormFieldValidator<T>? validator;
   final AutovalidateMode? autovalidateMode;
@@ -41,6 +43,7 @@ class MEDropdownField<T> extends StatelessWidget {
     final resolvedValue = hasInitialValue ? initialValue : null;
 
     return FormField<T>(
+      enabled: enabled,
       initialValue: resolvedValue,
       validator: validator,
       autovalidateMode: autovalidateMode,
@@ -53,6 +56,7 @@ class MEDropdownField<T> extends StatelessWidget {
           hintText: hintText,
           prefixIcon: prefixIcon,
           errorText: field.errorText,
+          enabled: enabled,
           showClearButton: showClearButton,
           onChanged: (value) {
             field.didChange(value);
@@ -74,6 +78,7 @@ class _MEDropdownInput<T> extends StatelessWidget {
     this.hintText,
     this.prefixIcon,
     this.errorText,
+    this.enabled = true,
     this.showClearButton = false,
   });
 
@@ -83,6 +88,7 @@ class _MEDropdownInput<T> extends StatelessWidget {
   final String? hintText;
   final Widget? prefixIcon;
   final String? errorText;
+  final bool enabled;
   final bool showClearButton;
   final ValueChanged<T?> onChanged;
 
@@ -91,9 +97,13 @@ class _MEDropdownInput<T> extends StatelessWidget {
     final colors = context.colors;
     final selectedOption = _selectedOption;
     final hasValue = selectedOption != null;
-    final showClearIcon = showClearButton && hasValue;
+    final showClearIcon = enabled && showClearButton && hasValue;
+    final contentColor = enabled
+        ? (hasValue ? null : colors.ash)
+        : Theme.of(context).disabledColor;
 
     return PopupMenuButton<T>(
+      enabled: enabled,
       tooltip: '',
       color: colors.surfaceCard,
       position: PopupMenuPosition.under,
@@ -107,6 +117,7 @@ class _MEDropdownInput<T> extends StatelessWidget {
       ],
       child: InputDecorator(
         decoration: InputDecoration(
+          enabled: enabled,
           labelText: labelText,
           hintText: hintText,
           prefixIcon: prefixIcon,
@@ -153,7 +164,7 @@ class _MEDropdownInput<T> extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: Theme.of(
             context,
-          ).textTheme.bodyMedium?.copyWith(color: hasValue ? null : colors.ash),
+          ).textTheme.bodyMedium?.copyWith(color: contentColor),
         ),
       ),
     );
