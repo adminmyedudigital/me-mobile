@@ -45,7 +45,7 @@ class StudyScreen extends StatelessWidget {
                     leading: const Icon(Icons.school_outlined),
                     title: const Text('Academic Setup'),
                     subtitle: const Text(
-                      'Setup your academic year, school and class',
+                      'Setup your academic year, education board and class',
                     ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => Get.toNamed(AppRoutes.academicSetup),

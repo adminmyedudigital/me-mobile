@@ -15,19 +15,6 @@ class AcademicSetupScreen extends StatefulWidget {
 
 class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
   static const double _fieldGap = 18;
-  static const List<MEDropdownOption<String>> _schoolOptions = [
-    MEDropdownOption(
-      value: 'Delhi Public School',
-      label: 'Delhi Public School',
-    ),
-    MEDropdownOption(value: 'Kendriya Vidyalaya', label: 'Kendriya Vidyalaya'),
-    MEDropdownOption(value: 'St. Xavier School', label: 'St. Xavier School'),
-    MEDropdownOption(
-      value: 'National Public School',
-      label: 'National Public School',
-    ),
-    MEDropdownOption(value: 'Other School', label: 'Other School'),
-  ];
   static const List<MEDropdownOption<String>> _educationBoardOptions = [
     MEDropdownOption(value: 'CBSE', label: 'CBSE'),
     MEDropdownOption(value: 'ICSE', label: 'ICSE'),
@@ -74,7 +61,6 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  String? _schoolName;
   String? _educationBoard;
   String? _className;
   int? _academicStartMonth;
@@ -87,7 +73,6 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
   void initState() {
     super.initState();
     final settings = Get.find<AppController>().studySettings.value;
-    _schoolName = _dropdownValueOrNull(_schoolOptions, settings.schoolName);
     _educationBoard = _dropdownValueOrNull(
       _educationBoardOptions,
       settings.educationBoard,
@@ -106,15 +91,13 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
       return;
     }
 
-    final schoolName = _schoolName;
     final educationBoard = _educationBoard;
     final className = _className;
     final startMonth = _academicStartMonth;
     final startYear = _academicStartYear;
     final endMonth = _academicEndMonth;
     final endYear = _academicEndYear;
-    if (schoolName == null ||
-        educationBoard == null ||
+    if (educationBoard == null ||
         className == null ||
         startMonth == null ||
         startYear == null ||
@@ -123,8 +106,9 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
       return;
     }
 
-    Get.find<AppController>().updateStudySettings(
-      schoolName: schoolName,
+    final appController = Get.find<AppController>();
+    appController.updateStudySettings(
+      schoolName: appController.studySettings.value.schoolName,
       educationBoard: educationBoard,
       className: className,
       academicStartMonth: startMonth,
@@ -170,19 +154,6 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              MEDropdownField<String>(
-                items: _schoolOptions,
-                initialValue: _schoolName,
-                labelText: 'School',
-                hintText: 'School',
-                prefixIcon: const Icon(Icons.account_balance_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: _requiredSelection('School'),
-                onChanged: (value) {
-                  setState(() => _schoolName = value);
-                },
-              ),
-              const SizedBox(height: _fieldGap),
               MEDropdownField<String>(
                 items: _educationBoardOptions,
                 initialValue: _educationBoard,
