@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class AuthUserModel {
   const AuthUserModel({
     required this.id,
@@ -47,72 +45,5 @@ class AuthUserModel {
       'is_active': isActive,
       'is_account_verified': isAccountVerified,
     };
-  }
-}
-
-class AuthSessionModel {
-  const AuthSessionModel({required this.user, required this.token});
-
-  final AuthUserModel user;
-  final String token;
-
-  bool get hasValidToken => token.trim().isNotEmpty && !isTokenExpired;
-
-  bool get isTokenExpired {
-    final expiry = expiresAt;
-    return expiry == null || !expiry.isAfter(DateTime.now());
-  }
-
-  DateTime? get expiresAt {
-    final payload = _jwtPayload;
-    final exp = payload?['exp'];
-
-    if (exp is int) {
-      return DateTime.fromMillisecondsSinceEpoch(exp * 1000);
-    }
-
-    if (exp is String) {
-      final seconds = int.tryParse(exp);
-      return seconds == null
-          ? null
-          : DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
-    }
-
-    return null;
-  }
-
-  factory AuthSessionModel.fromJson(Map<String, dynamic> json) {
-    return AuthSessionModel(
-      user: AuthUserModel.fromJson(Map<String, dynamic>.from(json['user'])),
-      token: (json['token'] ?? '').toString(),
-    );
-  }
-
-  factory AuthSessionModel.fromSignInJson(Map<String, dynamic> json) {
-    return AuthSessionModel(
-      user: AuthUserModel.fromJson(json),
-      token: (json['token'] ?? '').toString(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'user': user.toJson(), 'token': token};
-  }
-
-  Map<String, dynamic>? get _jwtPayload {
-    final parts = token.split('.');
-
-    if (parts.length != 3) {
-      return null;
-    }
-
-    try {
-      final payload = utf8.decode(
-        base64Url.decode(base64Url.normalize(parts[1])),
-      );
-      return Map<String, dynamic>.from(jsonDecode(payload) as Map);
-    } on FormatException {
-      return null;
-    }
   }
 }

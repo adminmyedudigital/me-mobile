@@ -1,4 +1,4 @@
-import 'package:me_mobile/models/auth_model.dart';
+import 'package:me_mobile/models/auth_session_model.dart';
 
 class SignInPayloadModel {
   const SignInPayloadModel({required this.username, required this.password});
