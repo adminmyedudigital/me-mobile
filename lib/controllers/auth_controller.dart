@@ -1,16 +1,21 @@
 import 'package:get/get.dart';
 
-import 'package:me_mobile/controllers/api_controller_mixin.dart';
-import 'package:me_mobile/controllers/app_controller.dart';
+import 'package:me_mobile/utils/utils.dart';
 import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/services/services.dart';
-import 'package:me_mobile/utils/utils.dart';
+import 'package:me_mobile/controllers/app_controller.dart';
+import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
 class AuthController extends GetxController with ApiControllerMixin {
   final RxBool isSigningIn = false.obs;
   final Rxn<AuthSessionModel> session = Rxn<AuthSessionModel>();
 
   AuthStorageService get _storage => Get.find<AuthStorageService>();
+  AuthUserModel? get currentUser => session.value?.user;
+  String get authToken => session.value?.token ?? '';
+  List<SchoolAcademicClassModel> get schoolAcademicClasses =>
+      session.value?.schoolAcademicClasses ?? const [];
+  bool get isAuthenticated => session.value?.hasValidToken == true;
 
   Future<bool> signIn(SignInPayloadModel payload) async {
     if (isSigningIn.value) {
@@ -74,7 +79,7 @@ class AuthController extends GetxController with ApiControllerMixin {
       return;
     }
 
-    _setAppSession(currentSession);
+    _setAppSession(currentSession, redirect: false);
   }
 
   Future<void> logout({bool redirect = true}) async {

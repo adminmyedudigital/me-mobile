@@ -30,7 +30,7 @@ class AuthStorageService extends GetxService {
       return AuthSessionModel.fromJson(
         Map<String, dynamic>.from(jsonDecode(value) as Map),
       );
-    } on FormatException {
+    } on Object {
       return null;
     }
   }
