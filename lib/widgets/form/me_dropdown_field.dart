@@ -18,7 +18,7 @@ class MEDropdownField<T> extends StatelessWidget {
     this.hintText,
     this.prefixIcon,
     this.enabled = true,
-    this.showClearButton = false,
+    this.showClearButton = true,
     this.validator,
     this.autovalidateMode,
     this.onChanged,
@@ -79,7 +79,7 @@ class _MEDropdownInput<T> extends StatelessWidget {
     this.prefixIcon,
     this.errorText,
     this.enabled = true,
-    this.showClearButton = false,
+    this.showClearButton = true,
   });
 
   final List<MEDropdownOption<T>> items;
@@ -102,69 +102,72 @@ class _MEDropdownInput<T> extends StatelessWidget {
         ? (hasValue ? null : colors.ash)
         : Theme.of(context).disabledColor;
 
-    return PopupMenuButton<T>(
-      enabled: enabled,
-      tooltip: '',
-      color: colors.surfaceCard,
-      position: PopupMenuPosition.under,
-      onSelected: onChanged,
-      itemBuilder: (context) => [
-        for (final item in items)
-          PopupMenuItem<T>(
-            value: item.value,
-            child: Text(item.label, overflow: TextOverflow.ellipsis),
+    return LayoutBuilder(
+      builder: (context, constraints) => PopupMenuButton<T>(
+        enabled: enabled,
+        tooltip: '',
+        color: colors.surfaceCard,
+        position: PopupMenuPosition.under,
+        constraints: BoxConstraints.tightFor(width: constraints.maxWidth),
+        onSelected: onChanged,
+        itemBuilder: (context) => [
+          for (final item in items)
+            PopupMenuItem<T>(
+              value: item.value,
+              child: Text(item.label, overflow: TextOverflow.ellipsis),
+            ),
+        ],
+        child: InputDecorator(
+          decoration: InputDecoration(
+            enabled: enabled,
+            labelText: labelText,
+            hintText: hintText,
+            prefixIcon: prefixIcon,
+            suffixIcon: SizedBox.square(
+              dimension: 48,
+              child: showClearIcon
+                  ? IconButton(
+                      tooltip: 'Clear',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 48,
+                        height: 48,
+                      ),
+                      onPressed: () => onChanged(null),
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                    )
+                  : Icon(Icons.keyboard_arrow_down_rounded, color: colors.ash),
+            ),
+            errorText: errorText,
+            labelStyle: TextStyle(color: colors.ash),
+            prefixIconColor: colors.ash,
+            suffixIconColor: colors.ash,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: BorderSide(color: colors.ash),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: BorderSide(color: colors.ash, width: 1.2),
+            ),
+            errorStyle: TextStyle(color: colors.accentRed),
+            errorBorder: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: BorderSide(color: colors.accentRed),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: BorderSide(color: colors.accentRed, width: 1.2),
+            ),
           ),
-      ],
-      child: InputDecorator(
-        decoration: InputDecoration(
-          enabled: enabled,
-          labelText: labelText,
-          hintText: hintText,
-          prefixIcon: prefixIcon,
-          suffixIcon: SizedBox.square(
-            dimension: 48,
-            child: showClearIcon
-                ? IconButton(
-                    tooltip: 'Clear',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 48,
-                      height: 48,
-                    ),
-                    onPressed: () => onChanged(null),
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                  )
-                : Icon(Icons.keyboard_arrow_down_rounded, color: colors.ash),
+          child: Text(
+            selectedOption?.label ?? hintText ?? '',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: contentColor),
           ),
-          errorText: errorText,
-          labelStyle: TextStyle(color: colors.ash),
-          prefixIconColor: colors.ash,
-          suffixIconColor: colors.ash,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: AppRadius.input,
-            borderSide: BorderSide(color: colors.ash),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: AppRadius.input,
-            borderSide: BorderSide(color: colors.ash, width: 1.2),
-          ),
-          errorStyle: TextStyle(color: colors.accentRed),
-          errorBorder: OutlineInputBorder(
-            borderRadius: AppRadius.input,
-            borderSide: BorderSide(color: colors.accentRed),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: AppRadius.input,
-            borderSide: BorderSide(color: colors.accentRed, width: 1.2),
-          ),
-        ),
-        child: Text(
-          selectedOption?.label ?? hintText ?? '',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: contentColor),
         ),
       ),
     );

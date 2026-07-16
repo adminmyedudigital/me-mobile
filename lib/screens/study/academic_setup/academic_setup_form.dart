@@ -6,6 +6,7 @@ import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
+import 'package:me_mobile/screens/study/academic_setup/academic_schedule_notice.dart';
 
 class AcademicSetupScreen extends StatefulWidget {
   const AcademicSetupScreen({super.key});
@@ -30,20 +31,6 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     MEDropdownOption(value: 11, label: 'November'),
     MEDropdownOption(value: 12, label: 'December'),
   ];
-  static const List<MEDropdownOption<int>> _yearOptions = [
-    MEDropdownOption(value: 2025, label: '2025'),
-    MEDropdownOption(value: 2026, label: '2026'),
-    MEDropdownOption(value: 2027, label: '2027'),
-    MEDropdownOption(value: 2028, label: '2028'),
-    MEDropdownOption(value: 2029, label: '2029'),
-    MEDropdownOption(value: 2030, label: '2030'),
-    MEDropdownOption(value: 2031, label: '2031'),
-    MEDropdownOption(value: 2032, label: '2032'),
-    MEDropdownOption(value: 2033, label: '2033'),
-    MEDropdownOption(value: 2034, label: '2034'),
-    MEDropdownOption(value: 2035, label: '2035'),
-  ];
-
   final _formKey = GlobalKey<FormState>();
 
   late final List<EducationBoardModel> _educationBoards;
@@ -65,10 +52,17 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
       settings.educationBoard,
     );
     _className = _dropdownValueOrNull(_classOptions, settings.className);
-    _academicStartMonth = settings.academicStartMonth;
-    _academicStartYear = settings.academicStartYear;
+    _academicStartMonth = _intDropdownValueOrNull(
+      _monthOptions,
+      settings.academicStartMonth,
+    );
+    _academicStartYear = _intDropdownValueOrNull(
+      _startYearOptions,
+      settings.academicStartYear,
+    );
     _academicEndMonth = settings.academicEndMonth;
     _academicEndYear = settings.academicEndYear;
+    _normalizeAcademicEndSelection();
   }
 
   FormFieldValidator<int> _requiredMonth(String fieldName) {
@@ -108,6 +102,37 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
       MEDropdownOption(value: currentYear, label: '$currentYear'),
       MEDropdownOption(value: currentYear + 1, label: '${currentYear + 1}'),
     ];
+  }
+
+  List<MEDropdownOption<int>> get _endYearOptions {
+    final startYear = _academicStartYear;
+
+    if (startYear == null) {
+      return const [];
+    }
+
+    return [
+      MEDropdownOption(value: startYear, label: '$startYear'),
+      MEDropdownOption(value: startYear + 1, label: '${startYear + 1}'),
+    ];
+  }
+
+  List<MEDropdownOption<int>> get _endMonthOptions {
+    final startMonth = _academicStartMonth;
+    final startYear = _academicStartYear;
+
+    if (startMonth == null || startYear == null) {
+      return const [];
+    }
+
+    final earliestMonth =
+        _academicEndYear == null || _academicEndYear == startYear
+        ? startMonth
+        : 1;
+
+    return _monthOptions
+        .where((option) => option.value > earliestMonth)
+        .toList();
   }
 
   List<MEDropdownOption<String>> get _classOptions {
@@ -166,6 +191,29 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     }
 
     return null;
+  }
+
+  int? _intDropdownValueOrNull(
+    List<MEDropdownOption<int>> options,
+    int? value,
+  ) {
+    return options.any((option) => option.value == value) ? value : null;
+  }
+
+  void _normalizeAcademicEndSelection() {
+    if (_academicStartMonth == null || _academicStartYear == null) {
+      _academicEndMonth = null;
+      _academicEndYear = null;
+      return;
+    }
+
+    if (!_endYearOptions.any((option) => option.value == _academicEndYear)) {
+      _academicEndYear = null;
+    }
+
+    if (!_endMonthOptions.any((option) => option.value == _academicEndMonth)) {
+      _academicEndMonth = null;
+    }
   }
 
   void _submit() {
@@ -227,18 +275,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
-              Text(
-                'Academic setup',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'These details help create a study timetable that matches your school year.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.charcoal,
-                  letterSpacing: 0,
-                ),
-              ),
+              const AcademicScheduleNotice(),
               const SizedBox(height: AppSpacing.xl),
               MEDropdownField<String>(
                 items: _educationBoardOptions,
@@ -279,7 +316,10 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                 autovalidateMode: autovalidateMode,
                 validator: _requiredMonth('Academic start month'),
                 onChanged: (value) {
-                  setState(() => _academicStartMonth = value);
+                  setState(() {
+                    _academicStartMonth = value;
+                    _normalizeAcademicEndSelection();
+                  });
                 },
               ),
               const SizedBox(height: _fieldGap),
@@ -292,12 +332,18 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                 autovalidateMode: autovalidateMode,
                 validator: _requiredMonth('Academic start year'),
                 onChanged: (value) {
-                  setState(() => _academicStartYear = value);
+                  setState(() {
+                    _academicStartYear = value;
+                    _normalizeAcademicEndSelection();
+                  });
                 },
               ),
               const SizedBox(height: _fieldGap),
               MEDropdownField<int>(
-                items: _monthOptions,
+                key: ValueKey(
+                  '${_academicStartMonth}_${_academicStartYear}_$_academicEndYear',
+                ),
+                items: _endMonthOptions,
                 initialValue: _academicEndMonth,
                 enabled: canSelectAcademicEnd,
                 labelText: 'Academic End Month',
@@ -313,7 +359,8 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
               ),
               const SizedBox(height: _fieldGap),
               MEDropdownField<int>(
-                items: _yearOptions,
+                key: ValueKey(_academicStartYear),
+                items: _endYearOptions,
                 initialValue: _academicEndYear,
                 enabled: canSelectAcademicEnd,
                 labelText: 'Academic End Year',
@@ -324,7 +371,14 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                     ? _requiredMonth('Academic end year')
                     : null,
                 onChanged: (value) {
-                  setState(() => _academicEndYear = value);
+                  setState(() {
+                    _academicEndYear = value;
+                    if (!_endMonthOptions.any(
+                      (option) => option.value == _academicEndMonth,
+                    )) {
+                      _academicEndMonth = null;
+                    }
+                  });
                 },
               ),
               const SizedBox(height: AppSpacing.xxl),
