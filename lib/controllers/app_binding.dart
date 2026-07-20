@@ -9,6 +9,7 @@ class AppBinding extends Bindings {
     Get.put(AuthController(), permanent: true);
     Get.lazyPut(QuizController.new, fenix: true);
     Get.lazyPut(HomeController.new, fenix: true);
+    Get.lazyPut(StudyController.new, fenix: true);
     Get.lazyPut(ExamsController.new, fenix: true);
     Get.put(ApiService()..init(), permanent: true);
     Get.lazyPut(FlashCardController.new, fenix: true);

@@ -20,6 +20,12 @@ abstract final class ApiRoutes {
   static String get forgottenPasswordWeb => web('/forgotten-password');
   static String get academicHistories => student('/academic-histories');
 
+  static String subjectTopics(String educationBoardId, String academicClassId) {
+    final board = Uri.encodeComponent(educationBoardId);
+    final academicClass = Uri.encodeComponent(academicClassId);
+    return student('/subjects/topics/$board/$academicClass');
+  }
+
   static String public(String path) => _join(publicBaseUrl, path);
 
   static String student(String path) => _join(studentBaseUrl, path);
