@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
-import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 import 'package:me_mobile/screens/study/academic_setup/academic_schedule_notice.dart';
@@ -32,37 +31,13 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     MEDropdownOption(value: 12, label: 'December'),
   ];
   final _formKey = GlobalKey<FormState>();
-
-  late final List<EducationBoardModel> _educationBoards;
-  String? _educationBoard;
-  String? _className;
-  int? _academicStartMonth;
-  int? _academicStartYear;
-  int? _academicEndMonth;
-  int? _academicEndYear;
-  bool _submitted = false;
+  late final AcademicSetupController _controller;
 
   @override
   void initState() {
     super.initState();
-    _educationBoards = _authEducationBoards();
-    final settings = Get.find<AppController>().studySettings.value;
-    _educationBoard = _dropdownValueOrNull(
-      _educationBoardOptions,
-      settings.educationBoard,
-    );
-    _className = _dropdownValueOrNull(_classOptions, settings.className);
-    _academicStartMonth = _intDropdownValueOrNull(
-      _monthOptions,
-      settings.academicStartMonth,
-    );
-    _academicStartYear = _intDropdownValueOrNull(
-      _startYearOptions,
-      settings.academicStartYear,
-    );
-    _academicEndMonth = settings.academicEndMonth;
-    _academicEndYear = settings.academicEndYear;
-    _normalizeAcademicEndSelection();
+    _controller = Get.find<AcademicSetupController>();
+    _controller.loadAcademicHistory();
   }
 
   FormFieldValidator<int> _requiredMonth(String fieldName) {
@@ -83,171 +58,16 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     };
   }
 
-  List<MEDropdownOption<String>> get _educationBoardOptions {
-    return _educationBoards
-        .map(
-          (board) => MEDropdownOption(
-            value: board.id,
-            label:
-                '${board.shortName.toUpperCase()} (${board.coreLanguage.capitalize})',
-          ),
-        )
-        .toList();
-  }
-
-  List<MEDropdownOption<int>> get _startYearOptions {
-    final currentYear = DateTime.now().year;
-
-    return [
-      MEDropdownOption(value: currentYear, label: '$currentYear'),
-      MEDropdownOption(value: currentYear + 1, label: '${currentYear + 1}'),
-    ];
-  }
-
-  List<MEDropdownOption<int>> get _endYearOptions {
-    final startYear = _academicStartYear;
-
-    if (startYear == null) {
-      return const [];
-    }
-
-    return [
-      MEDropdownOption(value: startYear, label: '$startYear'),
-      MEDropdownOption(value: startYear + 1, label: '${startYear + 1}'),
-    ];
-  }
-
-  List<MEDropdownOption<int>> get _endMonthOptions {
-    final startMonth = _academicStartMonth;
-    final startYear = _academicStartYear;
-
-    if (startMonth == null || startYear == null) {
-      return const [];
-    }
-
-    final earliestMonth =
-        _academicEndYear == null || _academicEndYear == startYear
-        ? startMonth
-        : 1;
-
-    return _monthOptions
-        .where((option) => option.value > earliestMonth)
-        .toList();
-  }
-
-  List<MEDropdownOption<String>> get _classOptions {
-    final selectedBoard = _educationBoards.where(
-      (board) => board.id == _educationBoard,
-    );
-
-    if (selectedBoard.isEmpty) {
-      return const [];
-    }
-
-    return selectedBoard.first.academicClasses
-        .where((academicClass) => academicClass.id.isNotEmpty)
-        .map(
-          (academicClass) => MEDropdownOption(
-            value: academicClass.id,
-            label: '${academicClass.academicClass.capitalize}',
-          ),
-        )
-        .toList();
-  }
-
-  List<EducationBoardModel> _authEducationBoards() {
-    final boardsById = <String, EducationBoardModel>{};
-    final schoolAcademicClasses =
-        Get.find<AuthController>().schoolAcademicClasses;
-
-    for (final school in schoolAcademicClasses) {
-      for (final board in school.educationBoards) {
-        if (board.id.isEmpty) {
-          continue;
-        }
-
-        final existingBoard = boardsById[board.id];
-        boardsById[board.id] = existingBoard == null
-            ? board
-            : existingBoard.mergeAcademicClasses(board);
-      }
-    }
-
-    return boardsById.values.toList();
-  }
-
-  String? _dropdownValueOrNull(
-    List<MEDropdownOption<String>> options,
-    String value,
-  ) {
-    if (value.isEmpty) {
-      return null;
-    }
-
-    for (final option in options) {
-      if (option.value == value) {
-        return value;
-      }
-    }
-
-    return null;
-  }
-
-  int? _intDropdownValueOrNull(
-    List<MEDropdownOption<int>> options,
-    int? value,
-  ) {
-    return options.any((option) => option.value == value) ? value : null;
-  }
-
-  void _normalizeAcademicEndSelection() {
-    if (_academicStartMonth == null || _academicStartYear == null) {
-      _academicEndMonth = null;
-      _academicEndYear = null;
-      return;
-    }
-
-    if (!_endYearOptions.any((option) => option.value == _academicEndYear)) {
-      _academicEndYear = null;
-    }
-
-    if (!_endMonthOptions.any((option) => option.value == _academicEndMonth)) {
-      _academicEndMonth = null;
-    }
-  }
-
   void _submit() {
-    setState(() => _submitted = true);
+    _controller.markSubmitted();
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    final educationBoard = _educationBoard;
-    final className = _className;
-    final startMonth = _academicStartMonth;
-    final startYear = _academicStartYear;
-    final endMonth = _academicEndMonth;
-    final endYear = _academicEndYear;
-    if (educationBoard == null ||
-        className == null ||
-        startMonth == null ||
-        startYear == null ||
-        endMonth == null ||
-        endYear == null) {
+    if (!_controller.save()) {
       return;
     }
-
-    final appController = Get.find<AppController>();
-    appController.updateStudySettings(
-      schoolName: appController.studySettings.value.schoolName,
-      educationBoard: educationBoard,
-      className: className,
-      academicStartMonth: startMonth,
-      academicStartYear: startYear,
-      academicEndMonth: endMonth,
-      academicEndYear: endYear,
-    );
 
     FocusScope.of(context).unfocus();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -260,140 +80,142 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final canSelectAcademicEnd =
-        _academicStartMonth != null && _academicStartYear != null;
-    final autovalidateMode = _submitted
-        ? AutovalidateMode.always
-        : AutovalidateMode.onUserInteraction;
+    return GetBuilder<AcademicSetupController>(
+      builder: (controller) {
+        final colors = context.colors;
+        final canSelectAcademicEnd = controller.canSelectAcademicEnd;
+        final autovalidateMode = controller.submitted
+            ? AutovalidateMode.always
+            : AutovalidateMode.onUserInteraction;
+        final educationBoardOptions = controller.educationBoards
+            .map(
+              (board) => MEDropdownOption(
+                value: board.id,
+                label:
+                    '${board.shortName.toUpperCase()} (${board.coreLanguage.capitalize})',
+              ),
+            )
+            .toList();
+        final classOptions = controller.academicClasses
+            .map(
+              (academicClass) => MEDropdownOption(
+                value: academicClass.id,
+                label: '${academicClass.academicClass.capitalize}',
+              ),
+            )
+            .toList();
+        final startYearOptions = controller.startYears
+            .map((year) => MEDropdownOption(value: year, label: '$year'))
+            .toList();
+        final endYearOptions = controller.endYears
+            .map((year) => MEDropdownOption(value: year, label: '$year'))
+            .toList();
+        final endMonths = controller.endMonths.toSet();
+        final endMonthOptions = _monthOptions
+            .where((option) => endMonths.contains(option.value))
+            .toList();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Academic Setup')),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              const AcademicScheduleNotice(),
-              const SizedBox(height: AppSpacing.xl),
-              MEDropdownField<String>(
-                items: _educationBoardOptions,
-                initialValue: _educationBoard,
-                labelText: 'Education Board',
-                hintText: 'Education Board',
-                prefixIcon: const Icon(Icons.workspace_premium_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: _requiredSelection('Education board'),
-                onChanged: (value) {
-                  setState(() {
-                    _educationBoard = value;
-                    _className = null;
-                  });
-                },
+        return Scaffold(
+          appBar: AppBar(title: const Text('Academic Setup')),
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  const AcademicScheduleNotice(),
+                  const SizedBox(height: AppSpacing.xl),
+                  MEDropdownField<String>(
+                    items: educationBoardOptions,
+                    initialValue: controller.educationBoardId,
+                    labelText: 'Education Board',
+                    hintText: 'Education Board',
+                    prefixIcon: const Icon(Icons.workspace_premium_outlined),
+                    autovalidateMode: autovalidateMode,
+                    validator: _requiredSelection('Education board'),
+                    onChanged: controller.selectEducationBoard,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEDropdownField<String>(
+                    key: ValueKey(controller.educationBoardId),
+                    items: classOptions,
+                    initialValue: controller.academicClassId,
+                    labelText: 'Class',
+                    hintText: 'Class',
+                    prefixIcon: const Icon(Icons.class_outlined),
+                    autovalidateMode: autovalidateMode,
+                    validator: _requiredSelection('Class'),
+                    onChanged: controller.selectAcademicClass,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEDropdownField<int>(
+                    items: _monthOptions,
+                    initialValue: controller.academicStartMonth,
+                    labelText: 'Academic Start Month',
+                    hintText: 'Academic Start Month',
+                    prefixIcon: const Icon(Icons.event_available_outlined),
+                    autovalidateMode: autovalidateMode,
+                    validator: _requiredMonth('Academic start month'),
+                    onChanged: controller.selectAcademicStartMonth,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEDropdownField<int>(
+                    items: startYearOptions,
+                    initialValue: controller.academicStartYear,
+                    labelText: 'Academic Start Year',
+                    hintText: 'Academic Start Year',
+                    prefixIcon: const Icon(Icons.calendar_today_outlined),
+                    autovalidateMode: autovalidateMode,
+                    validator: _requiredMonth('Academic start year'),
+                    onChanged: controller.selectAcademicStartYear,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEDropdownField<int>(
+                    key: ValueKey(
+                      '${controller.academicStartMonth}_${controller.academicStartYear}_${controller.academicEndYear}',
+                    ),
+                    items: endMonthOptions,
+                    initialValue: controller.academicEndMonth,
+                    enabled: canSelectAcademicEnd,
+                    labelText: 'Academic End Month',
+                    hintText: 'Academic End Month',
+                    prefixIcon: const Icon(Icons.event_busy_outlined),
+                    autovalidateMode: autovalidateMode,
+                    validator: canSelectAcademicEnd
+                        ? _requiredMonth('Academic end month')
+                        : null,
+                    onChanged: controller.selectAcademicEndMonth,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEDropdownField<int>(
+                    key: ValueKey(controller.academicStartYear),
+                    items: endYearOptions,
+                    initialValue: controller.academicEndYear,
+                    enabled: canSelectAcademicEnd,
+                    labelText: 'Academic End Year',
+                    hintText: 'Academic End Year',
+                    prefixIcon: const Icon(Icons.calendar_today_outlined),
+                    autovalidateMode: autovalidateMode,
+                    validator: canSelectAcademicEnd
+                        ? _requiredMonth('Academic end year')
+                        : null,
+                    onChanged: controller.selectAcademicEndYear,
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                  MEButton(
+                    label: 'Save Data',
+                    onPressed: _submit,
+                    fullWidth: true,
+                    icon: Icons.save_outlined,
+                    backgroundColor: colors.accentOrange,
+                    foregroundColor: colors.ink,
+                  ),
+                ],
               ),
-              const SizedBox(height: _fieldGap),
-              MEDropdownField<String>(
-                key: ValueKey(_educationBoard),
-                items: _classOptions,
-                initialValue: _className,
-                labelText: 'Class',
-                hintText: 'Class',
-                prefixIcon: const Icon(Icons.class_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: _requiredSelection('Class'),
-                onChanged: (value) {
-                  setState(() => _className = value);
-                },
-              ),
-              const SizedBox(height: _fieldGap),
-              MEDropdownField<int>(
-                items: _monthOptions,
-                initialValue: _academicStartMonth,
-                labelText: 'Academic Start Month',
-                hintText: 'Academic Start Month',
-                prefixIcon: const Icon(Icons.event_available_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: _requiredMonth('Academic start month'),
-                onChanged: (value) {
-                  setState(() {
-                    _academicStartMonth = value;
-                    _normalizeAcademicEndSelection();
-                  });
-                },
-              ),
-              const SizedBox(height: _fieldGap),
-              MEDropdownField<int>(
-                items: _startYearOptions,
-                initialValue: _academicStartYear,
-                labelText: 'Academic Start Year',
-                hintText: 'Academic Start Year',
-                prefixIcon: const Icon(Icons.calendar_today_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: _requiredMonth('Academic start year'),
-                onChanged: (value) {
-                  setState(() {
-                    _academicStartYear = value;
-                    _normalizeAcademicEndSelection();
-                  });
-                },
-              ),
-              const SizedBox(height: _fieldGap),
-              MEDropdownField<int>(
-                key: ValueKey(
-                  '${_academicStartMonth}_${_academicStartYear}_$_academicEndYear',
-                ),
-                items: _endMonthOptions,
-                initialValue: _academicEndMonth,
-                enabled: canSelectAcademicEnd,
-                labelText: 'Academic End Month',
-                hintText: 'Academic End Month',
-                prefixIcon: const Icon(Icons.event_busy_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: canSelectAcademicEnd
-                    ? _requiredMonth('Academic end month')
-                    : null,
-                onChanged: (value) {
-                  setState(() => _academicEndMonth = value);
-                },
-              ),
-              const SizedBox(height: _fieldGap),
-              MEDropdownField<int>(
-                key: ValueKey(_academicStartYear),
-                items: _endYearOptions,
-                initialValue: _academicEndYear,
-                enabled: canSelectAcademicEnd,
-                labelText: 'Academic End Year',
-                hintText: 'Academic End Year',
-                prefixIcon: const Icon(Icons.calendar_today_outlined),
-                autovalidateMode: autovalidateMode,
-                validator: canSelectAcademicEnd
-                    ? _requiredMonth('Academic end year')
-                    : null,
-                onChanged: (value) {
-                  setState(() {
-                    _academicEndYear = value;
-                    if (!_endMonthOptions.any(
-                      (option) => option.value == _academicEndMonth,
-                    )) {
-                      _academicEndMonth = null;
-                    }
-                  });
-                },
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              MEButton(
-                label: 'Save Data',
-                onPressed: _submit,
-                fullWidth: true,
-                icon: Icons.save_outlined,
-                backgroundColor: colors.accentOrange,
-                foregroundColor: colors.ink,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
