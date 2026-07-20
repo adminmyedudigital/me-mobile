@@ -22,6 +22,7 @@ class AcademicSetupController extends GetxController with ApiControllerMixin {
   bool submitted = false;
   bool isSaving = false;
 
+  bool get hasAcademicHistory => academicHistory != null;
   bool get canSelectAcademicEnd =>
       academicStartMonth != null && academicStartYear != null;
 
@@ -173,7 +174,7 @@ class AcademicSetupController extends GetxController with ApiControllerMixin {
   }
 
   Future<bool> save() async {
-    if (isSaving) {
+    if (hasAcademicHistory || isSaving) {
       return false;
     }
 

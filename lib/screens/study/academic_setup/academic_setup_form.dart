@@ -83,7 +83,9 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     return GetBuilder<AcademicSetupController>(
       builder: (controller) {
         final colors = context.colors;
-        final canSelectAcademicEnd = controller.canSelectAcademicEnd;
+        final isReadOnly = controller.hasAcademicHistory;
+        final canSelectAcademicEnd =
+            !isReadOnly && controller.canSelectAcademicEnd;
         final autovalidateMode = controller.submitted
             ? AutovalidateMode.always
             : AutovalidateMode.onUserInteraction;
@@ -128,6 +130,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                   MEDropdownField<String>(
                     items: educationBoardOptions,
                     initialValue: controller.educationBoardId,
+                    enabled: !isReadOnly,
                     labelText: 'Education Board',
                     hintText: 'Education Board',
                     prefixIcon: const Icon(Icons.workspace_premium_outlined),
@@ -140,6 +143,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                     key: ValueKey(controller.educationBoardId),
                     items: classOptions,
                     initialValue: controller.academicClassId,
+                    enabled: !isReadOnly,
                     labelText: 'Class',
                     hintText: 'Class',
                     prefixIcon: const Icon(Icons.class_outlined),
@@ -151,6 +155,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                   MEDropdownField<int>(
                     items: _monthOptions,
                     initialValue: controller.academicStartMonth,
+                    enabled: !isReadOnly,
                     labelText: 'Academic Start Month',
                     hintText: 'Academic Start Month',
                     prefixIcon: const Icon(Icons.event_available_outlined),
@@ -162,6 +167,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                   MEDropdownField<int>(
                     items: startYearOptions,
                     initialValue: controller.academicStartYear,
+                    enabled: !isReadOnly,
                     labelText: 'Academic Start Year',
                     hintText: 'Academic Start Year',
                     prefixIcon: const Icon(Icons.calendar_today_outlined),
@@ -208,6 +214,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                     label: 'Save Data',
                     onPressed: _submit,
                     isLoading: controller.isSaving,
+                    disabled: isReadOnly,
                     fullWidth: true,
                     icon: Icons.save_outlined,
                     backgroundColor: colors.accentOrange,
