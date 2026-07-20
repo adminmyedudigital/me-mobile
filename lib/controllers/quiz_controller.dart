@@ -1,19 +1,22 @@
 import 'package:get/get.dart';
 
-import 'package:me_mobile/controllers/dashboard_controller.dart';
+import 'package:me_mobile/controllers/api_controller_mixin.dart';
+import 'package:me_mobile/controllers/auth_controller.dart';
 import 'package:me_mobile/enums/enums.dart';
 import 'package:me_mobile/models/models.dart';
+import 'package:me_mobile/services/services.dart';
 
-class QuizController extends GetxController {
-  final Rxn<DashboardEvent> event = Rxn<DashboardEvent>();
+class QuizController extends GetxController with ApiControllerMixin {
   final Rxn<StudyPracticeSelection> selection = Rxn<StudyPracticeSelection>();
   final RxList<QuizData> questions = <QuizData>[].obs;
   final RxMap<int, int> selectedOptionByQuestion = <int, int>{}.obs;
   final RxSet<int> revealedQuestionIndexes = <int>{}.obs;
   final RxInt currentQuestionIndex = 0.obs;
   final RxBool showResult = false.obs;
+  final RxBool isLoading = false.obs;
+  final RxnString errorMessage = RxnString();
 
-  String get title => selection.value?.title ?? event.value?.title ?? 'Quiz';
+  String get title => selection.value?.title ?? 'Quiz';
 
   QuizData get currentQuestion => questions[currentQuestionIndex.value];
 
@@ -54,19 +57,53 @@ class QuizController extends GetxController {
     return (correctAnswerCount / questions.length) * 100;
   }
 
-  void loadFromArgument(Object? argument) {
-    final dashboardEvent = argument is DashboardEvent ? argument : null;
-    final studySelection = argument is StudyPracticeSelection ? argument : null;
-
-    event.value = dashboardEvent;
-    selection.value = studySelection;
-    questions.assignAll(
-      _buildQuestions(studySelection?.topic ?? dashboardEvent?.title),
-    );
+  Future<void> loadFromArgument(Object? argument) async {
+    selection.value = argument is StudyPracticeSelection ? argument : null;
+    questions.clear();
     selectedOptionByQuestion.clear();
     revealedQuestionIndexes.clear();
     currentQuestionIndex.value = 0;
     showResult.value = false;
+    errorMessage.value = null;
+
+    if (selection.value == null) {
+      errorMessage.value = 'Select a subject and topic to load a quiz.';
+      return;
+    }
+
+    await loadQuizzes();
+  }
+
+  Future<void> loadQuizzes() async {
+    final selectedPractice = selection.value;
+    if (selectedPractice == null || isLoading.value) return;
+
+    isLoading.value = true;
+    errorMessage.value = null;
+
+    try {
+      final authController = Get.find<AuthController>();
+      final response = await api.get<QuizData>(
+        ApiRoutes.quizzes(selectedPractice.subjectId, selectedPractice.topicEn),
+        headers: {'Authorization': 'Bearer ${authController.authToken}'},
+        fromJson: (value) =>
+            QuizData.fromJson(Map<String, dynamic>.from(value as Map)),
+      );
+
+      if (!response.isSuccess) {
+        errorMessage.value = response.message.trim().isEmpty
+            ? 'Unable to load the quiz.'
+            : response.message;
+        return;
+      }
+
+      questions.assignAll(response.data.where((question) => question.isValid));
+      if (questions.isEmpty) {
+        errorMessage.value = 'No quiz questions are available for this topic.';
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void selectOption(int index) {
@@ -107,57 +144,5 @@ class QuizController extends GetxController {
     }
 
     return QuizAnswerState.idle;
-  }
-
-  List<QuizData> _buildQuestions(String? selectedTopic) {
-    final topic = selectedTopic ?? 'this topic';
-
-    return [
-      QuizData(
-        title: 'Which practice method works best for remembering $topic?',
-        options: const [
-          'Reread the notes many times',
-          'Use active recall before checking notes',
-          'Highlight every important sentence',
-          'Study only the easiest parts first',
-        ],
-        hint:
-            'Think about the method that asks your brain to retrieve the idea.',
-        correctOptionIndex: 1,
-      ),
-      QuizData(
-        title: 'When should you review $topic after first learning it?',
-        options: const [
-          'Only before the final exam',
-          'Soon after learning, then again later',
-          'After forgetting everything',
-          'Only when the topic feels easy',
-        ],
-        hint: 'Memory is stronger when review happens before it fully fades.',
-        correctOptionIndex: 1,
-      ),
-      const QuizData(
-        title: 'What does an uncertain answer usually tell you?',
-        options: [
-          'The topic should be skipped',
-          'The answer is definitely wrong',
-          'That area needs deliberate practice',
-          'The notes are no longer useful',
-        ],
-        hint: 'Uncertainty is useful feedback for planning your next revision.',
-        correctOptionIndex: 2,
-      ),
-      QuizData(
-        title: 'How can you check whether you really understand $topic?',
-        options: const [
-          'Count how many pages you read',
-          'Explain it clearly without notes',
-          'Copy the definition five times',
-          'Avoid questions until later',
-        ],
-        hint: 'Understanding shows up when you can explain the idea simply.',
-        correctOptionIndex: 1,
-      ),
-    ];
   }
 }

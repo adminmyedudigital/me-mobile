@@ -26,6 +26,27 @@ class _QuizContainerState extends State<QuizContainer> {
     Get.back();
   }
 
+  Widget _buildStatusScreen(Widget child) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(onPressed: _handleBack),
+        title: Text(
+          _quizController.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showHintDialog() {
     final colors = context.colors;
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
@@ -134,6 +155,32 @@ class _QuizContainerState extends State<QuizContainer> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      if (_quizController.isLoading.value) {
+        return _buildStatusScreen(const CircularProgressIndicator());
+      }
+
+      if (_quizController.questions.isEmpty) {
+        return _buildStatusScreen(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _quizController.errorMessage.value ??
+                    'No quiz questions are available for this topic.',
+                textAlign: TextAlign.center,
+              ),
+              if (_quizController.selection.value != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                FilledButton(
+                  onPressed: _quizController.loadQuizzes,
+                  child: const Text('Try again'),
+                ),
+              ],
+            ],
+          ),
+        );
+      }
+
       final question = _quizController.currentQuestion;
       final currentQuestionIndex = _quizController.currentQuestionIndex.value;
       final questionCount = _quizController.questions.length;
