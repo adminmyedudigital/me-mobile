@@ -92,6 +92,7 @@ class SettingsTabContainer extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           const SettingsAppDetailsCard(
             contactNumber: '9998780902',
+            supportEmail: 'support@myedudigital.in',
             appVersionName: 'Study Planner',
           ),
         ],

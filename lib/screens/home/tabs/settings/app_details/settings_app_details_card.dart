@@ -6,11 +6,13 @@ import 'package:me_mobile/screens/home/tabs/settings/app_details/app_detail_row.
 class SettingsAppDetailsCard extends StatelessWidget {
   const SettingsAppDetailsCard({
     required this.contactNumber,
+    required this.supportEmail,
     required this.appVersionName,
     super.key,
   });
 
   final String contactNumber;
+  final String supportEmail;
   final String appVersionName;
 
   @override
@@ -39,6 +41,12 @@ class SettingsAppDetailsCard extends StatelessWidget {
               icon: Icons.phone_outlined,
               label: 'Contact number',
               value: contactNumber,
+            ),
+            Divider(height: AppSpacing.xs, color: context.colors.hairline),
+            AppDetailRow(
+              icon: Icons.email_outlined,
+              label: 'Email address',
+              value: supportEmail,
             ),
             Divider(height: AppSpacing.xs, color: context.colors.hairline),
             AppDetailRow(
