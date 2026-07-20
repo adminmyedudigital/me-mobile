@@ -1,13 +1,28 @@
 class FlashCardData {
   const FlashCardData({
-    required this.question,
-    required this.hint,
-    required this.answer,
-    required this.explanation,
+    required this.id,
+    required this.difficultyLevel,
+    required this.questionCore,
+    required this.answerCore,
+    required this.hintCore,
+    required this.summaryCore,
   });
 
-  final String question;
-  final String hint;
-  final String answer;
-  final String explanation;
+  final String id;
+  final String difficultyLevel;
+  final String questionCore;
+  final String answerCore;
+  final String hintCore;
+  final String summaryCore;
+
+  factory FlashCardData.fromJson(Map<String, dynamic> json) {
+    return FlashCardData(
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      difficultyLevel: (json['defiantly_level'] ?? '').toString(),
+      questionCore: (json['question_core'] ?? '').toString(),
+      answerCore: (json['answer_core'] ?? '').toString(),
+      hintCore: (json['hint_core'] ?? '').toString(),
+      summaryCore: (json['summary_core'] ?? '').toString(),
+    );
+  }
 }

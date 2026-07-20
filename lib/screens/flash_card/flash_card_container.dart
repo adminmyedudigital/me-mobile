@@ -49,6 +49,30 @@ class _FlashCardContainerState extends State<FlashCardContainer>
     Get.back();
   }
 
+  Widget _buildStatusScreen(Widget child) {
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: BackButton(onPressed: _handleBack),
+          title: Text(
+            _flashCardController.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _flipCard() async {
     if (_controller.isAnimating) return;
 
@@ -89,6 +113,32 @@ class _FlashCardContainerState extends State<FlashCardContainer>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      if (_flashCardController.isLoading.value) {
+        return _buildStatusScreen(const CircularProgressIndicator());
+      }
+
+      if (_flashCardController.cards.isEmpty) {
+        return _buildStatusScreen(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _flashCardController.errorMessage.value ??
+                    'No flash cards are available for this topic.',
+                textAlign: TextAlign.center,
+              ),
+              if (_flashCardController.selection.value != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                FilledButton(
+                  onPressed: _flashCardController.loadFlashCards,
+                  child: const Text('Try again'),
+                ),
+              ],
+            ],
+          ),
+        );
+      }
+
       final showResult = _flashCardController.showResult.value;
 
       if (showResult) {
@@ -153,10 +203,10 @@ class _FlashCardContainerState extends State<FlashCardContainer>
                             ? FlashCardFace(
                                 label: 'Answer',
                                 icon: Icons.menu_book,
-                                title: card.answer,
-                                body: card.explanation,
+                                title: card.answerCore,
+                                body: card.summaryCore,
                                 actionText: 'Question',
-                                alertText: 'Explanation',
+                                alertText: 'Summary',
                                 currentIndex: currentIndex,
                                 cardCount: cardCount,
                                 onPressed: _flipCard,
@@ -164,8 +214,8 @@ class _FlashCardContainerState extends State<FlashCardContainer>
                             : FlashCardFace(
                                 label: 'Question',
                                 icon: Icons.lightbulb_outline_rounded,
-                                title: card.question,
-                                body: card.hint,
+                                title: card.questionCore,
+                                body: card.hintCore,
                                 actionText: 'See answer',
                                 alertText: 'Hint',
                                 currentIndex: currentIndex,

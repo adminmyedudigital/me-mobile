@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
 
-import 'package:me_mobile/controllers/dashboard_controller.dart';
 import 'package:me_mobile/enums/enums.dart';
 import 'package:me_mobile/models/models.dart';
+import 'package:me_mobile/services/services.dart';
+import 'package:me_mobile/controllers/auth_controller.dart';
+import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
-class FlashCardController extends GetxController {
-  final Rxn<DashboardEvent> event = Rxn<DashboardEvent>();
+class FlashCardController extends GetxController with ApiControllerMixin {
   final Rxn<StudyPracticeSelection> selection = Rxn<StudyPracticeSelection>();
   final RxList<FlashCardData> cards = <FlashCardData>[].obs;
   final RxMap<int, FlashCardFeedback> feedbackByCard =
@@ -13,9 +14,10 @@ class FlashCardController extends GetxController {
   final RxInt currentIndex = 0.obs;
   final RxBool showAnswer = false.obs;
   final RxBool showResult = false.obs;
+  final RxBool isLoading = false.obs;
+  final RxnString errorMessage = RxnString();
 
-  String get title =>
-      selection.value?.title ?? event.value?.title ?? 'Flashcards';
+  String get title => selection.value?.title ?? 'Flashcards';
 
   FlashCardData get currentCard => cards[currentIndex.value];
 
@@ -43,19 +45,60 @@ class FlashCardController extends GetxController {
     return (correctCount / cards.length) * 100;
   }
 
-  void loadFromArgument(Object? argument) {
-    final dashboardEvent = argument is DashboardEvent ? argument : null;
-    final studySelection = argument is StudyPracticeSelection ? argument : null;
-
-    event.value = dashboardEvent;
-    selection.value = studySelection;
-    cards.assignAll(
-      _buildCards(studySelection?.topic ?? dashboardEvent?.title),
-    );
+  Future<void> loadFromArgument(Object? argument) async {
+    selection.value = argument is StudyPracticeSelection ? argument : null;
     feedbackByCard.clear();
     currentIndex.value = 0;
     showAnswer.value = false;
     showResult.value = false;
+    cards.clear();
+    errorMessage.value = null;
+
+    final selectedPractice = selection.value;
+    if (selectedPractice == null) {
+      errorMessage.value = 'Select a subject and topic to load flash cards.';
+      return;
+    }
+
+    await loadFlashCards();
+  }
+
+  Future<void> loadFlashCards() async {
+    final selectedPractice = selection.value;
+    if (selectedPractice == null || isLoading.value) return;
+
+    isLoading.value = true;
+    errorMessage.value = null;
+
+    try {
+      final authController = Get.find<AuthController>();
+      final endpoint = ApiRoutes.flashCards(
+        selectedPractice.subjectId,
+        selectedPractice.topicEn,
+      );
+      final response = await api.get<FlashCardData>(
+        endpoint,
+        headers: {'Authorization': 'Bearer ${authController.authToken}'},
+        fromJson: (value) =>
+            FlashCardData.fromJson(Map<String, dynamic>.from(value as Map)),
+      );
+
+      if (!response.isSuccess) {
+        errorMessage.value = response.message.trim().isEmpty
+            ? 'Unable to load flash cards.'
+            : response.message;
+        return;
+      }
+
+      cards.assignAll(
+        response.data.where((card) => card.questionCore.trim().isNotEmpty),
+      );
+      if (cards.isEmpty) {
+        errorMessage.value = 'No flash cards are available for this topic.';
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void toggleAnswer() {
@@ -88,41 +131,5 @@ class FlashCardController extends GetxController {
 
   void submitResult() {
     showResult.value = true;
-  }
-
-  List<FlashCardData> _buildCards(String? selectedTopic) {
-    final topic = selectedTopic ?? 'this topic';
-
-    return [
-      FlashCardData(
-        question:
-            'What is the best way to remember $topic?What is the best way to remember $topic?What is the best way to remember $topic?What is the best way to remember $topic?What is the best way to remember $topic?What is the best way to remember $topic?What is the best way to remember $topic?What is the best way to remember $topic?',
-        hint: 'Think through the answer first, then tap below to check it.',
-        answer: 'Use active recall before checking notes.',
-        explanation:
-            'Active recall means trying to remember the answer before checking it. This strengthens memory more than rereading notes.',
-      ),
-      const FlashCardData(
-        question: 'Why should study sessions be reviewed soon after learning?',
-        hint: 'Focus on how memory fades over time.',
-        answer: 'Reviewing early slows forgetting.',
-        explanation:
-            'A quick review after learning helps stabilize the idea, making later revision faster and more effective.',
-      ),
-      const FlashCardData(
-        question: 'What should you do when an answer feels uncertain?',
-        hint: 'Think about marking weak areas.',
-        answer: 'Flag it and revisit it deliberately.',
-        explanation:
-            'Uncertain answers show where practice is most useful. Marking them helps prioritize the next study pass.',
-      ),
-      FlashCardData(
-        question: 'How can you check if you truly understand $topic?',
-        hint: 'Try explaining it simply.',
-        answer: 'Explain it without looking at notes.',
-        explanation:
-            'If you can explain the idea clearly in your own words, you probably understand it well enough to apply it.',
-      ),
-    ];
   }
 }

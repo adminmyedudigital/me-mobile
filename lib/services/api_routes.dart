@@ -26,6 +26,14 @@ abstract final class ApiRoutes {
     return student('/subjects/topics/$board/$academicClass');
   }
 
+  static String flashCards(String subjectId, String topicEn) {
+    final encodedSubjectId = Uri.encodeComponent(subjectId);
+    final encodedTopic = Uri.encodeComponent(topicEn);
+    return student(
+      '/subjects/$encodedSubjectId/topics/$encodedTopic/flashcards',
+    );
+  }
+
   static String public(String path) => _join(publicBaseUrl, path);
 
   static String student(String path) => _join(studentBaseUrl, path);

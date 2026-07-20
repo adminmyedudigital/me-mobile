@@ -74,6 +74,7 @@ class StudyController extends GetxController with ApiControllerMixin {
       subject: subject.subjectLabel,
       topicId: topic.id,
       topic: topic.label,
+      topicEn: topic.topicEn,
     );
   }
 
@@ -115,7 +116,6 @@ class StudyController extends GetxController with ApiControllerMixin {
           Map<String, dynamic>.from(value as Map),
         ),
       );
-
       if (!response.isSuccess) {
         subjects = const [];
         errorMessage = response.message.trim().isEmpty
