@@ -5,5 +5,6 @@ export 'package:me_mobile/models/flash_card_data.dart';
 export 'package:me_mobile/models/auth_session_model.dart';
 export 'package:me_mobile/models/academic_class_model.dart';
 export 'package:me_mobile/models/education_board_model.dart';
+export 'package:me_mobile/models/academic_history_model.dart';
 export 'package:me_mobile/models/study_practice_selection.dart';
 export 'package:me_mobile/models/school_academic_class_model.dart';

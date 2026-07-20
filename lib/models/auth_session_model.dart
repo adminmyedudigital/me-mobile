@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:me_mobile/models/auth_model.dart';
+import 'package:me_mobile/models/academic_history_model.dart';
 import 'package:me_mobile/models/school_academic_class_model.dart';
 
 class AuthSessionModel {
@@ -8,11 +9,13 @@ class AuthSessionModel {
     required this.user,
     required this.token,
     required this.schoolAcademicClasses,
+    this.academicHistory,
   });
 
   final AuthUserModel user;
   final String token;
   final List<SchoolAcademicClassModel> schoolAcademicClasses;
+  final AcademicHistoryModel? academicHistory;
 
   bool get hasValidToken => token.trim().isNotEmpty && !isTokenExpired;
 
@@ -46,6 +49,7 @@ class AuthSessionModel {
       schoolAcademicClasses: _parseSchoolAcademicClasses(
         json['school_academic_classes'],
       ),
+      academicHistory: _parseAcademicHistory(json['academic_history']),
     );
   }
 
@@ -56,6 +60,7 @@ class AuthSessionModel {
       schoolAcademicClasses: _parseSchoolAcademicClasses(
         json['school_academic_classes'],
       ),
+      academicHistory: _parseAcademicHistory(json['academic_history']),
     );
   }
 
@@ -66,7 +71,16 @@ class AuthSessionModel {
       'school_academic_classes': schoolAcademicClasses
           .map((schoolClass) => schoolClass.toJson())
           .toList(),
+      'academic_history': academicHistory?.toJson(),
     };
+  }
+
+  static AcademicHistoryModel? _parseAcademicHistory(dynamic value) {
+    if (value is! Map) {
+      return null;
+    }
+
+    return AcademicHistoryModel.fromJson(Map<String, dynamic>.from(value));
   }
 
   static List<SchoolAcademicClassModel> _parseSchoolAcademicClasses(

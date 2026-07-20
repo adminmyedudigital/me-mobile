@@ -12,6 +12,7 @@ class AuthController extends GetxController with ApiControllerMixin {
 
   AuthStorageService get _storage => Get.find<AuthStorageService>();
   AuthUserModel? get currentUser => session.value?.user;
+  AcademicHistoryModel? get academicHistory => session.value?.academicHistory;
   String get authToken => session.value?.token ?? '';
   List<SchoolAcademicClassModel> get schoolAcademicClasses =>
       session.value?.schoolAcademicClasses ?? const [];
