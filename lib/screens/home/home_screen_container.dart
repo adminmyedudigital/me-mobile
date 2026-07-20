@@ -9,12 +9,22 @@ import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 import 'package:me_mobile/screens/home/add_timetable_alert.dart';
+import 'package:me_mobile/screens/home/feature_access_alert.dart';
+import 'package:me_mobile/screens/home/home_floating_action_button.dart';
 
-class HomeScreenContainer extends StatelessWidget {
+class HomeScreenContainer extends StatefulWidget {
   const HomeScreenContainer({super.key});
+
+  @override
+  State<HomeScreenContainer> createState() => _HomeScreenContainerState();
+}
+
+class _HomeScreenContainerState extends State<HomeScreenContainer> {
+  bool _isRequirementDialogVisible = false;
 
   static const _dashboardTabIndex = 0;
   static const _examTabIndex = 1;
+  static const _analyticsTabIndex = 2;
 
   static const _tabs = [
     HomeNavigationDestination(
@@ -60,16 +70,89 @@ class HomeScreenContainer extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _showRequirement(AppFeature.dashboard);
+    });
+  }
+
+  AppFeature? _featureForTab(int index) {
+    return switch (index) {
+      _dashboardTabIndex => AppFeature.dashboard,
+      _examTabIndex => AppFeature.exams,
+      _analyticsTabIndex => AppFeature.analytics,
+      _ => null,
+    };
+  }
+
+  Future<void> _changeTab(HomeController controller, int index) async {
+    controller.changeTab(index);
+    final feature = _featureForTab(index);
+
+    if (feature != null) {
+      await _showRequirement(feature);
+    }
+  }
+
+  Future<void> _showRequirement(AppFeature feature) async {
+    if (_isRequirementDialogVisible || !mounted) return;
+
+    final requirement = Get.find<FeatureAccessController>().unmetRequirement(
+      feature,
+    );
+
+    if (requirement == null) return;
+
+    _isRequirementDialogVisible = true;
+    try {
+      await showFeatureAccessAlert(context, requirement);
+    } finally {
+      _isRequirementDialogVisible = false;
+    }
+  }
+
+  Widget? _buildFloatingActionButton({
+    required int currentIndex,
+    required bool canCreateTimetable,
+    required bool canAddExamResult,
+    required HomeController homeController,
+  }) {
+    return switch (currentIndex) {
+      _dashboardTabIndex => HomeFloatingActionButton(
+        enabledTooltip: 'Create upcoming timetable',
+        onPressed: canCreateTimetable
+            ? () => _confirmScheduleTimetable(context, homeController)
+            : null,
+      ),
+      _examTabIndex => HomeFloatingActionButton(
+        enabledTooltip: 'Add exam result',
+        onPressed: canAddExamResult
+            ? () => Get.toNamed(AppRoutes.examResult)
+            : null,
+      ),
+      _ => null,
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
     final homeController = Get.find<HomeController>();
     final authController = Get.find<AuthController>();
+    final accessController = Get.find<FeatureAccessController>();
 
     return Obx(() {
       final currentIndex = homeController.currentIndex.value;
       final isDashboardTab = currentIndex == _dashboardTabIndex;
       final isExamTab = currentIndex == _examTabIndex;
       final hasFloatingActionButton = isDashboardTab || isExamTab;
-      final colors = context.colors;
+      final canCreateTimetable = accessController.canAccess(
+        AppFeature.createTimetable,
+      );
+      final canAddExamResult = accessController.canAccess(
+        AppFeature.addExamResult,
+      );
 
       return Scaffold(
         extendBody: true,
@@ -101,82 +184,14 @@ class HomeScreenContainer extends StatelessWidget {
         bottomNavigationBar: HomeBottomNavigation(
           currentIndex: currentIndex,
           destinations: _tabs,
-          onChanged: homeController.changeTab,
+          onChanged: (index) => _changeTab(homeController, index),
         ),
-        floatingActionButton: isDashboardTab
-            ? Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.primary.withValues(alpha: 0.28),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                    BoxShadow(
-                      color: colors.canvas.withValues(alpha: 0.32),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: FloatingActionButton(
-                  tooltip: 'Create upcoming timetable',
-                  elevation: 0,
-                  focusElevation: 0,
-                  hoverElevation: 0,
-                  highlightElevation: 0,
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.primaryOn,
-                  shape: CircleBorder(
-                    side: BorderSide(
-                      color: colors.primaryOn.withValues(alpha: 0.12),
-                    ),
-                  ),
-                  onPressed: () =>
-                      _confirmScheduleTimetable(context, homeController),
-                  child: const Icon(Icons.add_rounded, size: 30),
-                ),
-              )
-            : isExamTab
-            ? Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.primary.withValues(alpha: 0.28),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                    BoxShadow(
-                      color: colors.canvas.withValues(alpha: 0.32),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: FloatingActionButton(
-                  tooltip: 'Add exam result',
-                  elevation: 0,
-                  focusElevation: 0,
-                  hoverElevation: 0,
-                  highlightElevation: 0,
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.primaryOn,
-                  shape: CircleBorder(
-                    side: BorderSide(
-                      color: colors.primaryOn.withValues(alpha: 0.12),
-                    ),
-                  ),
-                  onPressed: () => Get.toNamed(AppRoutes.examResult),
-                  child: const Icon(Icons.add_rounded, size: 30),
-                ),
-              )
-            : null,
+        floatingActionButton: _buildFloatingActionButton(
+          currentIndex: currentIndex,
+          canCreateTimetable: canCreateTimetable,
+          canAddExamResult: canAddExamResult,
+          homeController: homeController,
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     });

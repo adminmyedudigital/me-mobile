@@ -37,6 +37,18 @@ class AcademicHistoryModel {
   final int endYear;
   final bool isActive;
 
+  bool get hasRequiredData =>
+      id.trim().isNotEmpty &&
+      user.trim().isNotEmpty &&
+      schoolId.trim().isNotEmpty &&
+      schoolAcademicClassId.trim().isNotEmpty &&
+      educationBoardId.trim().isNotEmpty &&
+      academicClassId.trim().isNotEmpty &&
+      startMonth > 0 &&
+      startYear > 0 &&
+      endMonth > 0 &&
+      endYear > 0;
+
   factory AcademicHistoryModel.fromJson(Map<String, dynamic> json) {
     // Locally stored sessions use the flattened camelCase representation.
     if (json.containsKey('schoolAcademicClassId')) {

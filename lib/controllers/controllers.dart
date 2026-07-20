@@ -8,5 +8,6 @@ export 'package:me_mobile/controllers/api_controller_mixin.dart';
 export 'package:me_mobile/controllers/analytics_controller.dart';
 export 'package:me_mobile/controllers/dashboard_controller.dart';
 export 'package:me_mobile/controllers/flash_card_controller.dart';
+export 'package:me_mobile/controllers/feature_access_controller.dart';
 export 'package:me_mobile/controllers/academic_setup_controller.dart';
 export 'package:me_mobile/controllers/schedule_timetable_controller.dart';
