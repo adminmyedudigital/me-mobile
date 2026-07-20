@@ -18,6 +18,7 @@ class EducationBoardModel {
   factory EducationBoardModel.fromApiJson(
     Map<String, dynamic> json, {
     required Map<String, dynamic> academicClass,
+    String schoolAcademicClassId = '',
   }) {
     final coreLanguage = _mapOrEmpty(json['core_language']);
 
@@ -26,7 +27,12 @@ class EducationBoardModel {
       educationBoard: (json['education_board'] ?? '').toString(),
       shortName: (json['short_name'] ?? '').toString(),
       coreLanguage: (coreLanguage['language'] ?? '').toString(),
-      academicClasses: [AcademicClassModel.fromApiJson(academicClass)],
+      academicClasses: [
+        AcademicClassModel.fromApiJson(
+          academicClass,
+          schoolAcademicClassId: schoolAcademicClassId,
+        ),
+      ],
     );
   }
 

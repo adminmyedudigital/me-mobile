@@ -74,6 +74,7 @@ class AcademicHistoryModel {
     }
 
     final schoolAcademicClass = _mapOrEmpty(json['school_academic_class']);
+    final user = json['user'];
     final school = _mapOrEmpty(schoolAcademicClass['school']);
     final educationBoard = _mapOrEmpty(schoolAcademicClass['education_board']);
     final coreLanguage = _mapOrEmpty(educationBoard['core_language']);
@@ -81,7 +82,9 @@ class AcademicHistoryModel {
 
     return AcademicHistoryModel(
       id: _readId(json),
-      user: (json['user'] ?? '').toString(),
+      user: user is Map
+          ? _readId(Map<String, dynamic>.from(user))
+          : (user ?? '').toString(),
       schoolName: (school['name'] ?? '').toString(),
       schoolId: _readId(school),
       schoolAcademicClassId: _readId(schoolAcademicClass),

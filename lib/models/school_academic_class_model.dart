@@ -66,6 +66,7 @@ class SchoolAcademicClassModel {
         EducationBoardModel.fromApiJson(
           educationBoard,
           academicClass: academicClass,
+          schoolAcademicClassId: _readId(json),
         ),
       ],
     );

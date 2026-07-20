@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
 
+import 'package:me_mobile/utils/utils.dart';
 import 'package:me_mobile/models/models.dart';
+import 'package:me_mobile/services/services.dart';
 import 'package:me_mobile/controllers/auth_controller.dart';
+import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
-class AcademicSetupController extends GetxController {
+class AcademicSetupController extends GetxController with ApiControllerMixin {
   String? _loadedUserId;
   bool _hasSavedSettings = false;
 
@@ -17,6 +20,7 @@ class AcademicSetupController extends GetxController {
   int? academicEndMonth;
   int? academicEndYear;
   bool submitted = false;
+  bool isSaving = false;
 
   bool get canSelectAcademicEnd =>
       academicStartMonth != null && academicStartYear != null;
@@ -63,15 +67,11 @@ class AcademicSetupController extends GetxController {
       return const [];
     }
 
-    final earliestMonth =
-        academicEndYear == null || academicEndYear == startYear
-        ? startMonth
-        : 1;
+    if (academicEndYear == null || academicEndYear == startYear) {
+      return [for (var month = startMonth; month <= 12; month++) month];
+    }
 
-    return [
-      for (var month = 1; month <= 12; month++)
-        if (month > earliestMonth) month,
-    ];
+    return [for (var month = 1; month <= startMonth; month++) month];
   }
 
   void loadAcademicHistory() {
@@ -172,7 +172,11 @@ class AcademicSetupController extends GetxController {
     update();
   }
 
-  bool save() {
+  Future<bool> save() async {
+    if (isSaving) {
+      return false;
+    }
+
     if (educationBoardId == null ||
         academicClassId == null ||
         academicStartMonth == null ||
@@ -182,8 +186,58 @@ class AcademicSetupController extends GetxController {
       return false;
     }
 
-    _hasSavedSettings = true;
-    return true;
+    final authController = Get.find<AuthController>();
+    final schoolAcademicClassId = _selectedSchoolAcademicClassId(
+      authController,
+    );
+
+    if (schoolAcademicClassId == null) {
+      AppSnackBar.showError(
+        title: 'Unable to save academic setup',
+        message: 'The selected academic class is unavailable.',
+        fallbackMessage: 'Please select the academic class again.',
+      );
+      return false;
+    }
+
+    isSaving = true;
+    update();
+
+    try {
+      final response = await api.post<AcademicHistoryModel>(
+        ApiRoutes.academicHistories,
+        headers: {'Authorization': 'Bearer ${authController.authToken}'},
+        body: {
+          'school_academic_class': schoolAcademicClassId,
+          'start_month': academicStartMonth,
+          'start_year': academicStartYear,
+          'end_month': academicEndMonth,
+          'end_year': academicEndYear,
+        },
+        fromJson: (value) => AcademicHistoryModel.fromJson(
+          Map<String, dynamic>.from(value as Map),
+        ),
+      );
+
+      if (!response.isSuccess) {
+        AppSnackBar.showError(
+          title: 'Unable to save academic setup',
+          message: response.message,
+        );
+        return false;
+      }
+
+      if (response.data.isNotEmpty) {
+        academicHistory = response.data.first;
+        await authController.updateAcademicHistory(academicHistory!);
+      }
+
+      _hasSavedSettings = response.data.isEmpty;
+      return true;
+    } finally {
+      isSaving = false;
+      update();
+    }
   }
 
   void _normalizeAcademicEndSelection() {
@@ -221,6 +275,32 @@ class AcademicSetupController extends GetxController {
     }
 
     return boardsById.values.toList();
+  }
+
+  String? _selectedSchoolAcademicClassId(AuthController authController) {
+    for (final school in authController.schoolAcademicClasses) {
+      for (final board in school.educationBoards) {
+        if (board.id != educationBoardId) {
+          continue;
+        }
+
+        for (final academicClass in board.academicClasses) {
+          if (academicClass.id != academicClassId) {
+            continue;
+          }
+
+          if (academicClass.schoolAcademicClassId.isNotEmpty) {
+            return academicClass.schoolAcademicClassId;
+          }
+
+          if (school.schoolAcademicClassId.isNotEmpty) {
+            return school.schoolAcademicClassId;
+          }
+        }
+      }
+    }
+
+    return null;
   }
 
   String? _validStringValue(Iterable<String> values, String value) {

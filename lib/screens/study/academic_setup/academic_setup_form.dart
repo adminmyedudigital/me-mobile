@@ -58,21 +58,21 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
     };
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     _controller.markSubmitted();
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    if (!_controller.save()) {
+    if (!await _controller.save() || !mounted) {
       return;
     }
 
     FocusScope.of(context).unfocus();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Academic setup updated'),
+        content: const Text('Academic setup saved'),
         backgroundColor: context.colors.primary,
       ),
     );
@@ -188,7 +188,9 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                   ),
                   const SizedBox(height: _fieldGap),
                   MEDropdownField<int>(
-                    key: ValueKey(controller.academicStartYear),
+                    key: ValueKey(
+                      '${controller.academicStartMonth}_${controller.academicStartYear}',
+                    ),
                     items: endYearOptions,
                     initialValue: controller.academicEndYear,
                     enabled: canSelectAcademicEnd,
@@ -205,6 +207,7 @@ class _AcademicSetupScreenState extends State<AcademicSetupScreen> {
                   MEButton(
                     label: 'Save Data',
                     onPressed: _submit,
+                    isLoading: controller.isSaving,
                     fullWidth: true,
                     icon: Icons.save_outlined,
                     backgroundColor: colors.accentOrange,

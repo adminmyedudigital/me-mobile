@@ -73,6 +73,26 @@ class AuthController extends GetxController with ApiControllerMixin {
     _setAppSession(storedSession, redirect: false);
   }
 
+  Future<void> updateAcademicHistory(
+    AcademicHistoryModel academicHistory,
+  ) async {
+    final currentSession = session.value;
+
+    if (currentSession == null) {
+      return;
+    }
+
+    final updatedSession = AuthSessionModel(
+      user: currentSession.user,
+      token: currentSession.token,
+      schoolAcademicClasses: currentSession.schoolAcademicClasses,
+      academicHistory: academicHistory,
+    );
+
+    await _storage.saveSession(updatedSession);
+    session.value = updatedSession;
+  }
+
   Future<void> validateSession({bool redirect = true}) async {
     final currentSession = session.value ?? _storage.readSession();
 

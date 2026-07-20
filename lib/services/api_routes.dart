@@ -15,9 +15,10 @@ abstract final class ApiRoutes {
   );
 
   static String get states => public('/states');
-  static String get studentSignIn => student('/signin');
   static String get signUpWeb => web('/sign-up');
+  static String get studentSignIn => student('/signin');
   static String get forgottenPasswordWeb => web('/forgotten-password');
+  static String get academicHistories => student('/academic-histories');
 
   static String public(String path) => _join(publicBaseUrl, path);
 
