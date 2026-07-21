@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:get/get.dart';
 
 import 'package:me_mobile/utils/utils.dart';
@@ -8,6 +10,7 @@ import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
 class AuthController extends GetxController with ApiControllerMixin {
   final RxBool isSigningIn = false.obs;
+  final RxBool isUpdatingProfile = false.obs;
   final RxBool isUpdatingPassword = false.obs;
   final RxBool isUpdatingUsername = false.obs;
   final Rxn<AuthSessionModel> session = Rxn<AuthSessionModel>();
@@ -93,6 +96,54 @@ class AuthController extends GetxController with ApiControllerMixin {
 
     await _storage.saveSession(updatedSession);
     session.value = updatedSession;
+  }
+
+  Future<bool> updateProfile(UpdateProfilePayloadModel payload) async {
+    if (isUpdatingProfile.value) {
+      return false;
+    }
+
+    final currentSession = session.value;
+    final userId = currentSession?.user.id.trim() ?? '';
+
+    if (currentSession == null || userId.isEmpty) {
+      AppSnackBar.showError(
+        title: 'Unable to update profile',
+        message: 'Your user details are unavailable. Please sign in again.',
+      );
+      return false;
+    }
+
+    isUpdatingProfile.value = true;
+
+    try {
+      final endpoint = ApiRoutes.profile(userId);
+      final requestBody = payload.toJson();
+
+      debugPrint('Update profile endpoint: $endpoint');
+      debugPrint('Update profile payload: $requestBody');
+
+      final response = await api.put<dynamic>(
+        endpoint,
+        headers: {'Authorization': 'Bearer $authToken'},
+        body: requestBody,
+      );
+
+      debugPrint('Update profile response: ${response.toJson()}');
+
+      if (!response.isSuccess) {
+        AppSnackBar.showError(
+          title: 'Unable to update profile',
+          message: response.message,
+        );
+        return false;
+      }
+
+      await logout();
+      return true;
+    } finally {
+      isUpdatingProfile.value = false;
+    }
   }
 
   Future<bool> updateUsername(UpdateUsernamePayloadModel payload) async {

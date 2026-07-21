@@ -22,6 +22,10 @@ abstract final class ApiRoutes {
   static String get forgottenPasswordWeb => web('/forgotten-password');
   static String get academicHistories => student('/academic-histories');
 
+  static String profile(String userId) {
+    return student('/profile/${Uri.encodeComponent(userId)}');
+  }
+
   static String subjectTopics(String educationBoardId, String academicClassId) {
     final board = Uri.encodeComponent(educationBoardId);
     final academicClass = Uri.encodeComponent(academicClassId);
