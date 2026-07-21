@@ -8,6 +8,7 @@ import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
 class AuthController extends GetxController with ApiControllerMixin {
   final RxBool isSigningIn = false.obs;
+  final RxBool isUpdatingPassword = false.obs;
   final RxBool isUpdatingUsername = false.obs;
   final Rxn<AuthSessionModel> session = Rxn<AuthSessionModel>();
 
@@ -121,6 +122,35 @@ class AuthController extends GetxController with ApiControllerMixin {
       return true;
     } finally {
       isUpdatingUsername.value = false;
+    }
+  }
+
+  Future<bool> updatePassword(UpdatePasswordPayloadModel payload) async {
+    if (isUpdatingPassword.value) {
+      return false;
+    }
+
+    isUpdatingPassword.value = true;
+
+    try {
+      final response = await api.put<dynamic>(
+        ApiRoutes.updatePassword,
+        headers: {'Authorization': 'Bearer $authToken'},
+        body: payload.toJson(),
+      );
+
+      if (response.status != 200) {
+        AppSnackBar.showError(
+          title: 'Unable to update password',
+          message: response.message,
+        );
+        return false;
+      }
+
+      await logout();
+      return true;
+    } finally {
+      isUpdatingPassword.value = false;
     }
   }
 

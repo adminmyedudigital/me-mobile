@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
@@ -36,24 +37,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
     setState(() => _submitted = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    Get.find<AppController>().changePassword(_newPasswordController.text);
-
-    _currentPasswordController.clear();
-    _newPasswordController.clear();
-    _confirmPasswordController.clear();
-    FocusScope.of(context).unfocus();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Password updated'),
-        backgroundColor: context.colors.primary,
+    await Get.find<AuthController>().updatePassword(
+      UpdatePasswordPayloadModel(
+        existingPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
       ),
     );
   }
@@ -65,75 +60,80 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ? AutovalidateMode.always
         : AutovalidateMode.onUserInteraction;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Password')),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              Text(
-                'Change password',
-                style: Theme.of(context).textTheme.headlineSmall,
+    return Obx(
+      () => PopScope(
+        canPop: !Get.find<AuthController>().isUpdatingPassword.value,
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Password')),
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  Text(
+                    'Enter your current password before setting a new one.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.charcoal,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  MEPasswordField(
+                    controller: _currentPasswordController,
+                    labelText: 'Current Password',
+                    hintText: 'Current Password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) =>
+                        _newPasswordFocusNode.requestFocus(),
+                    autofillHints: const [AutofillHints.password],
+                    autovalidateMode: autovalidateMode,
+                    validator: _currentPassword,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEPasswordField(
+                    controller: _newPasswordController,
+                    focusNode: _newPasswordFocusNode,
+                    labelText: 'New Password',
+                    hintText: 'New Password',
+                    prefixIcon: const Icon(Icons.lock_reset),
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) =>
+                        _confirmPasswordFocusNode.requestFocus(),
+                    autofillHints: const [AutofillHints.newPassword],
+                    autovalidateMode: autovalidateMode,
+                    validator: _newPassword,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEPasswordField(
+                    controller: _confirmPasswordController,
+                    focusNode: _confirmPasswordFocusNode,
+                    labelText: 'Confirm New Password',
+                    hintText: 'Confirm New Password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submit(),
+                    autofillHints: const [AutofillHints.newPassword],
+                    autovalidateMode: autovalidateMode,
+                    validator: _confirmPassword,
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                  Obx(
+                    () => MEButton(
+                      label: 'Update Password',
+                      onPressed: _submit,
+                      isLoading:
+                          Get.find<AuthController>().isUpdatingPassword.value,
+                      fullWidth: true,
+                      icon: Icons.save_outlined,
+                      backgroundColor: colors.accentOrange,
+                      foregroundColor: colors.ink,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Enter your current password before setting a new one.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.charcoal,
-                  letterSpacing: 0,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              MEPasswordField(
-                controller: _currentPasswordController,
-                labelText: 'Current Password',
-                hintText: 'Current Password',
-                prefixIcon: const Icon(Icons.lock_outline),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => _newPasswordFocusNode.requestFocus(),
-                autofillHints: const [AutofillHints.password],
-                autovalidateMode: autovalidateMode,
-                validator: _currentPassword,
-              ),
-              const SizedBox(height: _fieldGap),
-              MEPasswordField(
-                controller: _newPasswordController,
-                focusNode: _newPasswordFocusNode,
-                labelText: 'New Password',
-                hintText: 'New Password',
-                prefixIcon: const Icon(Icons.lock_reset),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) =>
-                    _confirmPasswordFocusNode.requestFocus(),
-                autofillHints: const [AutofillHints.newPassword],
-                autovalidateMode: autovalidateMode,
-                validator: _newPassword,
-              ),
-              const SizedBox(height: _fieldGap),
-              MEPasswordField(
-                controller: _confirmPasswordController,
-                focusNode: _confirmPasswordFocusNode,
-                labelText: 'Confirm New Password',
-                hintText: 'Confirm New Password',
-                prefixIcon: const Icon(Icons.lock_outline),
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _submit(),
-                autofillHints: const [AutofillHints.newPassword],
-                autovalidateMode: autovalidateMode,
-                validator: _confirmPassword,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              MEButton(
-                label: 'Update Password',
-                onPressed: _submit,
-                fullWidth: true,
-                icon: Icons.save_outlined,
-                backgroundColor: colors.accentOrange,
-                foregroundColor: colors.ink,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -141,35 +141,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   String? _currentPassword(String? value) {
-    final requiredError = MEValidators.requiredField(
-      fieldName: 'Current password',
-    )(value);
-    if (requiredError != null) {
-      return requiredError;
-    }
-
-    final existingPassword = Get.find<AppController>().profile.value.password;
-    if (existingPassword.isNotEmpty && value?.trim() != existingPassword) {
-      return 'Current password is incorrect';
-    }
-
-    return null;
+    return MEValidators.compose([
+      MEValidators.requiredField(fieldName: 'Current password'),
+      MEValidators.minLength(5, fieldName: 'Current password'),
+      MEValidators.maxLength(50, fieldName: 'Current password'),
+    ])(value);
   }
 
   String? _newPassword(String? value) {
     return MEValidators.compose([
       MEValidators.requiredField(fieldName: 'New password'),
-      MEValidators.minLength(8, fieldName: 'New password'),
-      MEValidators.maxLength(64, fieldName: 'New password'),
+      MEValidators.minLength(5, fieldName: 'New password'),
+      MEValidators.maxLength(50, fieldName: 'New password'),
     ])(value);
   }
 
   String? _confirmPassword(String? value) {
-    final requiredError = MEValidators.requiredField(
-      fieldName: 'Confirm new password',
-    )(value);
-    if (requiredError != null) {
-      return requiredError;
+    final error = MEValidators.compose([
+      MEValidators.requiredField(fieldName: 'Confirm new password'),
+      MEValidators.minLength(5, fieldName: 'Confirm new password'),
+      MEValidators.maxLength(50, fieldName: 'Confirm new password'),
+    ])(value);
+    if (error != null) {
+      return error;
     }
 
     if (value != _newPasswordController.text) {

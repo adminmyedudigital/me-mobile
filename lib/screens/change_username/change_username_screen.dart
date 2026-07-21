@@ -63,74 +63,73 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
         ? AutovalidateMode.always
         : AutovalidateMode.onUserInteraction;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Username')),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              Text(
-                'Choose the username you want to use for sign in.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.charcoal,
-                  letterSpacing: 0,
-                ),
+    return Obx(
+      () => PopScope(
+        canPop: !Get.find<AuthController>().isUpdatingUsername.value,
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Username')),
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  Text(
+                    'Choose the username you want to use for sign in.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.charcoal,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  METextField(
+                    controller: _currentUsernameController,
+                    labelText: 'Current Username',
+                    hintText: 'Current Username',
+                    prefixIcon: const Icon(Icons.person_pin_rounded),
+                    textInputAction: TextInputAction.next,
+                    autofillHints: const [AutofillHints.username],
+                    enabled: false,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  METextField(
+                    controller: _newUsernameController,
+                    labelText: 'New Username',
+                    hintText: 'New Username',
+                    prefixIcon: const Icon(Icons.alternate_email),
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                    autofillHints: const [AutofillHints.newUsername],
+                    autovalidateMode: autovalidateMode,
+                    validator: _newUsername,
+                  ),
+                  const SizedBox(height: _fieldGap),
+                  MEPasswordField(
+                    controller: _passwordController,
+                    focusNode: _passwordFocusNode,
+                    labelText: 'Password',
+                    hintText: 'Password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submit(),
+                    autofillHints: const [AutofillHints.password],
+                    autovalidateMode: autovalidateMode,
+                    validator: _password,
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                  MEButton(
+                    label: 'Update Username',
+                    onPressed: _submit,
+                    isLoading:
+                        Get.find<AuthController>().isUpdatingUsername.value,
+                    fullWidth: true,
+                    icon: Icons.save_outlined,
+                    backgroundColor: colors.accentOrange,
+                    foregroundColor: colors.ink,
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.xl),
-              METextField(
-                controller: _currentUsernameController,
-                labelText: 'Current Username',
-                hintText: 'Current Username',
-                prefixIcon: const Icon(Icons.person_pin_rounded),
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.username],
-                enabled: false,
-              ),
-              const SizedBox(height: _fieldGap),
-              METextField(
-                controller: _newUsernameController,
-                labelText: 'New Username',
-                hintText: 'New Username',
-                prefixIcon: const Icon(Icons.alternate_email),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                autofillHints: const [AutofillHints.newUsername],
-                autovalidateMode: autovalidateMode,
-                validator: _newUsername,
-              ),
-              const SizedBox(height: _fieldGap),
-              MEPasswordField(
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                labelText: 'Password',
-                hintText: 'Password',
-                prefixIcon: const Icon(Icons.lock_outline),
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _submit(),
-                autofillHints: const [AutofillHints.password],
-                autovalidateMode: autovalidateMode,
-                validator: MEValidators.compose([
-                  MEValidators.requiredField(fieldName: 'Password'),
-                  MEValidators.minLength(5, fieldName: 'Password'),
-                  MEValidators.maxLength(50, fieldName: 'Password'),
-                ]),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              Obx(
-                () => MEButton(
-                  label: 'Update Username',
-                  onPressed: _submit,
-                  isLoading:
-                      Get.find<AuthController>().isUpdatingUsername.value,
-                  fullWidth: true,
-                  icon: Icons.save_outlined,
-                  backgroundColor: colors.accentOrange,
-                  foregroundColor: colors.ink,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -140,8 +139,8 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
   String? _newUsername(String? value) {
     final error = MEValidators.compose([
       MEValidators.requiredField(fieldName: 'New username'),
-      MEValidators.minLength(3, fieldName: 'New username'),
-      MEValidators.maxLength(30, fieldName: 'New username'),
+      MEValidators.minLength(5, fieldName: 'New username'),
+      MEValidators.maxLength(100, fieldName: 'New username'),
     ])(value);
     if (error != null) {
       return error;
@@ -152,5 +151,13 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
     }
 
     return null;
+  }
+
+  String? _password(String? value) {
+    return MEValidators.compose([
+      MEValidators.requiredField(fieldName: 'Password'),
+      MEValidators.minLength(5, fieldName: 'Password'),
+      MEValidators.maxLength(50, fieldName: 'Password'),
+    ])(value);
   }
 }
