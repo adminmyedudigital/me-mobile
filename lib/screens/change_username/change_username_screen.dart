@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
@@ -19,6 +20,8 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
   final _formKey = GlobalKey<FormState>();
   final _currentUsernameController = TextEditingController();
   final _newUsernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _passwordFocusNode = FocusNode();
   bool _submitted = false;
 
   @override
@@ -32,26 +35,23 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
   void dispose() {
     _currentUsernameController.dispose();
     _newUsernameController.dispose();
+    _passwordController.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _submitted = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    final username = _newUsernameController.text.trim();
-    Get.find<AppController>().changeUsername(username);
-    _currentUsernameController.text = username;
-    _newUsernameController.clear();
-    FocusScope.of(context).unfocus();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Username updated'),
-        backgroundColor: context.colors.primary,
+    await Get.find<AuthController>().updateUsername(
+      UpdateUsernamePayloadModel(
+        newUsername: _newUsernameController.text,
+        password: _passwordController.text,
       ),
     );
   }
@@ -71,11 +71,6 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
-              Text(
-                'Change username',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
               Text(
                 'Choose the username you want to use for sign in.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -99,20 +94,41 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                 labelText: 'New Username',
                 hintText: 'New Username',
                 prefixIcon: const Icon(Icons.alternate_email),
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _submit(),
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
                 autofillHints: const [AutofillHints.newUsername],
                 autovalidateMode: autovalidateMode,
                 validator: _newUsername,
               ),
+              const SizedBox(height: _fieldGap),
+              MEPasswordField(
+                controller: _passwordController,
+                focusNode: _passwordFocusNode,
+                labelText: 'Password',
+                hintText: 'Password',
+                prefixIcon: const Icon(Icons.lock_outline),
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _submit(),
+                autofillHints: const [AutofillHints.password],
+                autovalidateMode: autovalidateMode,
+                validator: MEValidators.compose([
+                  MEValidators.requiredField(fieldName: 'Password'),
+                  MEValidators.minLength(5, fieldName: 'Password'),
+                  MEValidators.maxLength(50, fieldName: 'Password'),
+                ]),
+              ),
               const SizedBox(height: AppSpacing.xxl),
-              MEButton(
-                label: 'Update Username',
-                onPressed: _submit,
-                fullWidth: true,
-                icon: Icons.save_outlined,
-                backgroundColor: colors.accentOrange,
-                foregroundColor: colors.ink,
+              Obx(
+                () => MEButton(
+                  label: 'Update Username',
+                  onPressed: _submit,
+                  isLoading:
+                      Get.find<AuthController>().isUpdatingUsername.value,
+                  fullWidth: true,
+                  icon: Icons.save_outlined,
+                  backgroundColor: colors.accentOrange,
+                  foregroundColor: colors.ink,
+                ),
               ),
             ],
           ),

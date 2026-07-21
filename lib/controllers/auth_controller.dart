@@ -8,6 +8,7 @@ import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
 class AuthController extends GetxController with ApiControllerMixin {
   final RxBool isSigningIn = false.obs;
+  final RxBool isUpdatingUsername = false.obs;
   final Rxn<AuthSessionModel> session = Rxn<AuthSessionModel>();
 
   AuthStorageService get _storage => Get.find<AuthStorageService>();
@@ -91,6 +92,36 @@ class AuthController extends GetxController with ApiControllerMixin {
 
     await _storage.saveSession(updatedSession);
     session.value = updatedSession;
+  }
+
+  Future<bool> updateUsername(UpdateUsernamePayloadModel payload) async {
+    if (isUpdatingUsername.value) {
+      return false;
+    }
+
+    isUpdatingUsername.value = true;
+
+    try {
+      final requestBody = payload.toJson();
+      final response = await api.put<dynamic>(
+        ApiRoutes.updateUsername,
+        headers: {'Authorization': 'Bearer $authToken'},
+        body: requestBody,
+      );
+
+      if (response.status != 200) {
+        AppSnackBar.showError(
+          title: 'Unable to update username',
+          message: response.message,
+        );
+        return false;
+      }
+
+      await logout();
+      return true;
+    } finally {
+      isUpdatingUsername.value = false;
+    }
   }
 
   Future<void> validateSession({bool redirect = true}) async {
