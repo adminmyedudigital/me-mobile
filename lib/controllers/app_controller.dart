@@ -4,42 +4,7 @@ import 'package:get/get.dart';
 
 import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/routes/app_routes.dart';
-
-class UserProfile {
-  const UserProfile({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.phoneNumber,
-    required this.username,
-    required this.password,
-  });
-
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String phoneNumber;
-  final String username;
-  final String password;
-
-  UserProfile copyWith({
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? phoneNumber,
-    String? username,
-    String? password,
-  }) {
-    return UserProfile(
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      email: email ?? this.email,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      username: username ?? this.username,
-      password: password ?? this.password,
-    );
-  }
-}
+import 'package:me_mobile/services/services.dart';
 
 class AppController extends GetxController {
   static const UserProfile _emptyProfile = UserProfile(
@@ -52,18 +17,28 @@ class AppController extends GetxController {
   );
 
   final RxBool isAuthenticated = false.obs;
-  final Rx<ThemeMode> themeMode = ThemeMode.light.obs;
+  final Rx<ThemeMode> themeMode = Get.find<ThemeStorageService>()
+      .readThemeMode()
+      .obs;
   final Rx<UserProfile> profile = _emptyProfile.obs;
 
-  bool get isDarkMode => themeMode.value == ThemeMode.dark;
-
-  void setThemeMode(ThemeMode mode) {
-    themeMode.value = mode;
-    Get.changeThemeMode(mode);
+  bool isDarkModeFor(BuildContext context) {
+    return switch (themeMode.value) {
+      ThemeMode.dark => true,
+      ThemeMode.light => false,
+      ThemeMode.system =>
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+    };
   }
 
-  void toggleTheme(bool useDarkMode) {
-    setThemeMode(useDarkMode ? ThemeMode.dark : ThemeMode.light);
+  Future<void> setThemeMode(ThemeMode mode) async {
+    themeMode.value = mode;
+    Get.changeThemeMode(mode);
+    await Get.find<ThemeStorageService>().saveThemeMode(mode);
+  }
+
+  Future<void> toggleTheme(bool useDarkMode) async {
+    await setThemeMode(useDarkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
   void setAuthSession(AuthSessionModel session, {bool redirect = true}) {

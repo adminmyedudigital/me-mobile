@@ -13,6 +13,10 @@ Future<void> main() async {
     () => AuthStorageService().init(),
     permanent: true,
   );
+  await Get.putAsync<ThemeStorageService>(
+    () => ThemeStorageService().init(),
+    permanent: true,
+  );
   AppBinding().dependencies();
   await Get.find<AuthController>().restoreSession();
   runApp(const MyApp());

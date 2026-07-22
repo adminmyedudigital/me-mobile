@@ -11,7 +11,7 @@ class ThemeToggleButton extends StatelessWidget {
     final appController = Get.find<AppController>();
 
     return Obx(() {
-      final isDarkMode = appController.isDarkMode;
+      final isDarkMode = appController.isDarkModeFor(context);
 
       return IconButton(
         tooltip: isDarkMode ? 'Switch to light theme' : 'Switch to dark theme',

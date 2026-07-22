@@ -14,8 +14,10 @@ class SettingsTabContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final appController = Get.find<AppController>();
 
-    return Obx(
-      () => ListView(
+    return Obx(() {
+      final isDarkMode = appController.isDarkModeFor(context);
+
+      return ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.xs,
           AppSpacing.xs,
@@ -61,20 +63,16 @@ class SettingsTabContainer extends StatelessWidget {
                 ),
                 Divider(color: context.colors.hairline),
                 SwitchListTile(
-                  value: appController.isDarkMode,
+                  value: isDarkMode,
                   onChanged: appController.toggleTheme,
                   secondary: Icon(
-                    appController.isDarkMode
+                    isDarkMode
                         ? Icons.dark_mode_outlined
                         : Icons.light_mode_outlined,
                   ),
-                  title: Text(
-                    appController.isDarkMode ? 'Light mode' : 'Dark mode',
-                  ),
+                  title: Text(isDarkMode ? 'Light mode' : 'Dark mode'),
                   subtitle: Text(
-                    appController.isDarkMode
-                        ? 'Using dark theme'
-                        : 'Using light theme',
+                    isDarkMode ? 'Using dark theme' : 'Using light theme',
                   ),
                 ),
                 Divider(color: context.colors.hairline),
@@ -96,7 +94,7 @@ class SettingsTabContainer extends StatelessWidget {
             appVersionName: 'Study Planner',
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 }
