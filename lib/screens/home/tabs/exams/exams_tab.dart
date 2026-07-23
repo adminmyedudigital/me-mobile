@@ -5,3 +5,6 @@ export 'package:me_mobile/screens/home/tabs/exams/exams_tab_loading.dart';
 export 'package:me_mobile/screens/home/tabs/exams/exams_tab_no_data.dart';
 export 'package:me_mobile/screens/home/tabs/exams/exams_tab_container.dart';
 export 'package:me_mobile/screens/home/tabs/exams/exams_tab_type_chip.dart';
+export 'package:me_mobile/screens/home/tabs/exams/exams_tab_card_actions.dart';
+export 'package:me_mobile/screens/home/tabs/exams/exams_tab_swipe_action.dart';
+export 'package:me_mobile/screens/home/tabs/exams/exam_delete_confirmation_dialog.dart';

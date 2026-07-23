@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'package:me_mobile/enums/enums.dart';
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
 
@@ -17,11 +18,20 @@ class ExamResultScreen extends StatefulWidget {
 
 class _ExamResultScreenState extends State<ExamResultScreen> {
   ExamsController get _controller => Get.find<ExamsController>();
+  late final ExamModel? _examToEdit;
 
   @override
   void initState() {
     super.initState();
-    _controller.prepareResultForm();
+    final arguments = Get.arguments;
+    _examToEdit = arguments is ExamModel ? arguments : null;
+
+    final examToEdit = _examToEdit;
+    if (examToEdit == null) {
+      _controller.prepareResultForm();
+    } else {
+      _controller.prepareEditResultForm(examToEdit);
+    }
   }
 
   @override
@@ -34,7 +44,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       return PopScope(
         canPop: !isSubmitting,
         child: Scaffold(
-          appBar: AppBar(title: const Text('Exam result')),
+          appBar: AppBar(title: Text(_controller.resultFormTitle)),
           body: SafeArea(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(
@@ -131,7 +141,9 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                             const SizedBox(height: AppSpacing.md),
                             MEDatePickerField(
                               value: controller.selectedExamDate,
-                              initialDate: controller.today,
+                              initialDate:
+                                  controller.selectedExamDate ??
+                                  controller.today,
                               firstDate: controller.earliestExamDate,
                               lastDate: controller.today,
                               labelText: 'Exam date',
@@ -175,7 +187,9 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                               fullWidth: true,
                               onPressed: _submit,
                               isLoading: isSubmitting,
-                              icon: Icons.save,
+                              icon: controller.isEditingResult
+                                  ? Icons.edit_outlined
+                                  : Icons.save,
                               label: controller.submitButtonLabel,
                               backgroundColor: colors.primary,
                               foregroundColor: colors.surfaceCard,
@@ -195,7 +209,9 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   }
 
   Future<void> _submit() async {
-    final didSubmit = await _controller.submitExamResult();
+    final didSubmit = _examToEdit == null
+        ? await _controller.submitExamResult()
+        : await _controller.updateExamResult();
     if (didSubmit && mounted) {
       Get.back();
     }

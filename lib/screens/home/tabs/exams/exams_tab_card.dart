@@ -6,10 +6,18 @@ import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/screens/screens.dart';
 
 class ExamsTabCard extends StatelessWidget {
-  const ExamsTabCard({super.key, required this.exam, required this.dateLabel});
+  const ExamsTabCard({
+    super.key,
+    required this.exam,
+    required this.dateLabel,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final ExamModel exam;
   final String dateLabel;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -20,86 +28,124 @@ class ExamsTabCard extends StatelessWidget {
     final colors = context.colors;
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isLightTheme ? colors.surfaceDeep : colors.surfaceDeep,
-        borderRadius: AppRadius.button,
-        border: Border.all(
-          color: isLightTheme ? colors.hairline : colors.hairlineStrong,
-        ),
-
-        boxShadow: [
-          if (isLightTheme)
-            BoxShadow(
-              color: colors.primary.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-        ],
+    return Dismissible(
+      key: ValueKey(exam.id),
+      direction: DismissDirection.horizontal,
+      dismissThresholds: const {
+        DismissDirection.startToEnd: 0.35,
+        DismissDirection.endToStart: 0.35,
+      },
+      background: const ExamsTabSwipeAction(
+        alignment: Alignment.centerLeft,
+        icon: Icons.edit_outlined,
+        label: 'Edit',
+        isDestructive: false,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        exam.subjectName,
-                        maxLines: 1,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: context.colors.ink),
-                      ),
-                      const SizedBox(height: AppSpacing.xxs),
-                      Text(
-                        dateLabel,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      if (exam.topicNames.isNotEmpty) ...[
+      secondaryBackground: const ExamsTabSwipeAction(
+        alignment: Alignment.centerRight,
+        icon: Icons.delete_outline_rounded,
+        label: 'Delete',
+        isDestructive: true,
+      ),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          onEdit?.call();
+        } else if (direction == DismissDirection.endToStart) {
+          onDelete?.call();
+        }
+
+        // Keep the card in place until an API operation confirms a mutation.
+        return false;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.surfaceDeep,
+          borderRadius: AppRadius.button,
+          border: Border.all(
+            color: isLightTheme ? colors.hairline : colors.hairlineStrong,
+          ),
+          boxShadow: [
+            if (isLightTheme)
+              BoxShadow(
+                color: colors.primary.withValues(alpha: 0.06),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          exam.subjectName,
+                          maxLines: 1,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(color: colors.ink),
+                        ),
                         const SizedBox(height: AppSpacing.xxs),
                         Text(
-                          exam.topicNames.join(', '),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          dateLabel,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
+                        if (exam.topicNames.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.xxs),
+                          Text(
+                            exam.topicNames.join(', '),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                       ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ExamsTabCardActions(onEdit: onEdit, onDelete: onDelete),
+                      const SizedBox(height: AppSpacing.xs),
+                      ExamsTabTypeChip(
+                        label: exam.examType.label,
+                        color: accentColor,
+                      ),
                     ],
                   ),
-                ),
-                ExamsTabTypeChip(
-                  label: exam.examType.label,
-                  color: accentColor,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Divider(color: colors.stone),
-            const SizedBox(height: AppSpacing.xs),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: ExamsTabMetric(
-                    label: 'Achieved marks',
-                    value: '${exam.achievedMarks} / ${exam.examMarks}',
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Divider(color: colors.stone),
+              const SizedBox(height: AppSpacing.xs),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: ExamsTabMetric(
+                      label: 'Achieved marks',
+                      value: '${exam.achievedMarks} / ${exam.examMarks}',
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ExamsTabMetric(
-                    label: 'Percentage',
-                    value: '${exam.scorePercent}%',
+                  Expanded(
+                    child: ExamsTabMetric(
+                      label: 'Percentage',
+                      value: '${exam.scorePercent}%',
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

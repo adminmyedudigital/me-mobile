@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:me_mobile/theme/theme.dart';
 
 class ExamsTabLoading extends StatelessWidget {
-  const ExamsTabLoading({super.key});
+  const ExamsTabLoading({super.key, this.message = 'Loading exam results...'});
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -13,18 +15,15 @@ class ExamsTabLoading extends StatelessWidget {
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: const Center(
+            child: Center(
               child: Padding(
-                padding: EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: AppSpacing.md),
-                    Text(
-                      'Loading exam results...',
-                      textAlign: TextAlign.center,
-                    ),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(message, textAlign: TextAlign.center),
                   ],
                 ),
               ),

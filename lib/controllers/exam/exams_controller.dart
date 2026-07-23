@@ -30,6 +30,7 @@ class ExamsController extends GetxController with ApiControllerMixin {
   final RxBool isLoadingExams = false.obs;
   final RxBool isRefreshingExams = false.obs;
   final RxBool isSubmittingExam = false.obs;
+  final RxBool isDeletingExam = false.obs;
   final RxList<ExamModel> exams = <ExamModel>[].obs;
   final RxnString examsErrorMessage = RxnString();
 
@@ -37,6 +38,8 @@ class ExamsController extends GetxController with ApiControllerMixin {
   // Without this flag, tapping the submit button again would create a
   // duplicate exam result.
   bool _hasSubmittedExamPendingRefresh = false;
+  String? _updatedExamPendingRefreshId;
+  String? _deletedExamPendingRefreshId;
 
   // Incremented on logout so responses started by the previous user cannot
   // repopulate this in-memory cache after it has been cleared.
@@ -47,17 +50,31 @@ class ExamsController extends GetxController with ApiControllerMixin {
   // Subject/topic options are scoped to the exam form and use exam models.
   List<ExamSubjectModel> subjects = const [];
   String? subjectsErrorMessage;
+  ExamModel? editingExam;
 
   /// Used to disable Add and reject concurrent exam API requests.
   bool get isApiOperationInProgress =>
       isLoadingSubjects.value ||
       isLoadingExams.value ||
       isRefreshingExams.value ||
-      isSubmittingExam.value;
+      isSubmittingExam.value ||
+      isDeletingExam.value;
 
-  String get submitButtonLabel => _hasSubmittedExamPendingRefresh
-      ? 'Retry loading exam results'
-      : 'Save result';
+  bool get isEditingResult => editingExam != null;
+
+  String get resultFormTitle =>
+      isEditingResult ? 'Edit exam result' : 'Exam result';
+
+  String get submitButtonLabel {
+    if (isEditingResult) {
+      return _updatedExamPendingRefreshId == editingExam?.id
+          ? 'Retry loading exam results'
+          : 'Update result';
+    }
+    return _hasSubmittedExamPendingRefresh
+        ? 'Retry loading exam results'
+        : 'Save result';
+  }
 
   // Mutable form values live in the controller so validation and submission
   // use one source of truth.
@@ -123,6 +140,8 @@ class ExamsController extends GetxController with ApiControllerMixin {
 
   /// Resets every form value when a new result form is opened.
   void prepareResultForm() {
+    editingExam = null;
+    _updatedExamPendingRefreshId = null;
     _hasSubmittedExamPendingRefresh = false;
     selectedSubjectId = subjects.firstOrNull?.id;
     selectedTopicIds = const [];
@@ -130,6 +149,41 @@ class ExamsController extends GetxController with ApiControllerMixin {
     selectedExamType = ExamType.school;
     totalMarks = '';
     achievedMarks = '';
+    update([resultFormUpdateId]);
+  }
+
+  /// Prefills the shared result form for the edit UI preview.
+  void prepareEditResultForm(ExamModel exam) {
+    editingExam = exam;
+    _hasSubmittedExamPendingRefresh = false;
+
+    // Keep the current exam selectable even if the latest subject response
+    // no longer contains it.
+    if (!subjects.any((subject) => subject.id == exam.subject.id)) {
+      subjects = [
+        ExamSubjectModel(
+          id: exam.subject.id,
+          subject: exam.subject.subject,
+          educationBoardId: exam.subject.educationBoardId,
+          academicClassId: exam.subject.academicClassId,
+          topics: exam.subjectTopics,
+        ),
+        ...subjects,
+      ];
+    }
+
+    selectedSubjectId = exam.subject.id;
+    selectedTopicIds = exam.subjectTopics
+        .map((topic) => topic.id)
+        .toList(growable: false);
+    selectedExamDate = DateTime(
+      exam.examDate.year,
+      exam.examDate.month,
+      exam.examDate.day,
+    );
+    selectedExamType = exam.examType;
+    totalMarks = exam.examMarks.toString();
+    achievedMarks = exam.achievedMarks.toString();
     update([resultFormUpdateId]);
   }
 
@@ -239,6 +293,15 @@ class ExamsController extends GetxController with ApiControllerMixin {
     return null;
   }
 
+  /// Validates and saves the shared add/edit form without calling an API.
+  bool validateResultForm() {
+    final isValid = examResultFormKey.currentState?.validate() ?? false;
+    if (!isValid) return false;
+
+    examResultFormKey.currentState?.save();
+    return true;
+  }
+
   /// Clears all user-specific exam data when the authenticated session ends.
   ///
   /// Exam results are intentionally kept only in this controller's memory and
@@ -248,8 +311,11 @@ class ExamsController extends GetxController with ApiControllerMixin {
     exams.clear();
     examsErrorMessage.value = null;
     _hasSubmittedExamPendingRefresh = false;
+    _updatedExamPendingRefreshId = null;
+    _deletedExamPendingRefreshId = null;
     subjects = const [];
     subjectsErrorMessage = null;
+    editingExam = null;
     selectedSubjectId = null;
     selectedTopicIds = const [];
     selectedExamDate = null;
@@ -260,6 +326,7 @@ class ExamsController extends GetxController with ApiControllerMixin {
     isLoadingExams.value = false;
     isRefreshingExams.value = false;
     isSubmittingExam.value = false;
+    isDeletingExam.value = false;
   }
 
   /// Shared integer/range validation for total and achieved marks.

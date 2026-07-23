@@ -84,41 +84,17 @@ extension ExamsApi on ExamsController {
   /// The screen uses this result to decide whether it is safe to navigate
   /// back to the refreshed exam list.
   Future<bool> submitExamResult() async {
-    if (!(examResultFormKey.currentState?.validate() ?? false)) {
-      return false;
-    }
-    examResultFormKey.currentState?.save();
+    if (!validateResultForm()) return false;
     if (isApiOperationInProgress) return false;
 
-    final subject = selectedSubject;
-    final topics = selectedTopics;
-    final examType = selectedExamType;
-    final examDate = selectedExamDate;
-    final parsedTotalMarks = int.tryParse(totalMarks.trim());
-    final parsedAchievedMarks = int.tryParse(achievedMarks.trim());
-
-    if (subject == null ||
-        topics.isEmpty ||
-        examType == null ||
-        examDate == null ||
-        parsedTotalMarks == null ||
-        parsedAchievedMarks == null) {
-      return false;
-    }
+    final payload = _buildExamPayload();
+    if (payload == null) return false;
 
     final requestSessionGeneration = _sessionGeneration;
     isSubmittingExam.value = true;
     try {
       // Skip POST when a previous POST succeeded but its refresh failed.
       if (!_hasSubmittedExamPendingRefresh) {
-        final payload = AddExamPayloadModel(
-          subjectId: subject.id,
-          subjectTopicIds: topics.map((topic) => topic.id).toList(),
-          examDate: examDate,
-          examType: examType,
-          examMarks: parsedTotalMarks,
-          achievedMarks: parsedAchievedMarks,
-        );
         final requestBody = payload.toJson();
 
         final response = await api.post<dynamic>(
@@ -154,10 +130,114 @@ extension ExamsApi on ExamsController {
     }
   }
 
+  /// Updates an exam result and retrieves the authoritative exam list.
+  Future<bool> updateExamResult() async {
+    if (!validateResultForm()) return false;
+    if (isApiOperationInProgress) return false;
+
+    final examId = editingExam?.id.trim() ?? '';
+    final payload = _buildExamPayload();
+    if (examId.isEmpty || payload == null) {
+      AppSnackBar.showError(
+        title: 'Unable to update exam result',
+        message: 'The exam result details are unavailable.',
+      );
+      return false;
+    }
+
+    final requestSessionGeneration = _sessionGeneration;
+    isSubmittingExam.value = true;
+    try {
+      // When PUT succeeds but GET fails, retry only the list retrieval.
+      if (_updatedExamPendingRefreshId != examId) {
+        final endpoint = ApiRoutes.exam(examId);
+        final requestBody = payload.toJson();
+
+        final response = await api.put<dynamic>(
+          endpoint,
+          headers: _authorizationHeaders,
+          body: requestBody,
+        );
+
+        if (requestSessionGeneration != _sessionGeneration) {
+          return false;
+        }
+        if (!response.isSuccess) {
+          AppSnackBar.showError(
+            title: 'Unable to update exam result',
+            message: response.message,
+          );
+          return false;
+        }
+        _updatedExamPendingRefreshId = examId;
+      }
+
+      final didRefresh = await _fetchExams(
+        expectedSessionGeneration: requestSessionGeneration,
+      );
+      if (didRefresh) {
+        _updatedExamPendingRefreshId = null;
+      }
+      return didRefresh;
+    } finally {
+      isSubmittingExam.value = false;
+    }
+  }
+
+  /// Deletes an exam result and retrieves the authoritative exam list.
+  Future<bool> deleteExam(String examId) async {
+    final normalizedExamId = examId.trim();
+    if (normalizedExamId.isEmpty) {
+      AppSnackBar.showError(
+        title: 'Unable to delete exam result',
+        message: 'The exam result ID is unavailable.',
+      );
+      return false;
+    }
+    if (isApiOperationInProgress) return false;
+
+    final requestSessionGeneration = _sessionGeneration;
+    isDeletingExam.value = true;
+    try {
+      // A deleted record cannot safely be deleted twice. If DELETE succeeded
+      // but GET failed, retry only the list retrieval.
+      if (_deletedExamPendingRefreshId != normalizedExamId) {
+        final endpoint = ApiRoutes.exam(normalizedExamId);
+
+        final response = await api.delete<dynamic>(
+          endpoint,
+          headers: _authorizationHeaders,
+        );
+
+        if (requestSessionGeneration != _sessionGeneration) {
+          return false;
+        }
+        if (!response.isSuccess) {
+          AppSnackBar.showError(
+            title: 'Unable to delete exam result',
+            message: response.message,
+          );
+          return false;
+        }
+        _deletedExamPendingRefreshId = normalizedExamId;
+      }
+
+      final didRefresh = await _fetchExams(
+        expectedSessionGeneration: requestSessionGeneration,
+      );
+      if (didRefresh) {
+        _deletedExamPendingRefreshId = null;
+      }
+      return didRefresh;
+    } finally {
+      isDeletingExam.value = false;
+    }
+  }
+
   /// Fetches and replaces the exam cache without changing loader ownership.
   ///
-  /// [loadExams], [refreshExams], and [submitExamResult] set the appropriate
-  /// loader before calling this shared method.
+  /// List loading, refreshing, adding, updating, and deleting set the
+  /// appropriate loader before calling this shared method.
   Future<bool> _fetchExams({int? expectedSessionGeneration}) async {
     final requestSessionGeneration =
         expectedSessionGeneration ?? _sessionGeneration;
@@ -187,6 +267,33 @@ extension ExamsApi on ExamsController {
     exams.assignAll(response.data.where((exam) => exam.id.isNotEmpty));
     examsErrorMessage.value = null;
     return true;
+  }
+
+  AddExamPayloadModel? _buildExamPayload() {
+    final subject = selectedSubject;
+    final topics = selectedTopics;
+    final examType = selectedExamType;
+    final examDate = selectedExamDate;
+    final parsedTotalMarks = int.tryParse(totalMarks.trim());
+    final parsedAchievedMarks = int.tryParse(achievedMarks.trim());
+
+    if (subject == null ||
+        topics.isEmpty ||
+        examType == null ||
+        examDate == null ||
+        parsedTotalMarks == null ||
+        parsedAchievedMarks == null) {
+      return null;
+    }
+
+    return AddExamPayloadModel(
+      subjectId: subject.id,
+      subjectTopicIds: topics.map((topic) => topic.id).toList(growable: false),
+      examDate: examDate,
+      examType: examType,
+      examMarks: parsedTotalMarks,
+      achievedMarks: parsedAchievedMarks,
+    );
   }
 
   Map<String, String> get _authorizationHeaders {

@@ -6,3 +6,5 @@ enum ExamType {
 
   final String label;
 }
+
+enum ExamCardAction { edit, delete }

@@ -23,6 +23,10 @@ abstract final class ApiRoutes {
   static String get forgottenPasswordWeb => web('/forgotten-password');
   static String get academicHistories => student('/academic-histories');
 
+  static String exam(String examId) {
+    return student('/exams/${Uri.encodeComponent(examId)}');
+  }
+
   static String profile(String userId) {
     return student('/profile/${Uri.encodeComponent(userId)}');
   }
