@@ -10,6 +10,7 @@ class MEDatePickerField extends StatelessWidget {
     required this.labelText,
     required this.onChanged,
     this.value,
+    this.initialDate,
     this.displayValue,
     this.prefixIcon,
     this.dialogContext,
@@ -19,6 +20,7 @@ class MEDatePickerField extends StatelessWidget {
   });
 
   final DateTime? value;
+  final DateTime? initialDate;
   final DateTime firstDate;
   final DateTime lastDate;
   final String labelText;
@@ -38,7 +40,7 @@ class MEDatePickerField extends StatelessWidget {
 
     final picked = await showDatePicker(
       context: dialogContext ?? context,
-      initialDate: value ?? firstDate,
+      initialDate: value ?? initialDate ?? firstDate,
       firstDate: firstDate,
       lastDate: lastDate,
       confirmText: 'Select',
@@ -93,7 +95,7 @@ class _MEDatePickerTheme extends StatelessWidget {
     return Theme(
       data: baseTheme.copyWith(
         colorScheme: baseTheme.colorScheme.copyWith(
-          primary: colors.accentOrange,
+          primary: colors.primary,
           onPrimary: colors.primaryOn,
           surface: colors.surfaceCard,
           onSurface: colors.ink,
@@ -110,7 +112,7 @@ class _MEDatePickerTheme extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
         ),
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: colors.accentOrange),
+          style: TextButton.styleFrom(foregroundColor: colors.primary),
         ),
       ),
       child: child,

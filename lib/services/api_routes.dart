@@ -14,6 +14,7 @@ abstract final class ApiRoutes {
     defaultValue: 'https://me-sit-myedudigital.onrender.com',
   );
 
+  static String get exams => student('/exams');
   static String get states => public('/states');
   static String get signUpWeb => web('/sign-up');
   static String get studentSignIn => student('/signin');

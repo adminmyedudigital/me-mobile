@@ -5,8 +5,7 @@ import 'package:get/get.dart';
 import 'package:me_mobile/utils/utils.dart';
 import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/services/services.dart';
-import 'package:me_mobile/controllers/app_controller.dart';
-import 'package:me_mobile/controllers/api_controller_mixin.dart';
+import 'package:me_mobile/controllers/controllers.dart';
 
 class AuthController extends GetxController with ApiControllerMixin {
   final RxBool isSigningIn = false.obs;
@@ -217,6 +216,9 @@ class AuthController extends GetxController with ApiControllerMixin {
   }
 
   Future<void> logout({bool redirect = true}) async {
+    if (Get.isRegistered<ExamsController>()) {
+      Get.find<ExamsController>().clearSessionData();
+    }
     session.value = null;
     await _storage.clearSession();
     Get.find<AppController>().clearAuthState(redirect: redirect);

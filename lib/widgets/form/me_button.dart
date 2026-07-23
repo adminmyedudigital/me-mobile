@@ -16,6 +16,7 @@ class MEButton extends StatelessWidget {
     this.foregroundColor,
     this.disabledBackgroundColor,
     this.disabledForegroundColor,
+    this.padding,
   });
 
   final String label;
@@ -30,6 +31,7 @@ class MEButton extends StatelessWidget {
   final Color? foregroundColor;
   final Color? disabledBackgroundColor;
   final Color? disabledForegroundColor;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +55,22 @@ class MEButton extends StatelessWidget {
           foregroundColor: resolvedForegroundColor,
           disabledBackgroundColor: disabledBackgroundColor ?? colors.stone,
           disabledForegroundColor: resolvedDisabledForegroundColor,
+          padding: padding,
           shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _MEFormButtonLabel(label: label, icon: icon, color: labelColor),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: _MEFormButtonLabel(
+                  label: label,
+                  icon: icon,
+                  color: labelColor,
+                ),
+              ),
+            ),
             if (isLoading) ...[
               const SizedBox(width: AppSpacing.sm),
               SizedBox.square(

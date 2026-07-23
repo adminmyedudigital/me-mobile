@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'package:me_mobile/enums/enums.dart';
 import 'package:me_mobile/theme/theme.dart';
+import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/screens/screens.dart';
-import 'package:me_mobile/controllers/exams_controller.dart';
 
 class ExamsTabCard extends StatelessWidget {
   const ExamsTabCard({super.key, required this.exam, required this.dateLabel});
 
-  final ExamItem exam;
+  final ExamModel exam;
   final String dateLabel;
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = switch (exam.type) {
+    final accentColor = switch (exam.examType) {
       ExamType.school => context.colors.accentBlue,
       ExamType.tuition => context.colors.accentGreen,
     };
@@ -59,10 +60,22 @@ class ExamsTabCard extends StatelessWidget {
                         dateLabel,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
+                      if (exam.topicNames.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.xxs),
+                        Text(
+                          exam.topicNames.join(', '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                ExamsTabTypeChip(label: exam.type.label, color: accentColor),
+                ExamsTabTypeChip(
+                  label: exam.examType.label,
+                  color: accentColor,
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -75,7 +88,7 @@ class ExamsTabCard extends StatelessWidget {
                   flex: 4,
                   child: ExamsTabMetric(
                     label: 'Achieved marks',
-                    value: '${exam.achievedMarks} / ${exam.totalMarks}',
+                    value: '${exam.achievedMarks} / ${exam.examMarks}',
                   ),
                 ),
                 Expanded(

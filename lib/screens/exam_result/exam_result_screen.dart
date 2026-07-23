@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 
+import 'package:me_mobile/enums/enums.dart';
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/widgets/widgets.dart';
 import 'package:me_mobile/controllers/controllers.dart';
@@ -15,188 +16,188 @@ class ExamResultScreen extends StatefulWidget {
 }
 
 class _ExamResultScreenState extends State<ExamResultScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  late String? _subjectId;
-  ExamType? _examType = ExamType.school;
-  String _totalMarks = '';
-  String _achievedMarks = '';
-
   ExamsController get _controller => Get.find<ExamsController>();
 
   @override
   void initState() {
     super.initState();
-    _subjectId = _controller.subjects.firstOrNull?.id;
+    _controller.prepareResultForm();
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Exam result')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.sm,
-            AppSpacing.sm,
-            AppSpacing.sm,
-            AppSpacing.band,
-          ),
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: colors.surfaceElevated,
-                borderRadius: AppRadius.card,
-                border: Border.all(color: colors.hairlineStrong),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.canvas.withValues(alpha: 0.48),
-                    blurRadius: 28,
-                    offset: const Offset(0, 16),
-                  ),
-                ],
+    return Obx(() {
+      final isSubmitting = _controller.isSubmittingExam.value;
+
+      return PopScope(
+        canPop: !isSubmitting,
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Exam result')),
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.sm,
+                AppSpacing.sm,
+                AppSpacing.sm,
+                AppSpacing.band,
               ),
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_controller.subjectsErrorMessage
-                        case final message?) ...[
-                      Text(message, style: TextStyle(color: colors.accentRed)),
-                      const SizedBox(height: AppSpacing.md),
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceElevated,
+                    borderRadius: AppRadius.card,
+                    border: Border.all(color: colors.hairlineStrong),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.canvas.withValues(alpha: 0.48),
+                        blurRadius: 28,
+                        offset: const Offset(0, 16),
+                      ),
                     ],
-                    MEDropdownField<String>(
-                      initialValue: _subjectId,
-                      labelText: 'Subject',
-                      showClearButton: true,
-                      prefixIcon: const Icon(Icons.menu_book_outlined),
-                      items: [
-                        for (final subject in _controller.subjects)
-                          MEDropdownOption(
-                            value: subject.id,
-                            label: subject.subjectLabel,
-                          ),
-                      ],
-                      validator: _requiredDropdownValidator,
-                      onChanged: (value) {
-                        setState(() => _subjectId = value);
-                      },
-                      onSaved: (value) => _subjectId = value,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    MEDropdownField<ExamType>(
-                      initialValue: _examType,
-                      labelText: 'Exam type',
-                      showClearButton: true,
-                      prefixIcon: const Icon(Icons.school_outlined),
-                      items: [
-                        for (final type in ExamType.values)
-                          MEDropdownOption(value: type, label: type.label),
-                      ],
-                      validator: _requiredDropdownValidator,
-                      onChanged: (value) {
-                        setState(() => _examType = value);
-                      },
-                      onSaved: (value) => _examType = value,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    METextField(
-                      initialValue: _totalMarks,
-                      labelText: 'Exam total marks',
-                      prefixIcon: const Icon(Icons.fact_check_outlined),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      textInputAction: TextInputAction.next,
-                      validator: _totalMarksValidator,
-                      onChanged: (value) => _totalMarks = value,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    METextField(
-                      initialValue: _achievedMarks,
-                      labelText: 'Achieved marks',
-                      prefixIcon: const Icon(Icons.emoji_events_outlined),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      textInputAction: TextInputAction.done,
-                      validator: _achievedMarksValidator,
-                      onChanged: (value) => _achievedMarks = value,
-                      onFieldSubmitted: (_) => _submit(),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    MEButton(
-                      fullWidth: true,
-                      onPressed: _submit,
-                      icon: Icons.save,
-                      label: 'Save result',
-                      backgroundColor: colors.primary,
-                      foregroundColor: colors.surfaceCard,
-                    ),
-                  ],
+                  ),
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: GetBuilder<ExamsController>(
+                    id: ExamsController.resultFormUpdateId,
+                    builder: (controller) {
+                      final topicOptions = controller.topicsForSelectedSubject
+                          .map(
+                            (topic) => MEDropdownOption(
+                              value: topic.id,
+                              label: topic.label,
+                            ),
+                          )
+                          .toList();
+
+                      return Form(
+                        key: controller.examResultFormKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_controller.subjectsErrorMessage
+                                case final message?) ...[
+                              Text(
+                                message,
+                                style: TextStyle(color: colors.accentRed),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                            ],
+                            MEDropdownField<String>(
+                              initialValue: controller.selectedSubjectId,
+                              labelText: 'Subject',
+                              showClearButton: true,
+                              prefixIcon: const Icon(Icons.menu_book_outlined),
+                              items: [
+                                for (final subject in _controller.subjects)
+                                  MEDropdownOption(
+                                    value: subject.id,
+                                    label: subject.label,
+                                  ),
+                              ],
+                              validator: controller.validateSubject,
+                              onChanged: controller.selectSubject,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            MEMultiSelectDropdownField<String>(
+                              key: ValueKey(controller.selectedSubjectId),
+                              items: topicOptions,
+                              initialValue: controller.selectedTopicIds,
+                              labelText: 'Topics',
+                              hintText: controller.selectedSubjectId == null
+                                  ? 'Select a subject first'
+                                  : 'Select topics',
+                              prefixIcon: const Icon(Icons.topic_outlined),
+                              enabled: controller.selectedSubjectId != null,
+                              validator: controller.validateTopics,
+                              onChanged: controller.selectTopics,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            MEDropdownField<ExamType>(
+                              initialValue: controller.selectedExamType,
+                              labelText: 'Exam type',
+                              showClearButton: true,
+                              prefixIcon: const Icon(Icons.school_outlined),
+                              items: [
+                                for (final type in ExamType.values)
+                                  MEDropdownOption(
+                                    value: type,
+                                    label: type.label,
+                                  ),
+                              ],
+                              validator: controller.validateExamType,
+                              onChanged: controller.selectExamType,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            MEDatePickerField(
+                              value: controller.selectedExamDate,
+                              initialDate: controller.today,
+                              firstDate: controller.earliestExamDate,
+                              lastDate: controller.today,
+                              labelText: 'Exam date',
+                              displayValue: controller.selectedExamDateLabel,
+                              prefixIcon: const Icon(Icons.event_outlined),
+                              validator: controller.validateExamDate,
+                              onChanged: controller.selectExamDate,
+                              onCleared: () => controller.selectExamDate(null),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            METextField(
+                              initialValue: controller.totalMarks,
+                              labelText: 'Exam total marks',
+                              prefixIcon: const Icon(Icons.fact_check_outlined),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              textInputAction: TextInputAction.next,
+                              validator: controller.validateTotalMarks,
+                              onChanged: controller.setTotalMarks,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            METextField(
+                              initialValue: controller.achievedMarks,
+                              labelText: 'Achieved marks',
+                              prefixIcon: const Icon(
+                                Icons.emoji_events_outlined,
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              textInputAction: TextInputAction.done,
+                              validator: controller.validateAchievedMarks,
+                              onChanged: controller.setAchievedMarks,
+                              onFieldSubmitted: (_) => _submit(),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            MEButton(
+                              fullWidth: true,
+                              onPressed: _submit,
+                              isLoading: isSubmitting,
+                              icon: Icons.save,
+                              label: controller.submitButtonLabel,
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.surfaceCard,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  void _submit() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    _formKey.currentState?.save();
-
-    final selectedSubject = _controller.subjects
-        .where((subject) => subject.id == _subjectId)
-        .firstOrNull;
-    final selectedExamType = _examType;
-    if (selectedSubject == null || selectedExamType == null) return;
-
-    _controller.addExamResult(
-      subjectName: selectedSubject.subjectLabel,
-      type: selectedExamType,
-      totalMarks: int.parse(_totalMarks),
-      achievedMarks: int.parse(_achievedMarks),
-    );
-
-    Get.back();
+  Future<void> _submit() async {
+    final didSubmit = await _controller.submitExamResult();
+    if (didSubmit && mounted) {
+      Get.back();
+    }
   }
-
-  String? _totalMarksValidator(String? value) {
-    final marks = int.tryParse((value ?? '').trim());
-    if (marks == null) {
-      return 'Total marks is required';
-    }
-    if (marks <= 0) {
-      return 'Total marks must be greater than 0';
-    }
-    return null;
-  }
-
-  String? _achievedMarksValidator(String? value) {
-    final marks = int.tryParse((value ?? '').trim());
-    if (marks == null) {
-      return 'Achieved marks is required';
-    }
-    if (marks < 0) {
-      return 'Achieved marks cannot be negative';
-    }
-
-    final totalMarks = int.tryParse(_totalMarks.trim());
-    if (totalMarks != null && marks > totalMarks) {
-      return 'Achieved marks cannot exceed total marks';
-    }
-    return null;
-  }
-}
-
-String? _requiredDropdownValidator<T>(T? value) {
-  if (value == null) {
-    return 'Required';
-  }
-
-  return null;
 }

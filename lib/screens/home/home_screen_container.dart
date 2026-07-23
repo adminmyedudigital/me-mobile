@@ -94,6 +94,14 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
     if (feature != null) {
       await _showRequirement(feature);
     }
+
+    if (index == _examTabIndex &&
+        Get.find<FeatureAccessController>().canAccess(AppFeature.exams)) {
+      final examsController = Get.find<ExamsController>();
+      if (examsController.exams.isEmpty) {
+        await examsController.loadExams();
+      }
+    }
   }
 
   Future<void> _showRequirement(AppFeature feature) async {
@@ -115,7 +123,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
 
   Future<void> _openExamResult() async {
     final examsController = Get.find<ExamsController>();
-    if (examsController.isLoadingSubjects.value) return;
+    if (examsController.isApiOperationInProgress) return;
 
     await examsController.loadSubjectTopics();
     if (!mounted) return;
@@ -126,6 +134,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
     required int currentIndex,
     required bool canCreateTimetable,
     required bool canAddExamResult,
+    required bool isExamApiOperationInProgress,
     required HomeController homeController,
   }) {
     return switch (currentIndex) {
@@ -137,7 +146,12 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
       ),
       _examTabIndex => HomeFloatingActionButton(
         enabledTooltip: 'Add exam result',
-        onPressed: canAddExamResult ? _openExamResult : null,
+        disabledTooltip: isExamApiOperationInProgress
+            ? 'Please wait for the exam operation to finish'
+            : 'Complete academic setup first',
+        onPressed: canAddExamResult && !isExamApiOperationInProgress
+            ? _openExamResult
+            : null,
       ),
       _ => null,
     };
@@ -162,6 +176,8 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
         AppFeature.addExamResult,
       );
       final isLoadingExamSubjects = examsController.isLoadingSubjects.value;
+      final isExamApiOperationInProgress =
+          examsController.isApiOperationInProgress;
 
       return Stack(
         children: [
@@ -201,6 +217,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
               currentIndex: currentIndex,
               canCreateTimetable: canCreateTimetable,
               canAddExamResult: canAddExamResult,
+              isExamApiOperationInProgress: isExamApiOperationInProgress,
               homeController: homeController,
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

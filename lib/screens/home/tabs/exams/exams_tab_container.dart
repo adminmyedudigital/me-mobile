@@ -13,24 +13,41 @@ class ExamsTabContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ExamsController>();
 
-    return Obx(
-      () => ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.xs,
-          AppSpacing.xs,
-          AppSpacing.xs,
-          AppSpacing.band,
-        ),
-        children: [
-          for (final exam in controller.sortedExams) ...[
-            ExamsTabCard(
-              exam: exam,
-              dateLabel: controller.formatDate(exam.examDate),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
-        ],
-      ),
+    return Obx(() {
+      final content = _buildContent(controller);
+
+      return RefreshIndicator(
+        color: context.colors.primary,
+        backgroundColor: context.colors.surfaceCard,
+        onRefresh: () async {
+          await controller.refreshExams();
+        },
+        child: content,
+      );
+    });
+  }
+
+  Widget _buildContent(ExamsController controller) {
+    if (controller.isLoadingExams.value) {
+      return const ExamsTabLoading();
+    }
+
+    final errorMessage = controller.examsErrorMessage.value;
+    if (errorMessage != null && controller.exams.isEmpty) {
+      return ExamsTabNoData(
+        icon: Icons.error_outline_rounded,
+        message: errorMessage,
+        onRetry: controller.loadExams,
+      );
+    }
+
+    if (controller.exams.isEmpty) {
+      return const ExamsTabNoData();
+    }
+
+    return ExamsTabList(
+      exams: controller.sortedExams,
+      dateFormatter: controller.formatDate,
     );
   }
 }
