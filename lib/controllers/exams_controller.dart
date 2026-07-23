@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
 
+import 'package:me_mobile/models/models.dart';
+import 'package:me_mobile/controllers/study_controller.dart';
+
 enum ExamType {
   school('School'),
   tuition('Tuition');
@@ -28,12 +31,11 @@ class ExamItem {
 }
 
 class ExamsController extends GetxController {
-  final List<String> subjects = const [
-    'English',
-    'Mathematics',
-    'Science',
-    'Social Studies',
-  ];
+  final RxBool isLoadingSubjects = false.obs;
+
+  StudyController get _studyController => Get.find<StudyController>();
+  List<StudySubjectTopicsModel> get subjects => _studyController.subjects;
+  String? get subjectsErrorMessage => _studyController.errorMessage;
 
   final RxList<ExamItem> exams = <ExamItem>[
     ExamItem(
@@ -69,6 +71,17 @@ class ExamsController extends GetxController {
   List<ExamItem> get sortedExams {
     return List<ExamItem>.of(exams)
       ..sort((first, second) => second.examDate.compareTo(first.examDate));
+  }
+
+  Future<void> loadSubjectTopics() async {
+    if (isLoadingSubjects.value) return;
+
+    isLoadingSubjects.value = true;
+    try {
+      await _studyController.loadSubjectTopics();
+    } finally {
+      isLoadingSubjects.value = false;
+    }
   }
 
   void addExamResult({

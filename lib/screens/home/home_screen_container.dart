@@ -63,7 +63,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
       case AddTimetableAlertAction.schedule:
         Get.toNamed(AppRoutes.scheduleTimetable);
       case AddTimetableAlertAction.addMarks:
-        Get.toNamed(AppRoutes.examResult);
+        await _openExamResult();
       case null:
         return;
     }
@@ -113,6 +113,15 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
     }
   }
 
+  Future<void> _openExamResult() async {
+    final examsController = Get.find<ExamsController>();
+    if (examsController.isLoadingSubjects.value) return;
+
+    await examsController.loadSubjectTopics();
+    if (!mounted) return;
+    Get.toNamed(AppRoutes.examResult);
+  }
+
   Widget? _buildFloatingActionButton({
     required int currentIndex,
     required bool canCreateTimetable,
@@ -128,9 +137,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
       ),
       _examTabIndex => HomeFloatingActionButton(
         enabledTooltip: 'Add exam result',
-        onPressed: canAddExamResult
-            ? () => Get.toNamed(AppRoutes.examResult)
-            : null,
+        onPressed: canAddExamResult ? _openExamResult : null,
       ),
       _ => null,
     };
@@ -141,6 +148,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
     final homeController = Get.find<HomeController>();
     final authController = Get.find<AuthController>();
     final accessController = Get.find<FeatureAccessController>();
+    final examsController = Get.find<ExamsController>();
 
     return Obx(() {
       final currentIndex = homeController.currentIndex.value;
@@ -153,46 +161,53 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
       final canAddExamResult = accessController.canAccess(
         AppFeature.addExamResult,
       );
+      final isLoadingExamSubjects = examsController.isLoadingSubjects.value;
 
-      return Scaffold(
-        extendBody: true,
-        appBar: AppBar(
-          title: Text(_tabs[currentIndex].title),
-          actions: [
-            const ThemeToggleButton(),
-            IconButton(
-              tooltip: 'Sign out',
-              onPressed: authController.logout,
-              icon: const Icon(Icons.logout),
+      return Stack(
+        children: [
+          Scaffold(
+            extendBody: true,
+            appBar: AppBar(
+              title: Text(_tabs[currentIndex].title),
+              actions: [
+                const ThemeToggleButton(),
+                IconButton(
+                  tooltip: 'Sign out',
+                  onPressed: authController.logout,
+                  icon: const Icon(Icons.logout),
+                ),
+              ],
             ),
-          ],
-        ),
-        body: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: hasFloatingActionButton ? AppSpacing.xxxl : 0,
-              left: AppSpacing.xs,
-              right: AppSpacing.xs,
+            body: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: hasFloatingActionButton ? AppSpacing.xxxl : 0,
+                  left: AppSpacing.xs,
+                  right: AppSpacing.xs,
+                ),
+                child: IndexedStack(
+                  index: currentIndex,
+                  children: [for (final tab in _tabs) tab.child],
+                ),
+              ),
             ),
-            child: IndexedStack(
-              index: currentIndex,
-              children: [for (final tab in _tabs) tab.child],
+            bottomNavigationBar: HomeBottomNavigation(
+              currentIndex: currentIndex,
+              destinations: _tabs,
+              onChanged: (index) => _changeTab(homeController, index),
             ),
+            floatingActionButton: _buildFloatingActionButton(
+              currentIndex: currentIndex,
+              canCreateTimetable: canCreateTimetable,
+              canAddExamResult: canAddExamResult,
+              homeController: homeController,
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           ),
-        ),
-        bottomNavigationBar: HomeBottomNavigation(
-          currentIndex: currentIndex,
-          destinations: _tabs,
-          onChanged: (index) => _changeTab(homeController, index),
-        ),
-        floatingActionButton: _buildFloatingActionButton(
-          currentIndex: currentIndex,
-          canCreateTimetable: canCreateTimetable,
-          canAddExamResult: canAddExamResult,
-          homeController: homeController,
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          if (isLoadingExamSubjects)
+            const Positioned.fill(child: ExamSubjectsLoadingOverlay()),
+        ],
       );
     });
   }

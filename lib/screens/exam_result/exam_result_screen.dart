@@ -17,7 +17,7 @@ class ExamResultScreen extends StatefulWidget {
 class _ExamResultScreenState extends State<ExamResultScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late String? _subjectName;
+  late String? _subjectId;
   ExamType? _examType = ExamType.school;
   String _totalMarks = '';
   String _achievedMarks = '';
@@ -27,7 +27,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   @override
   void initState() {
     super.initState();
-    _subjectName = _controller.subjects.firstOrNull;
+    _subjectId = _controller.subjects.firstOrNull?.id;
   }
 
   @override
@@ -39,9 +39,9 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.xs,
-            AppSpacing.xs,
-            AppSpacing.xs,
+            AppSpacing.sm,
+            AppSpacing.sm,
+            AppSpacing.sm,
             AppSpacing.band,
           ),
           children: [
@@ -64,20 +64,28 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_controller.subjectsErrorMessage
+                        case final message?) ...[
+                      Text(message, style: TextStyle(color: colors.accentRed)),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
                     MEDropdownField<String>(
-                      initialValue: _subjectName,
+                      initialValue: _subjectId,
                       labelText: 'Subject',
                       showClearButton: true,
                       prefixIcon: const Icon(Icons.menu_book_outlined),
                       items: [
                         for (final subject in _controller.subjects)
-                          MEDropdownOption(value: subject, label: subject),
+                          MEDropdownOption(
+                            value: subject.id,
+                            label: subject.subjectLabel,
+                          ),
                       ],
                       validator: _requiredDropdownValidator,
                       onChanged: (value) {
-                        setState(() => _subjectName = value);
+                        setState(() => _subjectId = value);
                       },
-                      onSaved: (value) => _subjectName = value,
+                      onSaved: (value) => _subjectId = value,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     MEDropdownField<ExamType>(
@@ -141,12 +149,14 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     _formKey.currentState?.save();
 
-    final selectedSubject = _subjectName;
+    final selectedSubject = _controller.subjects
+        .where((subject) => subject.id == _subjectId)
+        .firstOrNull;
     final selectedExamType = _examType;
     if (selectedSubject == null || selectedExamType == null) return;
 
     _controller.addExamResult(
-      subjectName: selectedSubject,
+      subjectName: selectedSubject.subjectLabel,
       type: selectedExamType,
       totalMarks: int.parse(_totalMarks),
       achievedMarks: int.parse(_achievedMarks),
