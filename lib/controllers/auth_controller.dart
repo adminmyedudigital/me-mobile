@@ -21,6 +21,13 @@ class AuthController extends GetxController with ApiControllerMixin {
   String get authToken => session.value?.token ?? '';
   List<SchoolAcademicClassModel> get schoolAcademicClasses =>
       session.value?.schoolAcademicClasses ?? const [];
+  List<StudySubjectTopicsModel> get subjects {
+    final academicHistorySubjects = academicHistory?.subjects ?? const [];
+    return academicHistorySubjects.isNotEmpty
+        ? academicHistorySubjects
+        : session.value?.subjects ?? const [];
+  }
+
   bool get isAuthenticated => session.value?.hasValidToken == true;
 
   Future<bool> signIn(SignInPayloadModel payload) async {
@@ -90,6 +97,7 @@ class AuthController extends GetxController with ApiControllerMixin {
       user: currentSession.user,
       token: currentSession.token,
       schoolAcademicClasses: currentSession.schoolAcademicClasses,
+      subjects: academicHistory.subjects,
       academicHistory: academicHistory,
     );
 

@@ -68,9 +68,10 @@ class StudyPlanningSubjectsDialog extends StatelessWidget {
               fullWidth: true,
               backgroundColor: colors.primary,
               foregroundColor: colors.primaryOn,
-              onPressed: () {
-                controller.savePlanningSubjects();
+              onPressed: () async {
+                final saveRequest = controller.savePlanningSubjects();
                 Get.back<void>();
+                await saveRequest;
               },
             ),
           ],

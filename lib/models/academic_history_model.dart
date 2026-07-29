@@ -1,3 +1,5 @@
+import 'package:me_mobile/models/study_subject_topics_model.dart';
+
 class AcademicHistoryModel {
   const AcademicHistoryModel({
     required this.id,
@@ -17,6 +19,7 @@ class AcademicHistoryModel {
     required this.endMonth,
     required this.endYear,
     required this.isActive,
+    this.subjects = const [],
   });
 
   final String id;
@@ -36,6 +39,7 @@ class AcademicHistoryModel {
   final int endMonth;
   final int endYear;
   final bool isActive;
+  final List<StudySubjectTopicsModel> subjects;
 
   bool get hasRequiredData =>
       id.trim().isNotEmpty &&
@@ -70,6 +74,7 @@ class AcademicHistoryModel {
         endMonth: _readInt(json['endMonth']),
         endYear: _readInt(json['endYear']),
         isActive: json['isActive'] == true,
+        subjects: _parseSubjects(json['subjects']),
       );
     }
 
@@ -100,6 +105,30 @@ class AcademicHistoryModel {
       endMonth: _readInt(json['end_month']),
       endYear: _readInt(json['end_year']),
       isActive: json['is_active'] == true,
+      subjects: _parseSubjects(json['subjects']),
+    );
+  }
+
+  AcademicHistoryModel copyWith({List<StudySubjectTopicsModel>? subjects}) {
+    return AcademicHistoryModel(
+      id: id,
+      user: user,
+      schoolName: schoolName,
+      schoolId: schoolId,
+      schoolAcademicClassId: schoolAcademicClassId,
+      educationBoardId: educationBoardId,
+      educationBoard: educationBoard,
+      shortName: shortName,
+      coreLanguage: coreLanguage,
+      coreLanguageId: coreLanguageId,
+      academicClassId: academicClassId,
+      academicClass: academicClass,
+      startMonth: startMonth,
+      startYear: startYear,
+      endMonth: endMonth,
+      endYear: endYear,
+      isActive: isActive,
+      subjects: subjects ?? this.subjects,
     );
   }
 
@@ -122,8 +151,25 @@ class AcademicHistoryModel {
       'endMonth': endMonth,
       'endYear': endYear,
       'isActive': isActive,
+      'subjects': subjects.map((subject) => subject.toJson()).toList(),
     };
   }
+}
+
+List<StudySubjectTopicsModel> _parseSubjects(dynamic value) {
+  if (value is! List) {
+    return const [];
+  }
+
+  return value
+      .whereType<Map>()
+      .map(
+        (subject) => StudySubjectTopicsModel.fromJson(
+          Map<String, dynamic>.from(subject),
+        ),
+      )
+      .where((subject) => subject.id.isNotEmpty)
+      .toList(growable: false);
 }
 
 Map<String, dynamic> _mapOrEmpty(dynamic value) {

@@ -22,15 +22,20 @@ class StudyPlanningSubjectSelector extends StatelessWidget {
                   .join(', ');
 
         return ListTile(
-          leading: const Icon(Icons.auto_awesome_outlined),
+          leading: const Icon(Icons.menu_book_rounded),
           title: const Text('Study planning subjects'),
           subtitle: Text(
             subtitle,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: controller.hasSubjects
+          trailing: controller.isSavingPlanningSubjects
+              ? const SizedBox.square(
+                  dimension: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.chevron_right),
+          onTap: controller.hasSubjects && !controller.isSavingPlanningSubjects
               ? () {
                   controller.preparePlanningSubjectsDialog();
                   showDialog<void>(

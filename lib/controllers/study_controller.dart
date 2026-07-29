@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import 'package:me_mobile/utils/utils.dart';
 import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/services/services.dart';
 import 'package:me_mobile/controllers/auth_controller.dart';
@@ -15,6 +16,7 @@ class StudyController extends GetxController with ApiControllerMixin {
 
   final practiceFormKey = GlobalKey<FormState>();
 
+  String? _planningSubjectsSessionToken;
   List<StudySubjectTopicsModel> subjects = const [];
   String? errorMessage;
   bool isLoading = false;
@@ -22,6 +24,7 @@ class StudyController extends GetxController with ApiControllerMixin {
   String? selectedTopicId;
   List<String> selectedPlanningSubjectIds = const [];
   List<String> draftPlanningSubjectIds = const [];
+  bool isSavingPlanningSubjects = false;
   bool practiceSubmitted = false;
 
   bool get hasSubjects => subjects.isNotEmpty;
@@ -43,9 +46,7 @@ class StudyController extends GetxController with ApiControllerMixin {
   }
 
   List<StudySubjectTopicsModel> get selectedPlanningSubjects {
-    return subjects
-        .where((subject) => selectedPlanningSubjectIds.contains(subject.id))
-        .toList(growable: false);
+    return Get.find<AuthController>().academicHistory?.subjects ?? const [];
   }
 
   bool get areAllPlanningSubjectsSelected {
@@ -74,12 +75,59 @@ class StudyController extends GetxController with ApiControllerMixin {
     update([planningSubjectsDialogUpdateId]);
   }
 
-  void savePlanningSubjects() {
+  Future<bool> savePlanningSubjects() async {
+    if (isSavingPlanningSubjects) {
+      return false;
+    }
+
+    final authController = Get.find<AuthController>();
+    final academicHistoryId = authController.academicHistory?.id.trim() ?? '';
+    if (academicHistoryId.isEmpty) {
+      AppSnackBar.showError(
+        title: 'Unable to save study planning subjects',
+        message: 'The academic history details are unavailable.',
+      );
+      return false;
+    }
+
     final availableSubjectIds = subjects.map((subject) => subject.id).toSet();
-    selectedPlanningSubjectIds = draftPlanningSubjectIds
+    final subjectIds = draftPlanningSubjectIds
         .where(availableSubjectIds.contains)
         .toList(growable: false);
+
+    isSavingPlanningSubjects = true;
     update([planningSubjectsUpdateId]);
+
+    try {
+      final response = await api.put<dynamic>(
+        ApiRoutes.academicHistorySubjects(academicHistoryId),
+        headers: {'Authorization': 'Bearer ${authController.authToken}'},
+        body: {'subjects': subjectIds},
+      );
+
+      if (!response.isSuccess) {
+        AppSnackBar.showError(
+          title: 'Unable to save study planning subjects',
+          message: response.message,
+        );
+        return false;
+      }
+
+      final updatedSubjects = _subjectsFromSaveResponse(
+        response.data,
+        fallbackSubjectIds: subjectIds,
+      );
+      await authController.updateAcademicHistory(
+        authController.academicHistory!.copyWith(subjects: updatedSubjects),
+      );
+      selectedPlanningSubjectIds = updatedSubjects
+          .map((subject) => subject.id)
+          .toList(growable: false);
+      return true;
+    } finally {
+      isSavingPlanningSubjects = false;
+      update([planningSubjectsUpdateId]);
+    }
   }
 
   void preparePracticeDialog() {
@@ -138,6 +186,7 @@ class StudyController extends GetxController with ApiControllerMixin {
     }
 
     final authController = Get.find<AuthController>();
+    _hydratePlanningSubjects(authController);
     final academicHistory = authController.academicHistory;
     final educationBoardId = academicHistory?.educationBoardId.trim() ?? '';
     final academicClassId = academicHistory?.academicClassId.trim() ?? '';
@@ -201,6 +250,74 @@ class StudyController extends GetxController with ApiControllerMixin {
     final availableSubjectIds = subjects.map((subject) => subject.id).toSet();
     selectedPlanningSubjectIds = selectedPlanningSubjectIds
         .where(availableSubjectIds.contains)
+        .toList(growable: false);
+  }
+
+  void _hydratePlanningSubjects(AuthController authController) {
+    final sessionToken = authController.authToken;
+    if (_planningSubjectsSessionToken == sessionToken) {
+      return;
+    }
+
+    _planningSubjectsSessionToken = sessionToken;
+    selectedPlanningSubjectIds = authController.subjects
+        .map((subject) => subject.id)
+        .where((id) => id.isNotEmpty)
+        .toSet()
+        .toList(growable: false);
+  }
+
+  List<StudySubjectTopicsModel> _subjectsFromSaveResponse(
+    List<dynamic> responseData, {
+    required List<String> fallbackSubjectIds,
+  }) {
+    final responseSubjects = <StudySubjectTopicsModel>[];
+    var hasResponseSubjects = false;
+
+    for (final item in responseData) {
+      if (item is! Map) {
+        continue;
+      }
+
+      final json = Map<String, dynamic>.from(item);
+      final nestedAcademicHistory = json['academic_history'];
+      final rawSubjects =
+          json['subjects'] ??
+          (nestedAcademicHistory is Map
+              ? nestedAcademicHistory['subjects']
+              : null);
+
+      if (rawSubjects is List) {
+        hasResponseSubjects = true;
+        responseSubjects.addAll(_parseSubjectList(rawSubjects));
+      } else if (json.containsKey('subject')) {
+        hasResponseSubjects = true;
+        final subject = StudySubjectTopicsModel.fromJson(json);
+        if (subject.id.isNotEmpty) {
+          responseSubjects.add(subject);
+        }
+      }
+    }
+
+    if (hasResponseSubjects || fallbackSubjectIds.isEmpty) {
+      return responseSubjects;
+    }
+
+    final selectedIds = fallbackSubjectIds.toSet();
+    return subjects
+        .where((subject) => selectedIds.contains(subject.id))
+        .toList(growable: false);
+  }
+
+  List<StudySubjectTopicsModel> _parseSubjectList(List<dynamic> values) {
+    return values
+        .whereType<Map>()
+        .map(
+          (subject) => StudySubjectTopicsModel.fromJson(
+            Map<String, dynamic>.from(subject),
+          ),
+        )
+        .where((subject) => subject.id.isNotEmpty)
         .toList(growable: false);
   }
 }

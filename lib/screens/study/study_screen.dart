@@ -25,17 +25,25 @@ class _StudyScreenState extends State<StudyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Study')),
-      body: GetBuilder<StudyController>(
-        builder: (controller) {
-          if (controller.isLoading) {
-            return const StudyLoadingView();
-          }
+    return GetBuilder<StudyController>(
+      id: StudyController.planningSubjectsUpdateId,
+      builder: (controller) {
+        return PopScope(
+          canPop: !controller.isSavingPlanningSubjects,
+          child: Scaffold(
+            appBar: AppBar(title: const Text('Study')),
+            body: GetBuilder<StudyController>(
+              builder: (controller) {
+                if (controller.isLoading) {
+                  return const StudyLoadingView();
+                }
 
-          return const StudyScreenContent();
-        },
-      ),
+                return const StudyScreenContent();
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

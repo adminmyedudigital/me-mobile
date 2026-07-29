@@ -27,6 +27,11 @@ abstract final class ApiRoutes {
     return student('/exams/${Uri.encodeComponent(examId)}');
   }
 
+  static String academicHistorySubjects(String academicHistoryId) {
+    final encodedAcademicHistoryId = Uri.encodeComponent(academicHistoryId);
+    return student('/academic-histories/$encodedAcademicHistoryId/subjects');
+  }
+
   static String profile(String userId) {
     return student('/profile/${Uri.encodeComponent(userId)}');
   }
