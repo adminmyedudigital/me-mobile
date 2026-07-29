@@ -7,6 +7,7 @@ import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/controllers/study_controller.dart';
 import 'package:me_mobile/screens/study/study_practice_dialog.dart';
+import 'package:me_mobile/screens/study/study_planning_subject/study_planning_subject.dart';
 
 class StudyScreenContent extends GetView<StudyController> {
   const StudyScreenContent({super.key});
@@ -40,6 +41,8 @@ class StudyScreenContent extends GetView<StudyController> {
                     await controller.loadSubjectTopics();
                   },
                 ),
+                Divider(color: context.colors.hairline),
+                const StudyPlanningSubjectSelector(),
                 Divider(color: context.colors.hairline),
                 ListTile(
                   leading: const Icon(Icons.style_rounded),

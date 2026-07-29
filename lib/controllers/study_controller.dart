@@ -9,6 +9,9 @@ import 'package:me_mobile/controllers/api_controller_mixin.dart';
 
 class StudyController extends GetxController with ApiControllerMixin {
   static const String practiceDialogUpdateId = 'study-practice-dialog';
+  static const String planningSubjectsUpdateId = 'study-planning-subjects';
+  static const String planningSubjectsDialogUpdateId =
+      'study-planning-subjects-dialog';
 
   final practiceFormKey = GlobalKey<FormState>();
 
@@ -17,6 +20,8 @@ class StudyController extends GetxController with ApiControllerMixin {
   bool isLoading = false;
   String? selectedSubjectId;
   String? selectedTopicId;
+  List<String> selectedPlanningSubjectIds = const [];
+  List<String> draftPlanningSubjectIds = const [];
   bool practiceSubmitted = false;
 
   bool get hasSubjects => subjects.isNotEmpty;
@@ -35,6 +40,46 @@ class StudyController extends GetxController with ApiControllerMixin {
 
   List<StudyTopicModel> get topicsForSelectedSubject {
     return selectedSubject?.topics ?? const [];
+  }
+
+  List<StudySubjectTopicsModel> get selectedPlanningSubjects {
+    return subjects
+        .where((subject) => selectedPlanningSubjectIds.contains(subject.id))
+        .toList(growable: false);
+  }
+
+  bool get areAllPlanningSubjectsSelected {
+    return subjects.isNotEmpty &&
+        subjects.every(
+          (subject) => draftPlanningSubjectIds.contains(subject.id),
+        );
+  }
+
+  void preparePlanningSubjectsDialog() {
+    draftPlanningSubjectIds = List<String>.of(selectedPlanningSubjectIds);
+    update([planningSubjectsDialogUpdateId]);
+  }
+
+  void togglePlanningSubject(String subjectId, bool selected) {
+    final subjectIds = draftPlanningSubjectIds.toSet();
+    selected ? subjectIds.add(subjectId) : subjectIds.remove(subjectId);
+    draftPlanningSubjectIds = subjectIds.toList(growable: false);
+    update([planningSubjectsDialogUpdateId]);
+  }
+
+  void toggleAllPlanningSubjects(bool selected) {
+    draftPlanningSubjectIds = selected
+        ? subjects.map((subject) => subject.id).toList(growable: false)
+        : const [];
+    update([planningSubjectsDialogUpdateId]);
+  }
+
+  void savePlanningSubjects() {
+    final availableSubjectIds = subjects.map((subject) => subject.id).toSet();
+    selectedPlanningSubjectIds = draftPlanningSubjectIds
+        .where(availableSubjectIds.contains)
+        .toList(growable: false);
+    update([planningSubjectsUpdateId]);
   }
 
   void preparePracticeDialog() {
@@ -99,6 +144,7 @@ class StudyController extends GetxController with ApiControllerMixin {
 
     if (educationBoardId.isEmpty || academicClassId.isEmpty) {
       subjects = const [];
+      selectedPlanningSubjectIds = const [];
       errorMessage = 'Complete your academic setup to load subjects.';
       update();
       return;
@@ -118,6 +164,7 @@ class StudyController extends GetxController with ApiControllerMixin {
       );
       if (!response.isSuccess) {
         subjects = const [];
+        selectedPlanningSubjectIds = const [];
         errorMessage = response.message.trim().isEmpty
             ? 'Unable to load subjects and topics.'
             : response.message;
@@ -130,6 +177,7 @@ class StudyController extends GetxController with ApiControllerMixin {
                 subject.id.isNotEmpty && subject.subjectLabel.isNotEmpty,
           )
           .toList();
+      _reconcilePlanningSubjects();
       errorMessage = subjects.isEmpty
           ? 'No subjects or topics are available for your class.'
           : null;
@@ -147,5 +195,12 @@ class StudyController extends GetxController with ApiControllerMixin {
     }
 
     return null;
+  }
+
+  void _reconcilePlanningSubjects() {
+    final availableSubjectIds = subjects.map((subject) => subject.id).toSet();
+    selectedPlanningSubjectIds = selectedPlanningSubjectIds
+        .where(availableSubjectIds.contains)
+        .toList(growable: false);
   }
 }
