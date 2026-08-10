@@ -22,7 +22,7 @@ class AcademicSetupController extends GetxController with ApiControllerMixin {
   bool submitted = false;
   bool isSaving = false;
 
-  bool get hasAcademicHistory => academicHistory != null;
+  bool get hasAcademicHistory => academicHistory?.hasRequiredData == true;
   bool get canSelectAcademicEnd =>
       academicStartMonth != null && academicStartYear != null;
 
@@ -78,13 +78,17 @@ class AcademicSetupController extends GetxController with ApiControllerMixin {
   void loadAcademicHistory() {
     final authController = Get.find<AuthController>();
     final userId = authController.currentUser?.id;
+    final authAcademicHistory = authController.academicHistory;
+    final validAcademicHistory = authAcademicHistory?.hasRequiredData == true
+        ? authAcademicHistory
+        : null;
     final restoreSavedSettings =
-        authController.academicHistory == null &&
+        validAcademicHistory == null &&
         userId != null &&
         userId == _loadedUserId &&
         _hasSavedSettings;
 
-    academicHistory = authController.academicHistory;
+    academicHistory = validAcademicHistory;
     educationBoards = _educationBoardsFromAuth(authController);
     _loadedUserId = userId;
 

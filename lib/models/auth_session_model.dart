@@ -111,11 +111,15 @@ class AuthSessionModel {
   }
 
   static AcademicHistoryModel? _parseAcademicHistory(dynamic value) {
-    if (value is! Map) {
+    if (value is! Map || value.isEmpty) {
       return null;
     }
 
-    return AcademicHistoryModel.fromJson(Map<String, dynamic>.from(value));
+    final academicHistory = AcademicHistoryModel.fromJson(
+      Map<String, dynamic>.from(value),
+    );
+
+    return academicHistory.hasRequiredData ? academicHistory : null;
   }
 
   static AcademicHistoryModel? _withFallbackSubjects(
