@@ -61,6 +61,9 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
 
     switch (action) {
       case AddTimetableAlertAction.schedule:
+        final scheduleController = Get.find<ScheduleTimetableController>();
+        final didLoad = await scheduleController.loadStudyPlanner();
+        if (!mounted || !didLoad) return;
         Get.toNamed(AppRoutes.scheduleTimetable);
       case AddTimetableAlertAction.addMarks:
         await _openExamResult();
@@ -163,6 +166,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
     final authController = Get.find<AuthController>();
     final accessController = Get.find<FeatureAccessController>();
     final examsController = Get.find<ExamsController>();
+    final scheduleController = Get.find<ScheduleTimetableController>();
 
     return Obx(() {
       final currentIndex = homeController.currentIndex.value;
@@ -178,6 +182,7 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
       final isLoadingExamSubjects = examsController.isLoadingSubjects.value;
       final isExamApiOperationInProgress =
           examsController.isApiOperationInProgress;
+      final isLoadingStudyPlanner = scheduleController.isLoading.value;
 
       return Stack(
         children: [
@@ -224,6 +229,8 @@ class _HomeScreenContainerState extends State<HomeScreenContainer> {
           ),
           if (isLoadingExamSubjects)
             const Positioned.fill(child: ExamSubjectsLoadingOverlay()),
+          if (isLoadingStudyPlanner)
+            const Positioned.fill(child: StudyPlannerLoadingOverlay()),
         ],
       );
     });

@@ -31,6 +31,8 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
   late String? _subjectName;
   late List<String> _topicOptions;
   late String? _topicName;
+  late List<String> _subTopicOptions;
+  late String? _subTopicName;
   late DateTime? _studyDate;
   late TimeOfDay? _startTime;
   late String _studyHours;
@@ -51,9 +53,11 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
         ? _controller.today
         : _weekStart;
 
-    _subjectName = item?.subjectName ?? _controller.subjects.first;
+    final subjects = _controller.subjects;
+    _subjectName =
+        item?.subjectName ?? (subjects.isEmpty ? null : subjects.first);
     if (!_controller.subjects.contains(_subjectName)) {
-      _subjectName = _controller.subjects.first;
+      _subjectName = subjects.isEmpty ? null : subjects.first;
     }
 
     _topicOptions = _controller.topicsForSubject(_subjectName ?? '');
@@ -61,6 +65,17 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
         item?.topicName ?? (_topicOptions.isEmpty ? null : _topicOptions.first);
     if (!_topicOptions.contains(_topicName)) {
       _topicName = _topicOptions.isEmpty ? null : _topicOptions.first;
+    }
+
+    _subTopicOptions = _controller.subTopicsForSubjectTopic(
+      _subjectName ?? '',
+      _topicName ?? '',
+    );
+    _subTopicName =
+        item?.subTopicName ??
+        (_subTopicOptions.isEmpty ? null : _subTopicOptions.first);
+    if (!_subTopicOptions.contains(_subTopicName)) {
+      _subTopicName = _subTopicOptions.isEmpty ? null : _subTopicOptions.first;
     }
 
     _studyDate = item?.studyDate ?? widget.initialDate ?? _controller.today;
@@ -129,7 +144,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                     for (final subject in _controller.subjects)
                       MEDropdownOption(value: subject, label: subject),
                   ],
-                  validator: _requiredDropdownValidator,
+                  validator: _controller.validateRequiredSelection,
                   onChanged: (value) {
                     setState(() {
                       _subjectName = value;
@@ -137,6 +152,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                       _topicName = _topicOptions.isEmpty
                           ? null
                           : _topicOptions.first;
+                      _setSubTopicOptions();
                     });
                   },
                   onSaved: (value) => _subjectName = value ?? '',
@@ -151,11 +167,30 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                     for (final topic in _topicOptions)
                       MEDropdownOption(value: topic, label: topic),
                   ],
-                  validator: _requiredDropdownValidator,
+                  validator: _controller.validateRequiredSelection,
                   onChanged: (value) {
-                    setState(() => _topicName = value);
+                    setState(() {
+                      _topicName = value;
+                      _setSubTopicOptions();
+                    });
                   },
                   onSaved: (value) => _topicName = value ?? '',
+                ),
+                const SizedBox(height: AppSpacing.md),
+                MEDropdownField<String>(
+                  initialValue: _subTopicName,
+                  labelText: 'Sub topic',
+                  showClearButton: true,
+                  prefixIcon: const Icon(Icons.subdirectory_arrow_right),
+                  items: [
+                    for (final subTopic in _subTopicOptions)
+                      MEDropdownOption(value: subTopic, label: subTopic),
+                  ],
+                  validator: _controller.validateRequiredSelection,
+                  onChanged: (value) {
+                    setState(() => _subTopicName = value);
+                  },
+                  onSaved: (value) => _subTopicName = value ?? '',
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
@@ -172,11 +207,10 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                             : _controller.dateLabel(_studyDate!),
                         prefixIcon: const Icon(Icons.calendar_today_outlined),
                         dialogContext: widget.parentContext,
-                        validator: (date) => _dateValidator(
+                        validator: (date) => _controller.validateStudyDate(
                           date,
-                          _controller,
-                          _firstSelectableDate,
-                          _weekEnd,
+                          firstSelectableDate: _firstSelectableDate,
+                          weekEnd: _weekEnd,
                         ),
                         onChanged: (date) {
                           setState(() => _studyDate = date);
@@ -198,7 +232,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                               ),
                         prefixIcon: const Icon(Icons.schedule_outlined),
                         dialogContext: widget.parentContext,
-                        validator: _timeValidator,
+                        validator: _controller.validateStudyTime,
                         onChanged: (time) {
                           setState(() => _startTime = time);
                         },
@@ -221,7 +255,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        validator: _hoursValidator,
+                        validator: _controller.validateStudyHours,
                         onChanged: (value) => _studyHours = value,
                       ),
                     ),
@@ -242,11 +276,11 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                             label: 'Revision',
                           ),
                           MEDropdownOption(
-                            value: 'Exam paper',
-                            label: 'Exam paper',
+                            value: 'Exam Preparation',
+                            label: 'Exam Preparation',
                           ),
                         ],
-                        validator: _requiredDropdownValidator,
+                        validator: _controller.validateRequiredSelection,
                         onChanged: (value) {
                           setState(() => _kind = value);
                         },
@@ -263,7 +297,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
                   minLines: 3,
                   maxLines: 4,
                   textCapitalization: TextCapitalization.sentences,
-                  validator: _suggestionValidator,
+                  validator: _controller.validateSuggestion,
                   onChanged: (value) => _suggestion = value,
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -284,19 +318,25 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
   }
 
   void _submit() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      _controller.showFormValidationError();
+      return;
+    }
     _formKey.currentState?.save();
 
     final selectedTime = _startTime;
     final selectedDate = _studyDate;
     final selectedSubject = _subjectName;
     final selectedTopic = _topicName;
+    final selectedSubTopic = _subTopicName;
     final selectedKind = _kind;
     if (selectedTime == null ||
         selectedDate == null ||
         selectedSubject == null ||
         selectedTopic == null ||
+        selectedSubTopic == null ||
         selectedKind == null) {
+      _controller.showFormValidationError();
       return;
     }
 
@@ -304,6 +344,7 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
       id: _item?.id ?? 0,
       subjectName: selectedSubject.trim(),
       topicName: selectedTopic.trim(),
+      subTopicName: selectedSubTopic.trim(),
       studyDate: selectedDate,
       startHour: _hourFromTimeOfDay(selectedTime),
       studyHours: double.parse(_studyHours),
@@ -312,81 +353,21 @@ class _ScheduleTimetableFormState extends State<ScheduleTimetableForm> {
       isSystemGenerated: false,
     );
 
-    if (_item == null) {
-      _controller.addItem(nextItem);
-    } else {
-      _controller.updateItem(nextItem);
-    }
+    final didSave = _item == null
+        ? _controller.addItem(nextItem)
+        : _controller.updateItem(nextItem);
+    if (!didSave) return;
 
     Navigator.of(context).pop();
   }
-}
 
-String? _requiredDropdownValidator<T>(T? value) {
-  if (value == null) {
-    return 'Required';
+  void _setSubTopicOptions() {
+    _subTopicOptions = _controller.subTopicsForSubjectTopic(
+      _subjectName ?? '',
+      _topicName ?? '',
+    );
+    _subTopicName = _subTopicOptions.isEmpty ? null : _subTopicOptions.first;
   }
-
-  return null;
-}
-
-String? _dateValidator(
-  DateTime? value,
-  ScheduleTimetableController controller,
-  DateTime firstSelectableDate,
-  DateTime weekEnd,
-) {
-  if (value == null) {
-    return 'Required';
-  }
-
-  if (value.isBefore(controller.today)) {
-    return 'Past dates are not allowed';
-  }
-
-  if (value.isBefore(firstSelectableDate) || value.isAfter(weekEnd)) {
-    return 'Select a date from this week';
-  }
-
-  return null;
-}
-
-String? _timeValidator(TimeOfDay? value) {
-  if (value == null) {
-    return 'Required';
-  }
-
-  return null;
-}
-
-String? _hoursValidator(String? value) {
-  final hours = double.tryParse(value ?? '');
-  if (hours == null || hours <= 0) {
-    return 'Enter hours greater than 0';
-  }
-
-  if (hours > 8) {
-    return 'Max 8 hours';
-  }
-
-  return null;
-}
-
-String? _suggestionValidator(String? value) {
-  final suggestion = value?.trim() ?? '';
-  if (suggestion.isEmpty) {
-    return null;
-  }
-
-  if (suggestion.length < 10) {
-    return 'Minimum 10 characters';
-  }
-
-  if (suggestion.length > 200) {
-    return 'Maximum 200 characters';
-  }
-
-  return null;
 }
 
 TimeOfDay _timeOfDayFromHour(double hour) {

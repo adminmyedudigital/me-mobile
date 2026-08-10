@@ -11,4 +11,4 @@ export 'package:me_mobile/controllers/exam/exams_controller.dart';
 export 'package:me_mobile/controllers/flash_card_controller.dart';
 export 'package:me_mobile/controllers/feature_access_controller.dart';
 export 'package:me_mobile/controllers/academic_setup_controller.dart';
-export 'package:me_mobile/controllers/schedule_timetable_controller.dart';
+export 'package:me_mobile/controllers/schedule/schedule.dart';

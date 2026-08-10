@@ -13,3 +13,4 @@ export 'package:me_mobile/screens/timetable/schedule/schedule_card_action_contai
 export 'package:me_mobile/screens/timetable/schedule/schedule_plan_suggestion.dart';
 export 'package:me_mobile/screens/timetable/schedule/schedule_timetable_card.dart';
 export 'package:me_mobile/screens/timetable/schedule/schedule_day_section.dart';
+export 'package:me_mobile/screens/timetable/schedule/study_planner_loading_overlay.dart';

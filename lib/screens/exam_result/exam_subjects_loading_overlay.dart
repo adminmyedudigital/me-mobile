@@ -15,22 +15,20 @@ class ExamSubjectsLoadingOverlay extends StatelessWidget {
           dismissible: false,
           color: colors.canvas.withValues(alpha: 0.72),
         ),
-        Center(
-          child: Card(
-            color: colors.surfaceElevated,
-            child: const Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: AppSpacing.md),
-                  Text(
-                    'Loading subjects and topics...',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+        Card(
+          color: colors.surfaceElevated,
+          child: const Padding(
+            padding: EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: AppSpacing.md),
+                Text(
+                  'Loading subjects and topics...',
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),

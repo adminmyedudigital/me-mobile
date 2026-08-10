@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:me_mobile/theme/theme.dart';
-import 'package:me_mobile/controllers/schedule_timetable_controller.dart';
+import 'package:me_mobile/controllers/schedule/schedule_timetable_controller.dart';
 
 class SchedulePlanSuggestion extends StatelessWidget {
   const SchedulePlanSuggestion({super.key, required this.item});

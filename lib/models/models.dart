@@ -1,4 +1,5 @@
 export 'package:me_mobile/models/exam/exam.dart';
+export 'package:me_mobile/models/schedule/schedule.dart';
 export 'package:me_mobile/models/quiz_data.dart';
 export 'package:me_mobile/models/auth_model.dart';
 export 'package:me_mobile/models/user_profile.dart';

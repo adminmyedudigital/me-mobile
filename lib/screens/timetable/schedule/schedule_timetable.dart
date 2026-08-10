@@ -17,47 +17,50 @@ class ScheduleTimetable extends StatelessWidget {
       appBar: AppBar(title: const Text('Schedule time table')),
       body: SafeArea(
         child: Obx(
-          () => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xs,
-              AppSpacing.xs,
-              AppSpacing.xs,
-              AppSpacing.band,
-            ),
-            children: [
-              ScheduleWeekHeader(),
-              const SizedBox(height: AppSpacing.sm),
-              ScheduleSummaryStrip(),
-              const SizedBox(height: AppSpacing.lg),
-              for (final date in controller.weekDays) ...[
-                ScheduleDaySection(
-                  date: date,
-                  items: controller.itemsForDate(date),
-                  controller: controller,
-                  onAdd: () => showScheduleTimetableFormContainer(
-                    context,
-                    controller,
-                    initialDate: date,
-                  ),
-                  onEdit: (item) => showScheduleTimetableFormContainer(
-                    context,
-                    controller,
-                    item: item,
-                  ),
-                  onDelete: controller.deleteItem,
-                  canAdd: controller.canScheduleDate(date),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-              MEButton(
-                fullWidth: true,
-                onPressed: () {},
-                icon: Icons.save,
-                label: 'Save plan',
-                backgroundColor: context.colors.primary,
-                foregroundColor: context.colors.surfaceCard,
+          () => Container(
+            margin: const EdgeInsets.symmetric(horizontal: AppRadius.sm),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xs,
+                AppSpacing.xs,
+                AppSpacing.xs,
+                AppSpacing.band,
               ),
-            ],
+              children: [
+                ScheduleWeekHeader(),
+                const SizedBox(height: AppSpacing.sm),
+                ScheduleSummaryStrip(),
+                const SizedBox(height: AppSpacing.lg),
+                for (final date in controller.weekDays) ...[
+                  ScheduleDaySection(
+                    date: date,
+                    items: controller.itemsForDate(date),
+                    controller: controller,
+                    onAdd: () => showScheduleTimetableFormContainer(
+                      context,
+                      controller,
+                      initialDate: date,
+                    ),
+                    onEdit: (item) => showScheduleTimetableFormContainer(
+                      context,
+                      controller,
+                      item: item,
+                    ),
+                    onDelete: controller.deleteItem,
+                    canAdd: controller.canScheduleDate(date),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                MEButton(
+                  fullWidth: true,
+                  onPressed: () {},
+                  icon: Icons.save,
+                  label: 'Save plan',
+                  backgroundColor: context.colors.primary,
+                  foregroundColor: context.colors.surfaceCard,
+                ),
+              ],
+            ),
           ),
         ),
       ),

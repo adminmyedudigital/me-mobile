@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
-import 'package:me_mobile/controllers/schedule_timetable_controller.dart';
+import 'package:me_mobile/controllers/schedule/schedule_timetable_controller.dart';
 
 class ScheduleSummaryStrip extends StatelessWidget {
   const ScheduleSummaryStrip({super.key});
@@ -19,7 +19,7 @@ class ScheduleSummaryStrip extends StatelessWidget {
             Expanded(
               child: ScheduleSummaryTile(
                 label: 'Plans',
-                value: controller.items.length.toString(),
+                value: controller.currentWeekItems.length.toString(),
                 icon: Icons.event_note_outlined,
               ),
             ),

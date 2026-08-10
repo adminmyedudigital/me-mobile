@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/screens/screens.dart';
-import 'package:me_mobile/controllers/schedule_timetable_controller.dart';
+import 'package:me_mobile/controllers/schedule/schedule_timetable_controller.dart';
 
 class ScheduleDaySection extends StatelessWidget {
   const ScheduleDaySection({
@@ -27,7 +27,6 @@ class ScheduleDaySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final plan = items.isEmpty ? null : items.first;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -40,18 +39,18 @@ class ScheduleDaySection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SchedulePlanHeader(
-              canAdd: canAdd,
-              date: date,
-              onAdd: onAdd,
-              onEdit: plan == null ? null : () => onEdit(plan),
-              onDelete: plan == null ? null : () => onDelete(plan.id),
-            ),
+            SchedulePlanHeader(canAdd: canAdd, date: date, onAdd: onAdd),
             if (items.isEmpty)
               ScheduleNotFound()
             else
-              for (final item in items) ...[
-                ScheduleTimetableCard(item: item, controller: controller),
+              for (final (index, item) in items.indexed) ...[
+                ScheduleTimetableCard(
+                  item: item,
+                  controller: controller,
+                  onEdit: () => onEdit(item),
+                  onDelete: () => onDelete(item.id),
+                  showDivider: index < items.length - 1,
+                ),
                 const SizedBox(height: AppSpacing.sm),
               ],
           ],
