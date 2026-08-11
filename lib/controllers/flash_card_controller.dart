@@ -72,10 +72,7 @@ class FlashCardController extends GetxController with ApiControllerMixin {
 
     try {
       final authController = Get.find<AuthController>();
-      final endpoint = ApiRoutes.flashCards(
-        selectedPractice.subjectId,
-        selectedPractice.topicEn,
-      );
+      final endpoint = ApiRoutes.flashCards(selectedPractice.subTopicId);
       final response = await api.get<FlashCardData>(
         endpoint,
         headers: {'Authorization': 'Bearer ${authController.authToken}'},

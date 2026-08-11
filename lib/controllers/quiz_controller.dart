@@ -84,7 +84,7 @@ class QuizController extends GetxController with ApiControllerMixin {
     try {
       final authController = Get.find<AuthController>();
       final response = await api.get<QuizData>(
-        ApiRoutes.quizzes(selectedPractice.subjectId, selectedPractice.topicEn),
+        ApiRoutes.quizzes(selectedPractice.subTopicId),
         headers: {'Authorization': 'Bearer ${authController.authToken}'},
         fromJson: (value) =>
             QuizData.fromJson(Map<String, dynamic>.from(value as Map)),

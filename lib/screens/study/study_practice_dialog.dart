@@ -29,7 +29,16 @@ class StudyPracticeDialog extends StatelessWidget {
             .toList();
         final topicOptions = controller.topicsForSelectedSubject
             .map(
-              (topic) => MEDropdownOption(value: topic.id, label: topic.label),
+              (topic) => MEDropdownOption(
+                value: topic.selectionKey,
+                label: topic.label,
+              ),
+            )
+            .toList();
+        final subTopicOptions = controller.subTopicsForSelectedTopic
+            .map(
+              (subTopic) =>
+                  MEDropdownOption(value: subTopic.id, label: subTopic.label),
             )
             .toList();
 
@@ -60,15 +69,33 @@ class StudyPracticeDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     MEDropdownField<String>(
-                      key: ValueKey(controller.selectedSubjectId),
+                      key: ValueKey(
+                        'topic:${controller.selectedSubjectId ?? 'none'}',
+                      ),
                       items: topicOptions,
-                      initialValue: controller.selectedTopicId,
+                      initialValue: controller.selectedTopicKey,
                       labelText: 'Topic',
                       hintText: 'Select Topic',
                       prefixIcon: const Icon(Icons.topic_outlined),
+                      enabled: controller.selectedSubjectId != null,
                       autovalidateMode: controller.practiceAutovalidateMode,
                       validator: controller.requiredSelection('Topic'),
                       onChanged: controller.selectTopic,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    MEDropdownField<String>(
+                      key: ValueKey(
+                        'sub-topic:${controller.selectedTopicKey ?? 'none'}',
+                      ),
+                      items: subTopicOptions,
+                      initialValue: controller.selectedSubTopicId,
+                      labelText: 'Sub topic',
+                      hintText: 'Select Sub topic',
+                      prefixIcon: const Icon(Icons.account_tree_outlined),
+                      enabled: controller.selectedTopicKey != null,
+                      autovalidateMode: controller.practiceAutovalidateMode,
+                      validator: controller.requiredSelection('Sub topic'),
+                      onChanged: controller.selectSubTopic,
                     ),
                   ],
                 ),

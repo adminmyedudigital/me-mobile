@@ -6,6 +6,7 @@ import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/models/models.dart';
 import 'package:me_mobile/routes/app_routes.dart';
 import 'package:me_mobile/controllers/study_controller.dart';
+import 'package:me_mobile/controllers/exam/exams_controller.dart';
 import 'package:me_mobile/screens/study/study_practice_dialog.dart';
 import 'package:me_mobile/screens/study/study_planning_subject/study_planning_subject.dart';
 
@@ -43,6 +44,36 @@ class StudyScreenContent extends GetView<StudyController> {
                 ),
                 Divider(color: context.colors.hairline),
                 const StudyPlanningSubjectSelector(),
+                Divider(color: context.colors.hairline),
+                ListTile(
+                  leading: const Icon(Icons.psychology_alt_outlined),
+                  title: const Text('Topic understanding'),
+                  subtitle: Text(
+                    unavailableMessage ??
+                        'Assess your understanding by subject and topic',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: controller.hasSubjects
+                      ? () => _choosePracticeTopic(
+                          context,
+                          title: 'Topic understanding',
+                          route: AppRoutes.quiz,
+                        )
+                      : null,
+                ),
+                Divider(color: context.colors.hairline),
+                ListTile(
+                  leading: const Icon(Icons.trending_up_rounded),
+                  title: const Text('School & tuition progress'),
+                  subtitle: Text(
+                    unavailableMessage ??
+                        'Update subject and topic performance from exams',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: controller.hasSubjects
+                      ? _openSchoolTuitionProgress
+                      : null,
+                ),
                 Divider(color: context.colors.hairline),
                 ListTile(
                   leading: const Icon(Icons.style_rounded),
@@ -99,5 +130,15 @@ class StudyScreenContent extends GetView<StudyController> {
     }
 
     Get.toNamed(route, arguments: selection);
+  }
+
+  Future<void> _openSchoolTuitionProgress() async {
+    final examsController = Get.find<ExamsController>();
+    if (examsController.isApiOperationInProgress) {
+      return;
+    }
+
+    await examsController.loadSubjectTopics();
+    Get.toNamed(AppRoutes.examResult);
   }
 }

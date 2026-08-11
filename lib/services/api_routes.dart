@@ -43,18 +43,14 @@ abstract final class ApiRoutes {
     return student('/subjects/topics/$board/$academicClass');
   }
 
-  static String flashCards(String subjectId, String topicEn) {
-    final encodedSubjectId = Uri.encodeComponent(subjectId);
-    final encodedTopic = Uri.encodeComponent(topicEn);
-    return student(
-      '/subjects/$encodedSubjectId/topics/$encodedTopic/flashcards',
-    );
+  static String flashCards(String subTopicId) {
+    final encodedSubTopicId = Uri.encodeComponent(subTopicId);
+    return student('/subject-topics/$encodedSubTopicId/flashcards');
   }
 
-  static String quizzes(String subjectId, String topicEn) {
-    final encodedSubjectId = Uri.encodeComponent(subjectId);
-    final encodedTopic = Uri.encodeComponent(topicEn);
-    return student('/subjects/$encodedSubjectId/topics/$encodedTopic/quizzes');
+  static String quizzes(String subTopicId) {
+    final encodedSubTopicId = Uri.encodeComponent(subTopicId);
+    return student('/subject-topics/$encodedSubTopicId/quizzes');
   }
 
   static String public(String path) => _join(publicBaseUrl, path);

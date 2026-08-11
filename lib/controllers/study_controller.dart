@@ -21,7 +21,8 @@ class StudyController extends GetxController with ApiControllerMixin {
   String? errorMessage;
   bool isLoading = false;
   String? selectedSubjectId;
-  String? selectedTopicId;
+  String? selectedTopicKey;
+  String? selectedSubTopicId;
   List<String> selectedPlanningSubjectIds = const [];
   List<String> draftPlanningSubjectIds = const [];
   bool isSavingPlanningSubjects = false;
@@ -43,6 +44,20 @@ class StudyController extends GetxController with ApiControllerMixin {
 
   List<StudyTopicModel> get topicsForSelectedSubject {
     return selectedSubject?.topics ?? const [];
+  }
+
+  StudyTopicModel? get selectedTopic {
+    for (final topic in topicsForSelectedSubject) {
+      if (topic.selectionKey == selectedTopicKey) {
+        return topic;
+      }
+    }
+
+    return null;
+  }
+
+  List<StudySubTopicModel> get subTopicsForSelectedTopic {
+    return selectedTopic?.subTopics ?? const [];
   }
 
   List<StudySubjectTopicsModel> get selectedPlanningSubjects {
@@ -132,19 +147,27 @@ class StudyController extends GetxController with ApiControllerMixin {
 
   void preparePracticeDialog() {
     selectedSubjectId = null;
-    selectedTopicId = null;
+    selectedTopicKey = null;
+    selectedSubTopicId = null;
     practiceSubmitted = false;
     update([practiceDialogUpdateId]);
   }
 
   void selectSubject(String? value) {
     selectedSubjectId = value;
-    selectedTopicId = null;
+    selectedTopicKey = null;
+    selectedSubTopicId = null;
     update([practiceDialogUpdateId]);
   }
 
   void selectTopic(String? value) {
-    selectedTopicId = value;
+    selectedTopicKey = value;
+    selectedSubTopicId = null;
+    update([practiceDialogUpdateId]);
+  }
+
+  void selectSubTopic(String? value) {
+    selectedSubTopicId = value;
     update([practiceDialogUpdateId]);
   }
 
@@ -157,17 +180,20 @@ class StudyController extends GetxController with ApiControllerMixin {
     }
 
     final subject = selectedSubject;
-    final topic = _selectedTopic(subject);
-    if (subject == null || topic == null) {
+    final topic = selectedTopic;
+    final subTopic = _selectedSubTopic(topic);
+    if (subject == null || topic == null || subTopic == null) {
       return null;
     }
 
     return StudyPracticeSelection(
       subjectId: subject.id,
       subject: subject.subjectLabel,
-      topicId: topic.id,
       topic: topic.label,
       topicEn: topic.topicEn,
+      subTopicId: subTopic.id,
+      subTopic: subTopic.label,
+      subTopicEn: subTopic.subTopicEn,
     );
   }
 
@@ -236,10 +262,10 @@ class StudyController extends GetxController with ApiControllerMixin {
     }
   }
 
-  StudyTopicModel? _selectedTopic(StudySubjectTopicsModel? subject) {
-    for (final topic in subject?.topics ?? const <StudyTopicModel>[]) {
-      if (topic.id == selectedTopicId) {
-        return topic;
+  StudySubTopicModel? _selectedSubTopic(StudyTopicModel? topic) {
+    for (final subTopic in topic?.subTopics ?? const <StudySubTopicModel>[]) {
+      if (subTopic.id == selectedSubTopicId) {
+        return subTopic;
       }
     }
 

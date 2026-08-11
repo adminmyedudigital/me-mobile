@@ -46,7 +46,7 @@ class StudySubjectTopicsModel {
                     Map<String, dynamic>.from(topic),
                   ),
                 )
-                .where((topic) => topic.id.isNotEmpty)
+                .where((topic) => topic.label.isNotEmpty)
                 .toList()
           : const [],
     );
