@@ -12,4 +12,4 @@ export 'package:me_mobile/controllers/exam/exams_controller.dart';
 export 'package:me_mobile/controllers/flash_card_controller.dart';
 export 'package:me_mobile/controllers/feature_access_controller.dart';
 export 'package:me_mobile/controllers/academic_setup_controller.dart';
-export 'package:me_mobile/controllers/topic_understanding_controller.dart';
+export 'package:me_mobile/controllers/topic_understanding/topic_understanding.dart';

@@ -8,6 +8,7 @@ class TopicPanelHeader extends StatelessWidget {
   const TopicPanelHeader({
     required this.topic,
     required this.topicIndex,
+    required this.progress,
     required this.isExpanded,
     required this.colors,
     super.key,
@@ -15,6 +16,7 @@ class TopicPanelHeader extends StatelessWidget {
 
   final StudyTopicModel topic;
   final int topicIndex;
+  final int progress;
   final bool isExpanded;
   final AppColors colors;
 
@@ -31,7 +33,7 @@ class TopicPanelHeader extends StatelessWidget {
         children: [
           TopicProgressIndicator(
             dimension: 42,
-            progress: TopicProgressSamples.topic(topicIndex),
+            progress: progress,
             colors: colors,
           ),
           const SizedBox(width: AppSpacing.md),

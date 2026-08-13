@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/widgets/widgets.dart';
-import 'package:me_mobile/controllers/topic_understanding_controller.dart';
 import 'package:me_mobile/screens/study/topic_understanding/topic_panel_list.dart';
+import 'package:me_mobile/controllers/topic_understanding/topic_understanding.dart';
 import 'package:me_mobile/screens/study/topic_understanding/topic_list_empty_state.dart';
 import 'package:me_mobile/screens/study/topic_understanding/topic_subject_empty_state.dart';
 import 'package:me_mobile/screens/study/topic_understanding/topic_planning_subjects_empty_state.dart';
 
 class TopicUnderstandingContent extends StatelessWidget {
-  const TopicUnderstandingContent({required this.controller, super.key});
+  const TopicUnderstandingContent({
+    required this.controller,
+    required this.progressController,
+    super.key,
+  });
 
   final TopicUnderstandingController controller;
+  final TopicUnderstandingProgressController progressController;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +74,7 @@ class TopicUnderstandingContent extends StatelessWidget {
                   TopicPanelList(
                     key: ValueKey(selectedSubject.id),
                     controller: controller,
+                    progressController: progressController,
                     subject: selectedSubject,
                     colors: colors,
                   ),

@@ -1,0 +1,2 @@
+export 'package:me_mobile/controllers/topic_understanding/topic_understanding_controller.dart';
+export 'package:me_mobile/controllers/topic_understanding/topic_understanding_progress_controller.dart';

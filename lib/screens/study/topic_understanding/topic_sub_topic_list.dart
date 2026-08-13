@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/models/models.dart';
-import 'package:me_mobile/controllers/topic_understanding_controller.dart';
 import 'package:me_mobile/screens/study/topic_understanding/sub_topic_tile.dart';
+import 'package:me_mobile/controllers/topic_understanding/topic_understanding.dart';
 import 'package:me_mobile/screens/study/topic_understanding/sub_topic_section_label.dart';
-import 'package:me_mobile/screens/study/topic_understanding/topic_progress_indicator.dart';
 
 class TopicSubTopicList extends StatelessWidget {
   const TopicSubTopicList({
     required this.controller,
+    required this.progressController,
     required this.topic,
     required this.topicIndex,
     required this.colors,
@@ -17,6 +17,7 @@ class TopicSubTopicList extends StatelessWidget {
   });
 
   final TopicUnderstandingController controller;
+  final TopicUnderstandingProgressController progressController;
   final StudyTopicModel topic;
   final int topicIndex;
   final AppColors colors;
@@ -56,9 +57,14 @@ class TopicSubTopicList extends StatelessWidget {
                 ),
                 child: SubTopicTile(
                   controller: controller,
+                  progressController: progressController,
                   topic: topic,
                   subTopic: topic.subTopics[index],
-                  progress: TopicProgressSamples.subTopic(topicIndex, index),
+                  progress: progressController.subTopicProgress(
+                    topicIndex,
+                    index,
+                    topic.subTopics[index],
+                  ),
                   colors: colors,
                 ),
               ),

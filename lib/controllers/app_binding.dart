@@ -19,5 +19,6 @@ class AppBinding extends Bindings {
     Get.lazyPut(AcademicSetupController.new, fenix: true);
     Get.lazyPut(ScheduleTimetableController.new, fenix: true);
     Get.lazyPut(TopicUnderstandingController.new, fenix: true);
+    Get.lazyPut(TopicUnderstandingProgressController.new, fenix: true);
   }
 }

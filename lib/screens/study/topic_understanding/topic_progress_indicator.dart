@@ -16,7 +16,7 @@ class TopicProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progressColor = _progressColor(progress, colors);
+    final progressColor = topicProgressColor(progress, colors);
 
     return SizedBox.square(
       dimension: dimension,
@@ -47,20 +47,7 @@ class TopicProgressIndicator extends StatelessWidget {
   }
 }
 
-abstract final class TopicProgressSamples {
-  static int topic(int topicIndex) {
-    const sampleProgress = [0, 25, 50, 75, 100];
-    return sampleProgress[topicIndex % sampleProgress.length];
-  }
-
-  static int subTopic(int topicIndex, int subTopicIndex) {
-    const sampleProgress = [0, 18, 42, 67, 84, 100];
-    return sampleProgress[(topicIndex * 2 + subTopicIndex) %
-        sampleProgress.length];
-  }
-}
-
-Color _progressColor(int progress, AppColors colors) {
+Color topicProgressColor(int progress, AppColors colors) {
   if (progress == 0) return colors.mute;
   if (progress < 40) return colors.accentRed;
   if (progress < 70) return colors.accentOrange;

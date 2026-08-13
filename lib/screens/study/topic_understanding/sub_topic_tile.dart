@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:me_mobile/theme/theme.dart';
 import 'package:me_mobile/models/models.dart';
-import 'package:me_mobile/controllers/topic_understanding_controller.dart';
+import 'package:me_mobile/controllers/topic_understanding/topic_understanding.dart';
 import 'package:me_mobile/screens/study/topic_understanding/topic_progress_indicator.dart';
+import 'package:me_mobile/screens/study/topic_understanding/show_sub_topic_progress_editor.dart';
 
 class SubTopicTile extends StatelessWidget {
   const SubTopicTile({
     required this.controller,
+    required this.progressController,
     required this.topic,
     required this.subTopic,
     required this.progress,
@@ -16,6 +18,7 @@ class SubTopicTile extends StatelessWidget {
   });
 
   final TopicUnderstandingController controller;
+  final TopicUnderstandingProgressController progressController;
   final StudyTopicModel topic;
   final StudySubTopicModel subTopic;
   final int progress;
@@ -47,10 +50,27 @@ class SubTopicTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.start,
         ),
+        subtitle: Text(
+          'SUB TOPIC · Tap to update progress',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: isSelected ? colors.accentBlue : colors.mute,
+          ),
+        ),
         trailing: TopicProgressIndicator(progress: progress, colors: colors),
         selected: isSelected,
         selectedColor: colors.accentBlue,
-        onTap: () => controller.selectSubTopic(topic, subTopic),
+        onTap: () async {
+          controller.selectSubTopic(topic, subTopic);
+          progressController.openEditor(
+            topic: topic,
+            subTopic: subTopic,
+            initialProgress: progress,
+          );
+          await showSubTopicProgressEditor(
+            context: context,
+            controller: progressController,
+          );
+        },
       ),
     );
   }

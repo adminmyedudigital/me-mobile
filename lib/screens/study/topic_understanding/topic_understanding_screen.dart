@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import 'package:me_mobile/controllers/topic_understanding_controller.dart';
+import 'package:me_mobile/controllers/topic_understanding/topic_understanding.dart';
 import 'package:me_mobile/screens/study/topic_understanding/topic_understanding_content.dart';
 
 class TopicUnderstandingScreen extends StatefulWidget {
@@ -25,8 +25,14 @@ class _TopicUnderstandingScreenState extends State<TopicUnderstandingScreen> {
       appBar: AppBar(title: const Text('Topic understanding')),
       body: SafeArea(
         child: GetBuilder<TopicUnderstandingController>(
-          builder: (controller) =>
-              TopicUnderstandingContent(controller: controller),
+          builder: (controller) {
+            return GetBuilder<TopicUnderstandingProgressController>(
+              builder: (progressController) => TopicUnderstandingContent(
+                controller: controller,
+                progressController: progressController,
+              ),
+            );
+          },
         ),
       ),
     );
