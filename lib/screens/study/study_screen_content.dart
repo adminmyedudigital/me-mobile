@@ -53,13 +53,7 @@ class StudyScreenContent extends GetView<StudyController> {
                         'Assess your understanding by subject and topic',
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: controller.hasSubjects
-                      ? () => _choosePracticeTopic(
-                          context,
-                          title: 'Topic understanding',
-                          route: AppRoutes.quiz,
-                        )
-                      : null,
+                  onTap: () => Get.toNamed(AppRoutes.topicUnderstanding),
                 ),
                 Divider(color: context.colors.hairline),
                 ListTile(

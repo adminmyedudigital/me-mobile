@@ -4,3 +4,4 @@ export 'package:me_mobile/screens/study/study_screen_content.dart';
 export 'package:me_mobile/screens/study/study_practice_dialog.dart';
 export 'package:me_mobile/screens/study/academic_setup/academic_setup.dart';
 export 'package:me_mobile/screens/study/study_planning_subject/study_planning_subject.dart';
+export 'package:me_mobile/screens/study/topic_understanding/topic_understanding_screen.dart';
